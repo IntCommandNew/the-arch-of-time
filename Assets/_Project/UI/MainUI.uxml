@@ -1,0 +1,179 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="MainUI.uss" />
+
+    <!-- Everything sits inside "safe-area", which AppUI keeps clear of the notch / camera cut-out. -->
+    <ui:VisualElement name="safe-area" class="safe-area" picking-mode="Ignore">
+
+        <!-- One element per app screen. AppUI shows exactly one at a time. -->
+
+        <!-- Starting: shown while permissions are asked and ARCore is checked. -->
+        <ui:VisualElement name="screen-starting" class="screen screen--centered" picking-mode="Ignore">
+            <ui:VisualElement class="card">
+                <ui:Label text="Starting AR..." class="card__title" />
+                <ui:Label name="starting-detail" text="Preparing the camera" class="card__text card__text--last" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Blocked: AR can't run (permissions missing, unsupported phone, ARCore missing),
+             or the session ended because a permission was revoked (only "Close app"). -->
+        <ui:VisualElement name="screen-blocked" class="screen screen--centered is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="card">
+                <ui:Label name="blocked-title" text="Permissions needed" class="card__title" />
+                <ui:Label name="blocked-message" text="This app needs the camera and precise location to work." class="card__text" />
+                <ui:VisualElement class="card__actions">
+                    <ui:Button name="btn-retry" text="Try again" class="btn btn--primary" />
+                    <ui:Button name="btn-settings" text="Open settings" class="btn" />
+                    <ui:Button name="btn-close" text="Close app" class="btn btn--primary is-hidden" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Scan / Place: AR is running. The hint says what to do; "Place here" is enabled once the
+             reticle is on the ground. -->
+        <ui:VisualElement name="screen-scan" class="screen screen--bottom is-hidden" picking-mode="Ignore">
+            <ui:Label name="scan-hint" text="Move your phone slowly over the ground" class="hint hint--above-actions" picking-mode="Ignore" />
+            <!-- Test mode for collecting the arch pieces (until the quest destinations exist). -->
+            <ui:Button name="btn-pieces-from-scan" text="Arch pieces" class="btn btn--on-camera btn--option" />
+            <ui:Button name="btn-place" text="Place here" class="btn btn--primary btn--wide" />
+        </ui:VisualElement>
+
+        <!-- Adjust: the model is placed. Drag / twist on the camera view; the panel has a tab per
+             kind of change (only the selected tab's tools are shown). The panel blocks touches,
+             so gestures that start on it don't move the model. -->
+        <ui:VisualElement name="screen-adjust" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+            <ui:Label name="adjust-hint" text="Drag to move &#xB7; twist with two fingers to turn" class="hint hint--above-actions" picking-mode="Ignore" />
+            <ui:VisualElement class="panel">
+                <ui:Label name="adjust-readout" text="&#xD7;1" class="panel__readout" />
+
+                <ui:VisualElement class="tabs">
+                    <ui:Button name="tab-move" text="Move" class="tab" />
+                    <ui:Button name="tab-rotate" text="Turn" class="tab" />
+                    <ui:Button name="tab-size" text="Size" class="tab" />
+                    <ui:Button name="tab-height" text="Height" class="tab" />
+                </ui:VisualElement>
+
+                <!-- Move: one step per tap (hold to repeat), relative to where the camera looks. -->
+                <ui:VisualElement name="tool-move" class="tool">
+                    <ui:RepeatButton name="btn-nudge-left" text="&#x2190;" class="btn btn--tool btn--symbol" />
+                    <ui:RepeatButton name="btn-nudge-away" text="&#x2191;" class="btn btn--tool btn--symbol" />
+                    <ui:RepeatButton name="btn-nudge-closer" text="&#x2193;" class="btn btn--tool btn--symbol" />
+                    <ui:RepeatButton name="btn-nudge-right" text="&#x2192;" class="btn btn--tool btn--symbol" />
+                </ui:VisualElement>
+
+                <!-- Turn: +/-10 degrees per tap, +/-1 degree per tap (hold to repeat); face south needs a good heading. -->
+                <ui:VisualElement name="tool-rotate" class="tool tool--column is-hidden">
+                    <ui:VisualElement class="tool__row">
+                        <ui:Button name="btn-rotate-left-10" text="&#x21BA; 10&#xB0;" class="btn btn--tool" />
+                        <ui:RepeatButton name="btn-rotate-left-1" text="&#x21BA; 1&#xB0;" class="btn btn--tool" />
+                        <ui:RepeatButton name="btn-rotate-right-1" text="&#x21BB; 1&#xB0;" class="btn btn--tool" />
+                        <ui:Button name="btn-rotate-right-10" text="&#x21BB; 10&#xB0;" class="btn btn--tool" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="tool__row">
+                        <ui:Button name="btn-face-south" text="Face south" class="btn btn--tool" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Size: logarithmic slider + presets; the base (platform) can be hidden. -->
+                <ui:VisualElement name="tool-size" class="tool tool--column is-hidden">
+                    <ui:Slider name="scale-slider" low-value="-0.6" high-value="1.9" class="scale-slider" />
+                    <ui:VisualElement class="tool__row">
+                        <ui:Button name="btn-tabletop" text="Tabletop" class="btn btn--tool" />
+                        <ui:Button name="btn-real-size" text="Real size" class="btn btn--tool" />
+                        <ui:Button name="btn-platform" text="Hide base" class="btn btn--tool" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Height: one step per tap (hold to repeat) + two reference heights. -->
+                <ui:VisualElement name="tool-height" class="tool is-hidden">
+                    <ui:RepeatButton name="btn-lower" text="&#x2193;" class="btn btn--tool btn--symbol" />
+                    <ui:RepeatButton name="btn-raise" text="&#x2191;" class="btn btn--tool btn--symbol" />
+                    <ui:Button name="btn-street-level" text="Street" class="btn btn--tool" />
+                    <ui:Button name="btn-base-on-ground" text="Base" class="btn btn--tool" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="actions-row">
+                    <ui:Button name="btn-place-again" text="Place again" class="btn" />
+                    <!-- Instead of "Place again" when adjusting after Edit: undo the edit, back to Explore. -->
+                    <ui:Button name="btn-cancel-edit" text="Cancel" class="btn is-hidden" />
+                    <!-- Display option: the building looks semi-transparent while adjusting (gold when on). -->
+                    <ui:Button name="btn-see-through" text="See-through" class="btn" />
+                    <ui:Button name="btn-done" text="Done" class="btn btn--primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Explore: the placement is confirmed; no gestures. -->
+        <ui:VisualElement name="screen-explore" class="screen screen--bottom is-hidden" picking-mode="Ignore">
+            <ui:Label name="explore-hint" text="Walk around the building" class="hint hint--above-actions" picking-mode="Ignore" />
+            <!-- Display option: real things in front of the building can hide it (depth occlusion). -->
+            <ui:Button name="btn-occlusion" text="Hidden by real objects: Off" class="btn btn--on-camera btn--option" />
+            <ui:VisualElement name="explore-actions" class="actions-row actions-row--on-camera" picking-mode="Ignore">
+                <ui:Button name="btn-edit" text="Edit" class="btn btn--on-camera" />
+                <ui:Button name="btn-new-location" text="New location" class="btn btn--on-camera" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Save: after "Done". Walking around the spot first makes the cloud anchor reliable; the
+             meter shows how well ARCore knows the spot. At the bottom, so the spot stays in view. -->
+        <ui:VisualElement name="screen-save" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="panel">
+                <ui:Label text="Save this spot" class="panel__title" />
+                <ui:Label name="save-message" text="Walk slowly around the spot where you placed it, keeping it in view." class="panel__text" />
+                <ui:VisualElement name="save-meter" class="meter meter--low">
+                    <ui:VisualElement class="meter__bar meter__bar--1" />
+                    <ui:VisualElement class="meter__bar meter__bar--2" />
+                    <ui:VisualElement class="meter__bar meter__bar--3" />
+                </ui:VisualElement>
+                <ui:Label name="save-quality" text="Keep walking around" class="panel__caption" />
+                <ui:Label text="Saving uploads visual data of this spot to Google (ARCore Cloud Anchors); Google keeps it for up to 365 days." class="panel__note" />
+                <ui:VisualElement class="actions-row">
+                    <ui:Button name="btn-save-skip" text="Not now" class="btn" />
+                    <ui:Button name="btn-save" text="Save" class="btn btn--primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Restore: at launch, when a placement is saved. At the bottom, so the camera view stays free
+             for pointing at the spot. -->
+        <ui:VisualElement name="screen-restore" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="panel">
+                <ui:Label name="restore-title" text="Finding your building..." class="panel__title" />
+                <ui:Label name="restore-message" text="Point the camera at where it was." class="panel__text" />
+                <ui:Button name="btn-pieces-from-restore" text="Arch pieces" class="btn btn--option" />
+                <ui:VisualElement class="actions-row">
+                    <ui:Button name="btn-restore-new" text="Place a new one" class="btn" />
+                    <ui:Button name="btn-restore-retry" text="Try again" class="btn btn--primary is-hidden" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Arch pieces (test mode): spawn a placeholder piece around you, aim at it, collect it. -->
+        <ui:VisualElement name="screen-pieces" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+            <ui:Label name="pieces-hint" text="Tap &quot;Spawn piece&quot;, then find it around you" class="hint hint--above-actions" picking-mode="Ignore" />
+            <ui:VisualElement class="panel">
+                <ui:Label name="pieces-count" text="Arch pieces: 0 / 5" class="panel__title panel__title--centered" />
+                <ui:Button name="btn-pieces-reset" text="Reset pieces" class="btn btn--option" />
+                <ui:VisualElement class="actions-row">
+                    <ui:Button name="btn-pieces-back" text="Back" class="btn" />
+                    <ui:Button name="btn-spawn-piece" text="Spawn piece" class="btn" />
+                    <ui:Button name="btn-collect-piece" text="Collect" class="btn btn--primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Confirmation before "New location" removes the model. Shown over the explore screen. -->
+        <ui:VisualElement name="confirm-new-location" class="screen screen--centered is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="card">
+                <ui:Label text="Pick a new location?" class="card__title" />
+                <ui:Label text="The building will be removed from here, and you'll place it again." class="card__text" />
+                <ui:VisualElement class="card__actions">
+                    <ui:Button name="btn-new-location-confirm" text="Remove and pick again" class="btn btn--primary" />
+                    <ui:Button name="btn-new-location-cancel" text="Cancel" class="btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Developer overlay (GeospatialStatus). Drawn last so it's on top; never blocks touches. -->
+        <ui:Label name="debug-overlay" class="debug-overlay is-hidden" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

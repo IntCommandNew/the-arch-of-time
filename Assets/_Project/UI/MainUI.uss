@@ -1,0 +1,400 @@
+/* MainUI.uss: look of the whole app UI.
+   Sizes are in reference pixels for a 1080 x 1920 portrait screen
+   (Panel Settings: Scale With Screen Size); they scale to any phone. */
+
+/* Layout containers */
+/* Positioned by AppUI to match Screen.safeArea (left/top/right/bottom set from code). */
+.safe-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.screen--centered {
+    justify-content: center;
+    align-items: center;
+    padding: 48px;
+}
+
+.screen--bottom {
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 48px 96px 48px;
+}
+
+/* Generic visibility switch used by AppUI. */
+.is-hidden {
+    display: none;
+}
+
+/* Card (starting / blocked messages) */
+.card {
+    width: 100%;
+    max-width: 900px;
+    padding: 56px 52px 40px 52px;
+    border-radius: 36px;
+    background-color: rgba(18, 20, 24, 0.88);
+}
+
+.card__title {
+    margin: 0 0 20px 0;
+    padding: 0;
+    font-size: 54px;
+    -unity-font-style: bold;
+    color: rgb(244, 241, 234);
+    white-space: normal;
+}
+
+.card__text {
+    margin: 0 0 40px 0;
+    padding: 0;
+    font-size: 38px;
+    color: rgba(244, 241, 234, 0.82);
+    white-space: normal;
+}
+
+.card__text--last {
+    margin-bottom: 16px;
+}
+
+.card__actions {
+    flex-direction: column;
+}
+
+/* Buttons */
+/* :hover is restated because touch screens can leave an element in the hover state after a tap. */
+
+.btn {
+    height: 120px;
+    margin: 0 0 20px 0;
+    padding: 0 32px;
+    border-width: 0;
+    border-radius: 60px;
+    background-color: rgba(255, 255, 255, 0.14);
+    color: rgb(244, 241, 234);
+    font-size: 40px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.btn:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.btn:active {
+    background-color: rgba(255, 255, 255, 0.28);
+}
+
+.btn--primary {
+    background-color: rgb(217, 164, 65);
+    color: rgb(27, 20, 8);
+}
+
+.btn--primary:hover {
+    background-color: rgb(217, 164, 65);
+}
+
+.btn--primary:active {
+    background-color: rgb(185, 134, 44);
+}
+
+/* Secondary button drawn straight over the camera image (not on a card): dark like the hints,
+   so it stays readable over bright floors. */
+.btn--on-camera {
+    background-color: rgba(18, 20, 24, 0.80);
+    border-width: 2px;
+    border-color: rgba(244, 241, 234, 0.35);
+}
+
+.btn--on-camera:hover {
+    background-color: rgba(18, 20, 24, 0.80);
+}
+
+.btn--on-camera:active {
+    background-color: rgba(48, 52, 60, 0.90);
+}
+
+/* Full-width action at the bottom of a screen (e.g. "Place here"). */
+.btn--wide {
+    width: 640px;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+/* Shown but not usable yet (e.g. "Place here" before the ground is found). */
+.btn:disabled {
+    opacity: 0.4;
+}
+
+/* Hint pill (scan instructions) */
+.hint {
+    max-width: 900px;
+    margin: 0;
+    padding: 28px 44px;
+    border-radius: 48px;
+    background-color: rgba(18, 20, 24, 0.80);
+    color: rgb(244, 241, 234);
+    font-size: 38px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.hint--above-actions {
+    margin-bottom: 32px;
+}
+
+/* Adjust panel */
+/* A bottom screen holding a panel: less padding, so the panel can be wide. */
+.screen--panel {
+    padding: 0 24px 32px 24px;
+}
+
+.panel {
+    width: 100%;
+    max-width: 1000px;
+    padding: 28px 20px 24px 20px;
+    border-radius: 40px;
+    background-color: rgba(18, 20, 24, 0.88);
+}
+
+.panel__readout {
+    margin: 0 8px 20px 8px;
+    padding: 0;
+    font-size: 32px;
+    color: rgba(244, 241, 234, 0.90);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.panel__title {
+    margin: 0 8px 12px 8px;
+    padding: 0;
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: rgb(244, 241, 234);
+    white-space: normal;
+}
+
+.panel__title--centered {
+    -unity-text-align: middle-center;
+}
+
+.panel__text {
+    margin: 0 8px 24px 8px;
+    padding: 0;
+    font-size: 34px;
+    color: rgba(244, 241, 234, 0.85);
+    white-space: normal;
+}
+
+.panel__caption {
+    margin: 0 8px 20px 8px;
+    padding: 0;
+    font-size: 30px;
+    color: rgba(244, 241, 234, 0.85);
+    -unity-text-align: middle-center;
+}
+
+/* Small print (e.g. the cloud anchor data notice). */
+.panel__note {
+    margin: 0 8px 24px 8px;
+    padding: 0;
+    font-size: 24px;
+    color: rgba(244, 241, 234, 0.55);
+    white-space: normal;
+}
+
+/* Three-bar quality meter: low = 1 red bar, mid = 2 amber, high = 3 green. */
+.meter {
+    flex-direction: row;
+    height: 24px;
+    margin: 0 8px 12px 8px;
+}
+
+.meter__bar {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 6px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.meter--low .meter__bar--1 {
+    background-color: rgb(229, 83, 75);
+}
+
+.meter--mid .meter__bar--1,
+.meter--mid .meter__bar--2 {
+    background-color: rgb(217, 164, 65);
+}
+
+.meter--high .meter__bar {
+    background-color: rgb(76, 175, 80);
+}
+
+/* Segmented control: one pill per tab, the selected one gold. */
+.tabs {
+    flex-direction: row;
+    margin: 0 8px 20px 8px;
+    padding: 6px;
+    border-radius: 48px;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.tab {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 84px;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 42px;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgba(244, 241, 234, 0.75);
+    font-size: 34px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.tab:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.tab:active {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+.tab--selected,
+.tab--selected:hover {
+    background-color: rgb(217, 164, 65);
+    color: rgb(27, 20, 8);
+}
+
+/* The tools of the selected tab. */
+.tool {
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+/* Rows stacked: each row keeps 16px below it, the tool itself only a little more.
+   (USS has no "+" sibling selector.) */
+.tool--column {
+    flex-direction: column;
+    margin-bottom: 4px;
+}
+
+.tool__row {
+    flex-direction: row;
+    margin-bottom: 16px;
+}
+
+.btn--tool {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 110px;
+    margin: 0 8px;
+    padding: 0 8px;
+    font-size: 36px;
+}
+
+/* Arrow-only buttons: bigger glyph. */
+.btn--symbol {
+    font-size: 54px;
+}
+
+/* Logarithmic size slider: thick track, big gold handle. */
+.scale-slider {
+    height: 96px;
+    margin: 0 36px 16px 36px;
+}
+
+.scale-slider .unity-base-slider__input {
+    height: 96px;
+}
+
+.scale-slider .unity-base-slider__drag-container {
+    height: 96px;
+}
+
+.scale-slider .unity-base-slider__tracker {
+    height: 12px;
+    margin-top: -6px;
+    border-width: 0;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.scale-slider .unity-base-slider__dragger {
+    width: 64px;
+    height: 64px;
+    margin-top: -32px;
+    margin-left: -32px;
+    border-width: 0;
+    border-radius: 32px;
+    background-color: rgb(217, 164, 65);
+}
+
+.scale-slider .unity-base-slider__dragger-border {
+    display: none;
+}
+
+/* Two or more buttons side by side, sharing the width. */
+.actions-row {
+    flex-direction: row;
+}
+
+.actions-row > .btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 8px;
+    /* Three buttons must fit a phone width ("Place again", "See-through", "Done"). */
+    padding: 0 12px;
+    font-size: 36px;
+}
+
+/* An on/off button that is on (e.g. "See-through"): gold outline and text. */
+.btn--toggle-on,
+.btn--toggle-on:hover {
+    border-width: 3px;
+    border-color: rgb(217, 164, 65);
+    color: rgb(217, 164, 65);
+}
+
+/* A smaller on/off option above an actions row (e.g. "Hidden by real objects: Off"). */
+.btn--option {
+    height: 96px;
+    margin: 0 0 20px 0;
+    padding: 0 40px;
+    font-size: 32px;
+}
+
+/* An actions row straight over the camera image (not in a panel). */
+.actions-row--on-camera {
+    width: 100%;
+    max-width: 900px;
+}
+
+/* Developer overlay */
+.debug-overlay {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    margin: 0;
+    padding: 16px 20px;
+    border-radius: 16px;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: rgb(255, 255, 255);
+    font-size: 26px;
+    white-space: normal;
+}

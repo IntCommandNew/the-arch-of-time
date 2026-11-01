@@ -8,7 +8,13 @@ An Android AR quest in which you become a student of the lost Academia Mihăilea
 |---|---|---|---|
 | The Arch of Time | Location-Based AR Experience | Mobile (Android) | AR - Geospatial |
 
-**Project documentation:** [State of the Art](docs/StateOfTheArt.md) - description, similar products, main features, user journey diagram, moodboard and technologies.
+**Project documentation:**
+
+[State of the Art](docs/StateOfTheArt.md) - description, similar products, main features, user journey diagram, moodboard and technologies.
+
+[Main Modules](docs/MainModules.md) - user story map, quest route, journey maps, storyboard and asset creation plan.
+
+[AI Usage Acknowledgement](docs/AIUsage.md) - how AI tools were used to create this project.
 
 ## About the project
 
@@ -47,7 +53,34 @@ Each week we add what is new, a video of the new features, and screenshots where
 
 <!-- Copy this block for each new week, newest week on top -->
 
-### Week 1: Project definition
+### Week 5: Main modules, the academy model and the first AR prototype
+
+**What's new**
+
+- Planned the app in detail in [Main Modules](docs/MainModules.md): user story map, quest route with the four stops and the hidden seals, journey maps, storyboard and the asset creation plan.
+- Created the 3D model of the Academia Mihăileană, built with AI from scans and photos of the academy's replica in a museum, then improved in a second iteration.
+- Built the first AR prototype for Android, a proof of concept of the basic functions:
+  - **Place**: the app finds the ground and places the academy where you point, with its front facing you.
+  - **Adjust**: move, turn, resize (from tabletop size up to real size, scale 1:50) and raise or lower the academy, with touch gestures or buttons. While adjusting, the building turns see-through and its footprint is drawn on the ground; Cancel undoes an edit.
+  - **Explore**: walk around the academy. It fades out near the camera, so you can step through its walls, and it can optionally be hidden by real objects in front of it.
+  - **Save and restore**: the placement is saved as a cloud anchor and returns on the next launch when the camera recognises the spot. Your location guides you back to it (for example "about 25 m ahead, slightly to the right").
+  - **Realistic look**: the light is estimated from the camera image, and the academy casts a shadow on the real ground.
+  - **Arch pieces (test mode)**: a placeholder piece appears somewhere around you; find it, aim at it and collect it. Five pieces, with progress kept between launches.
+- Added the [AI Usage Acknowledgement](docs/AIUsage.md), which states how AI tools were used in the project.
+
+**Video**
+
+https://github.com/user-attachments/assets/437a331a-e47b-4795-af9e-9d01c37481bf
+
+**Screenshots**
+
+The panel at the top is a developer overlay with the location and tracking status.
+
+| Exploring the academy at tabletop size | Collecting an arch piece (test mode) |
+|:---:|:---:|
+| <img src="docs/screenshots/week5_explore.png" width="300"> | <img src="docs/screenshots/week5_arch_pieces.png" width="300"> |
+
+### Week 4: Project definition
 
 **What's new**
 

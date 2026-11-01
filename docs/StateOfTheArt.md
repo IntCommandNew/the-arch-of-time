@@ -156,5 +156,5 @@ Visual inspiration for colors, style and atmosphere. Images are stored in [`docs
 7. **Unity Localization** - English, Romanian and future languages: https://docs.unity3d.com/Packages/com.unity.localization@1.5/manual/index.html
 8. **Android TextToSpeech** - free voice for the narrator's live answers: https://developer.android.com/reference/android/speech/tts/TextToSpeech
 9. **Blender** - cleaning the scanned academy model and modeling the arch: https://www.blender.org
-10. **AI narrator (LLM)** - _service to be decided_, answering only from the curated knowledge source through a small backend that keeps the API key out of the app.
-11. **Assets** - 3D scan of the Academia Mihăileană replica maquette; historical texts from the Faculty of History, UAIC.
+10. **AI narrator (LLM)** - **Claude API by Anthropic** (Claude Haiku 5.5, a fast, low-cost model suited to short spoken answers), answering only from the curated knowledge source through a small backend that keeps the API key out of the app: https://www.anthropic.com/api
+11. **Assets** - 3D scans of the Academia Mihăileană replica maquette, by Panagiotis Chontas; historical texts from the Faculty of History, UAIC.
