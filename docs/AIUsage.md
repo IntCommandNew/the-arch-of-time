@@ -3,7 +3,7 @@
 This document states how AI tools were used to create **The Arch of Time**. It is updated whenever
 the way AI is used in the project changes.
 
-_Last updated: 1 November 2026_
+_Last updated: 2 November 2026_
 
 ## Tools
 
@@ -30,6 +30,13 @@ _Last updated: 1 November 2026_
 | Code (light and shadow) | Claude Code | Wrote the ARCore light estimation code and the shadow on the real ground (including the shadow-catcher shader) |
 | Code (rendering fixes) | Claude Code | Wrote the lighting code (neutral ambient light, shadow range fitted to the model), hiding of the detected planes, and UI contrast changes |
 | Unity Editor work | Claude Code | Did part of the project setup and configuration in the Unity Editor |
+
+## Prompt logs
+
+This page is the quick overview. For the details, each AI conversation has a prompt log in
+[`docs/prompts/`](prompts/): every prompt given to the AI, word for word, and what was done or made after it.
+The files are named `LogPromptWeek<N>_Web<NN>.md` (Claude web) and `LogPromptWeek<N>_Code<NN>.md`
+(Claude Code), and each week in the [README](../README.md) links to its own logs.
 
 ## Human role
 
@@ -66,3 +73,4 @@ This document will be updated as the project evolves, for example when:
 | 1 November 2026 | Second iteration of the academy model made with Claude (web): tower overlap fixed, figure updated, ground levelled, textured base. Swapped into the app with Claude Code. |
 | 1 November 2026 | Recorded the storyboard images in MainModules.md, drawn by Claude (web). |
 | 1 November 2026 | Code clean-up with Claude Code: comments and files use keyboard characters only, simpler comment formatting, consistent code style. |
+| 2 November 2026 | Prompt logs added in docs/prompts/: one file per Claude web or Claude Code conversation, linked from each week in the README. |

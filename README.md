@@ -80,6 +80,16 @@ The panel at the top is a developer overlay with the location and tracking statu
 |:---:|:---:|
 | <img src="docs/screenshots/week5_explore.png" width="300"> | <img src="docs/screenshots/week5_arch_pieces.png" width="300"> |
 
+**AI prompt logs**
+
+Every prompt given to an AI tool this week and what was done after it (see [AI usage](docs/AIUsage.md)):
+
+- [Claude web 01](docs/prompts/LogPromptWeek5_Web01.md): Unity AR project setup, AR startup and permissions, UI Toolkit
+- [Claude web 02](docs/prompts/LogPromptWeek5_Web02.md): building the 3D academy model and importing it into Unity
+- [Claude web 03](docs/prompts/LogPromptWeek5_Web03.md): facade description and material colours for the model
+- [Claude web 04](docs/prompts/LogPromptWeek5_Web04.md): the Main Modules document, storyboard and quest route
+- [Claude Code 01](docs/prompts/LogPromptWeek5_Code01.md): the AR prototype in Unity, model iteration 2, documentation and code clean-up
+
 ### Week 4: Project definition
 
 **What's new**
@@ -95,6 +105,10 @@ _No video this week._
 **Screenshots**
 
 _No screenshots this week._
+
+**AI prompt logs**
+
+- [Claude web 01](docs/prompts/LogPromptWeek4_Web01.md): the earlier course assignments (AR cactus, VR darts, robot hands), then defining The Arch of Time, the README and the State of the Art document (the same conversation continues in week 5, Claude web 04)
 
 ## Team
 
