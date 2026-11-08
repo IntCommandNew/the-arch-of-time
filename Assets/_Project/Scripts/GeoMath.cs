@@ -1,13 +1,24 @@
 using System;
 using UnityEngine;
 
-/// <summary>Distances and compass directions between latitude/longitude points (WGS84 sphere approximation).</summary>
+/// <summary>Distances and compass directions between latitude/longitude points, and directions in words.</summary>
 public static class GeoMath
 {
-    const double EarthRadius = 6371000.0; // metres
     const double ToRad = Math.PI / 180.0;
+    const double EarthRadius = 6371008.8; // mean radius (metres)
 
     static readonly string[] CompassPoints = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
+    static readonly string[] CompassNames =
+        { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" };
+
+    /// <summary>Distance in metres between two points (haversine, accurate enough for a city).</summary>
+    public static double Distance(double lat1, double lon1, double lat2, double lon2)
+    {
+        double dPhi = (lat2 - lat1) * ToRad, dLambda = (lon2 - lon1) * ToRad;
+        double a = Math.Sin(dPhi / 2) * Math.Sin(dPhi / 2) +
+                   Math.Cos(lat1 * ToRad) * Math.Cos(lat2 * ToRad) * Math.Sin(dLambda / 2) * Math.Sin(dLambda / 2);
+        return 2 * EarthRadius * Math.Asin(Math.Min(1.0, Math.Sqrt(a)));
+    }
 
     /// <summary>Compass bearing from point 1 to point 2: 0 = north, 90 = east.</summary>
     public static float InitialBearing(double lat1, double lon1, double lat2, double lon2)
@@ -18,22 +29,19 @@ public static class GeoMath
         return Mathf.Repeat((float)(Math.Atan2(y, x) / ToRad), 360f);
     }
 
-    /// <summary>Great-circle distance in metres (haversine).</summary>
-    public static double Distance(double lat1, double lon1, double lat2, double lon2)
-    {
-        double dPhi = (lat2 - lat1) * ToRad, dLambda = (lon2 - lon1) * ToRad;
-        double a = Math.Sin(dPhi / 2) * Math.Sin(dPhi / 2) +
-                   Math.Cos(lat1 * ToRad) * Math.Cos(lat2 * ToRad) * Math.Sin(dLambda / 2) * Math.Sin(dLambda / 2);
-        return EarthRadius * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-    }
-
     /// <summary>"N", "NE", ... for a bearing in degrees.</summary>
-    public static string CompassPoint(float bearing) =>
-        CompassPoints[Mathf.RoundToInt(Mathf.Repeat(bearing, 360f) / 45f) % 8];
+    public static string CompassPoint(float bearing) => CompassPoints[CompassIndex(bearing)];
 
-    /// <summary>"35 m" or "1.2 km".</summary>
-    public static string FormatDistance(double metres) =>
-        metres >= 1000 ? $"{metres / 1000:0.0} km" : $"{metres:0} m";
+    /// <summary>"north", "north-east", ... for a bearing in degrees.</summary>
+    public static string CompassName(float bearing) => CompassNames[CompassIndex(bearing)];
+
+    /// <summary>"350 m", "1.2 km", "12 km".</summary>
+    public static string FormatDistance(double metres)
+    {
+        if (metres < 1000) return $"{Math.Round(metres / 10) * 10:0} m";
+        if (metres < 10000) return $"{metres / 1000:0.0} km";
+        return $"{metres / 1000:0} km";
+    }
 
     /// <summary>
     /// An angle from where the user looks (positive = to the right) in words: "ahead",
@@ -49,4 +57,6 @@ public static class GeoMath
         if (a <= 160f) return $"behind you, to the {side}";
         return "behind you";
     }
+
+    static int CompassIndex(float bearing) => Mathf.RoundToInt(Mathf.Repeat(bearing, 360f) / 45f) % 8;
 }

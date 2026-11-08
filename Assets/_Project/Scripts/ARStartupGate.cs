@@ -10,8 +10,13 @@ using UnityEngine.Android;
 /// <summary>
 /// Starts AR only when it is safe to do so, and stops it for good if that stops being true.
 ///
+/// Nothing happens until Begin() is called (AppController does it when a mode that needs AR is chosen).
+/// BeginLocationOnly() asks only for precise location and doesn't start AR (the in-city mode guides the
+/// user with the camera off); Begin() later asks for the camera too and starts AR.
+/// SetARPaused() pauses the running AR session (camera off) and resumes it.
+///
 /// Rules (both permissions are MANDATORY):
-///   - At launch: ask for the camera, then precise location, one dialog at a time.
+///   - On Begin(): ask for the camera, then precise location, one dialog at a time.
 ///     If either is missing, AR does not start; a card offers "Try again" and "Open settings"
 ///     until both are granted. Coming back from Settings with both granted starts AR by itself.
 ///   - Then: check ARCore / Google Play Services for AR, and activate the "AR Session" and
@@ -37,6 +42,7 @@ public class ARStartupGate : MonoBehaviour
         Starting,         // asking permissions / checking ARCore; see Detail
         Blocked,          // AR can't start yet; the user can fix it (see the Can* flags)
         Running,          // AR objects are on, both permissions granted
+        LocationReady,    // BeginLocationOnly(): precise location granted, AR not started
         PermissionsLost,  // a permission was revoked while running; final, only "Close app"
     }
 
@@ -80,6 +86,12 @@ public class ARStartupGate : MonoBehaviour
     public bool CanClose { get; private set; }
 
     public bool ARStarted => CurrentStatus == Status.Running;
+    /// <summary>Begin() has been called: until then the gate does nothing.</summary>
+    public bool Requested { get; private set; }
+    /// <summary>Begin() (not only BeginLocationOnly()) was called: AR is wanted.</summary>
+    public bool WantsAR { get; private set; }
+    /// <summary>AR is running but paused by SetARPaused(true).</summary>
+    public bool ARPaused { get; private set; }
 
     enum Answer { Pending, Granted, Denied }
     Answer lastAnswer;
@@ -100,8 +112,40 @@ public class ARStartupGate : MonoBehaviour
         if (arCoreExtensionsObject != null && arCoreExtensionsObject.activeSelf)
             Debug.LogWarning("[ARStartupGate] 'ARCore Extensions' is active in the scene. " +
                              "Untick it so the gate can start it safely.");
+    }
 
+    /// <summary>Starts the startup sequence (permissions, ARCore checks, then AR).</summary>
+    public void Begin()
+    {
+        Requested = true;
+        WantsAR = true;
         Retry();
+    }
+
+    /// <summary>Asks only for precise location (reports LocationReady); AR is not started.</summary>
+    public void BeginLocationOnly()
+    {
+        Requested = true;
+        if (CurrentStatus == Status.Running || CurrentStatus == Status.LocationReady)
+        {
+            StatusChanged?.Invoke(this); // already there: report it again
+            return;
+        }
+        Retry();
+    }
+
+    /// <summary>
+    /// Pauses (true) or resumes (false) the running AR session: the camera stops while paused.
+    /// Tracking starts again on resume.
+    /// </summary>
+    public void SetARPaused(bool paused)
+    {
+        if (CurrentStatus != Status.Running || arSessionObject == null || ARPaused == paused) return;
+        var session = arSessionObject.GetComponent<ARSession>();
+        if (session == null) return;
+        session.enabled = !paused;
+        ARPaused = paused;
+        Debug.Log(paused ? "[ARStartupGate] AR paused (camera off)." : "[ARStartupGate] AR resumed.");
     }
 
     /// <summary>
@@ -109,6 +153,7 @@ public class ARStartupGate : MonoBehaviour
     /// </summary>
     public void Retry()
     {
+        if (!Requested) return;
         if (CurrentStatus == Status.Running || CurrentStatus == Status.PermissionsLost || running != null) return;
         running = StartCoroutine(StartupRoutine());
     }
@@ -119,6 +164,12 @@ public class ARStartupGate : MonoBehaviour
         // The Editor has no runtime permissions and no ARCore.
         if (previewInEditor)
         {
+            if (!WantsAR)
+            {
+                SetLocationReady();
+                running = null;
+                yield break;
+            }
             SetRunning();
             running = null;
             yield break;
@@ -126,7 +177,7 @@ public class ARStartupGate : MonoBehaviour
 #elif UNITY_ANDROID
         // 1. Camera, then precise location. Both are asked before deciding, so a single card
         //    can list everything that's missing.
-        if (!HasCamera())
+        if (WantsAR && !HasCamera())
         {
             SetStarting("Waiting for camera permission...");
             yield return Ask(new[] { Permission.Camera }, Permission.Camera);
@@ -139,14 +190,20 @@ public class ARStartupGate : MonoBehaviour
             yield return Ask(new[] { Permission.FineLocation, Permission.CoarseLocation }, Permission.FineLocation);
         }
 
-        if (!HasCamera() || !HasPreciseLocation())
+        if (!HasNeededPermissions())
         {
-            SetBlocked("Permissions needed", MissingPermissionsMessage(),
+            SetBlocked(WantsAR ? "Permissions needed" : "Location needed", MissingPermissionsMessage(),
                 canRetry: true, canOpenSettings: true, canClose: false);
             running = null;
             yield break;
         }
 #endif
+        if (!WantsAR)
+        {
+            SetLocationReady();
+            running = null;
+            yield break;
+        }
 
         // 2. ARCore support and installation (Google Play Services for AR).
         SetStarting("Checking ARCore support...");
@@ -187,15 +244,20 @@ public class ARStartupGate : MonoBehaviour
 #if UNITY_ANDROID
     static bool HasCamera() => Permission.HasUserAuthorizedPermission(Permission.Camera);
     static bool HasPreciseLocation() => Permission.HasUserAuthorizedPermission(Permission.FineLocation);
+    bool HasNeededPermissions() => (!WantsAR || HasCamera()) && HasPreciseLocation();
 
-    static string MissingPermissionsMessage()
+    string MissingPermissionsMessage()
     {
+        if (!WantsAR)
+            return "Playing in the city needs your precise location, to guide you to the places of the " +
+                   "academy's story. When asked, choose \"Precise\".\n\nTap \"Try again\". If no " +
+                   "dialog appears, Android has stopped asking: open the settings and allow Location (Precise).";
         string text = "This app needs both permissions to work:\n";
         if (!HasCamera())
-            text += "\n" + TextSymbols.Bullet + " Camera: to show the building in your surroundings.";
+            text += "\n" + TextSymbols.Bullet + " Camera: to show the academy in your surroundings.";
         if (!HasPreciseLocation())
-            text += "\n" + TextSymbols.Bullet + " Precise location: to place the building at its real spot " +
-                    "and find it again. When asked, choose \"Precise\".";
+            text += "\n" + TextSymbols.Bullet + " Precise location: the AR view uses it to know which way is " +
+                    "north, so the academy can face the right way. When asked, choose \"Precise\".";
         text += "\n\nTap \"Try again\". If no dialog appears, Android has stopped asking: " +
                 "open the settings and allow Camera and Location (Precise).";
         return text;
@@ -258,9 +320,9 @@ public class ARStartupGate : MonoBehaviour
         {
             if (!HasCamera() || !HasPreciseLocation()) EnterPermissionsLost();
         }
-        else if (CurrentStatus == Status.Blocked && CanRetry && HasCamera() && HasPreciseLocation())
+        else if (CurrentStatus == Status.Blocked && CanRetry && HasNeededPermissions())
         {
-            // Both allowed in Settings while we were away: start without another tap.
+            // Allowed in Settings while we were away: go on without another tap.
             Retry();
         }
 #endif
@@ -279,7 +341,7 @@ public class ARStartupGate : MonoBehaviour
         Detail = "";
         BlockedTitle = "Permission removed";
         BlockedMessage = "A permission this app needs was turned off, so this session has ended.\n\n" +
-                         "Close the app and open it again to continue. Saved placements are kept.";
+                         "Close the app and open it again to continue. Your progress is kept.";
         CanRetry = false;
         CanOpenSettings = false;
         CanClose = true;
@@ -339,6 +401,13 @@ public class ARStartupGate : MonoBehaviour
         CanOpenSettings = canOpenSettings;
         CanClose = canClose;
         Debug.Log($"[ARStartupGate] Blocked: {title}");
+        StatusChanged?.Invoke(this);
+    }
+
+    void SetLocationReady()
+    {
+        CurrentStatus = Status.LocationReady;
+        Detail = "";
         StatusChanged?.Invoke(this);
     }
 

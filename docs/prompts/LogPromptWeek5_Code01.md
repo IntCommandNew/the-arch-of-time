@@ -6,14 +6,14 @@
 | Tool | Claude Code (command-line interface) |
 | Conversation | Code 01 |
 | Topic | The first AR prototype in Unity (place, adjust, explore, save and restore, light, fade, occlusion, footprint, see-through, arch pieces), model iteration 2, documentation, code clean-up and the week 5 release |
-| Date | 2026-10-30 to 2026-11-02 |
-| Prompts | 70 |
+| Date | 2026-10-30 to 2026-11-05 |
+| Prompts | 75 |
 
 ## Summary
 
 Claude Code worked directly in the Unity project through the Unity CLI and on the phone through adb. It checked the project setup, then built the proof of concept step by step, each step tested on the phone by the user and saved as a local backup: placing the academy model, adjusting it up to real size, saving and restoring it with cloud anchors, light estimation and a ground shadow, a near-camera fade, optional depth occlusion, a footprint outline, a see-through mode with Cancel, and an arch pieces test mode. It also swapped in the second iteration of the academy model, updated the documentation and the README for week 5, cleaned up the code, compressed the week 5 video and made the commit on main.
 
-Note: prompts 39 and 66 were sent again as prompts 40 and 67. Answers to questions Claude asked (prompts 12 and 45) are given under "What was done".
+Note: prompts 39 and 66 were sent again as prompts 40 and 67. Answers to questions Claude asked (prompts 12 and 45) are given under "What was done". The same session continued in week 6: see [LogPromptWeek6_Code01.md](LogPromptWeek6_Code01.md).
 
 ## Prompts
 
@@ -1068,6 +1068,81 @@ Note: prompts 39 and 66 were sent again as prompts 40 and 67. Answers to questio
 
 **Files created or changed:** docs/prompts/LogPromptWeek5_Code01.md; backup branch; commit on main
 
+### Prompt 71
+
+**Prompt:**
+
+> I have a question regarding console.cloud.google.com how does this integrate into our project?
+
+**Attachments:** None
+
+**What was done:**
+
+- Explained how the Google Cloud project is used: the ARCore API is enabled there, and an Android OAuth client (package name and the signing key's SHA-1) lets the app use Cloud Anchors and Geospatial without an API key in the app.
+- Explained what needs it, what breaks with a different signing key, and what is still to do before publishing (a release key and its own OAuth client).
+
+**Files created or changed:** None
+
+### Prompt 72
+
+**Prompt:**
+
+> I see the API usage as a graph, but can I see the actual save data like location and images?
+
+**Attachments:** None
+
+**What was done:**
+
+- Explained that the Google Cloud console shows only usage, not the saved data: the cloud anchor's visual data is kept by Google and can't be viewed or downloaded, and the location is not stored in Google Cloud but in the save file on the phone.
+- Explained the Cloud Anchor Management API (list, re-date or delete anchors, without imagery) and how to read the save file on the phone over adb.
+
+**Files created or changed:** None
+
+### Prompt 73
+
+**Prompt:**
+
+> what tehnology do we use for the arch piece spatial identification?
+
+**Attachments:** None
+
+**What was done:**
+
+- Explained the technology behind the arch pieces test mode: ARCore motion tracking through AR Foundation, plane detection and a downward raycast for the floor height, a local AR anchor per piece, and plain geometry for aiming (screen-centre ray) and for the direction hint; no image recognition, physics or location.
+- Explained what the quest version will need instead (Geospatial anchors at real coordinates).
+
+**Files created or changed:** None
+
+### Prompt 74
+
+**Prompt:**
+
+> I saw the functionality of the cloud cnchors by testing indoors, but I yet to test it outdors. do we already implement the geospatial functionality of street view in our project or is it a work in progress?
+
+**Attachments:** None
+
+**What was done:**
+
+- Explained that Geospatial (VPS, Street View based positioning) is already on and used for the compass bearing, Face south, the saved spot location and the directions while restoring, but deliberately not to place the building.
+- Listed what is still to check outdoors and what is not built yet (Geospatial anchors for the quest, Streetscape Geometry, the Geospatial mode).
+- Asked which week the prompts from 5 November belong to.
+
+**Files created or changed:** None
+
+### Prompt 75
+
+**Prompt:**
+
+> into week 5
+
+**Attachments:** None
+
+**What was done:**
+
+- Added the prompts from 5 November to this log (week 5).
+
+**Files created or changed:** docs/prompts/LogPromptWeek5_Code01.md
+
 ## Outputs used in the project
 
 | Output | Made in prompt | Notes |
@@ -1078,7 +1153,7 @@ Note: prompts 39 and 66 were sent again as prompts 40 and 67. Answers to questio
 | SceneLighting.cs | 9, 21, 23, 27, 29, 47 | Neutral ambient, shadow range, light estimation, remembered light |
 | ARPlane.mat, ARPlaneOutline.mat | 9 | Plane visuals |
 | AdjustController.cs | 12, 36, 41 | Adjust step, street level fix, Cancel |
-| PersistenceController.cs, PlacementStore.cs, SessionSpace.cs, GeoMath.cs | 15, 17, 18 | Save and restore; camera-only restore from prompt 18 |
+| PersistenceController.cs, PlacementStore.cs, SessionSpace.cs, GeoMath.cs | 15, 17, 18 | Save and restore; camera-only restore from prompt 18 (removed in week 6) |
 | GroundShadow.cs, ShadowCatcher.shader, ShadowCatcher.mat | 21 | Ground shadow |
 | LitNearFade.shader, LitNearFadeForwardPass.hlsl, NearFade.cs | 26, 27, 39 | Near fade and see-through |
 | DepthOcclusion.cs | 32 | Optional depth occlusion |

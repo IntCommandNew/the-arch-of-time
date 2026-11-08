@@ -4,9 +4,8 @@
 /// </summary>
 public static class TextSymbols
 {
-    public const string Degree = "°";
-    public const string Times = "×";
-    public const string PlusMinus = "±";
-    public const string MiddleDot = "·";
-    public const string Bullet = "•";
+    public const string Degree = "\u00B0";
+    public const string Times = "\u00D7";
+    public const string PlusMinus = "\u00B1";
+    public const string Bullet = "\u2022";
 }

@@ -154,3 +154,10 @@ desktop.ini
 
 # Weekly progress videos: too big for the repository; uploaded to GitHub through the README editor instead
 /docs/videos/
+
+# Geospatial Creator authoring scene: the Google Map Tiles API key is saved inside it (public repository)
+/Assets/_Project/Scenes/CityAuthoring.unity
+/Assets/_Project/Scenes/CityAuthoring.unity.meta
+# Cesium for Unity settings: a Cesium ion token would be saved here if anyone signs in (not used)
+/Assets/CesiumSettings/
+/Assets/CesiumSettings.meta

@@ -13,8 +13,7 @@ using UnityEngine.XR.ARSubsystems;
 ///
 /// Anchor and model: the anchor sits on the ground at the reticle point, its +Z pointing at the user
 /// (level, at placement time). The model is its child with offset 0 and yaw +90 degrees, which turns the
-/// model's front (-X) towards +Z. Adjust will change only the model's local transform, and that local
-/// transform is what gets saved (the "offset from the anchor").
+/// model's front (-X) towards +Z. Adjust changes only the model's local transform (its offset from the anchor).
 /// </summary>
 public class PlacementController : MonoBehaviour
 {
@@ -53,12 +52,8 @@ public class PlacementController : MonoBehaviour
     public bool HasGround { get; private set; }
     public bool IsPlacing { get; private set; }
     public bool HasModel => model != null;
-    /// <summary>The anchor's transform (a local, cloud or geospatial anchor; in the Editor a stand-in).</summary>
+    /// <summary>The anchor's transform (in the Editor a stand-in).</summary>
     public Transform AnchorTransform => anchorRoot;
-    /// <summary>
-    /// The local AR anchor made by Place() (null for restored anchors): the one a cloud anchor is hosted from.
-    /// </summary>
-    public ARAnchor LocalAnchor => arAnchor;
     public Transform Model => model;
 
     [Tooltip("Child of the model that 'Hide base' hides.")]
@@ -272,22 +267,19 @@ public class PlacementController : MonoBehaviour
     }
 
     /// <summary>
-    /// Puts the model on an anchor made elsewhere (a resolved cloud anchor or, in the Editor, a
-    /// stand-in), with a saved local transform. Replaces any current model.
+    /// Puts the model on an anchor made elsewhere (the in-city mode's geospatial anchor), with the given
+    /// local transform. This controller then owns the anchor: Clear() removes both.
     /// </summary>
-    public void AttachModel(Transform anchor, Vector3 localPosition, Quaternion localRotation, float scale,
-                            bool platformVisible)
+    public void ShowOn(Transform root, Vector3 localPosition, Quaternion localRotation, float scale)
     {
         Clear();
-        if (anchor == null || modelPrefab == null) return;
-
-        anchorRoot = anchor;
-        arAnchor = anchor.GetComponent<ARAnchor>(); // null for cloud anchors
+        if (modelPrefab == null || root == null) return;
+        anchorRoot = root;
         model = Instantiate(modelPrefab, anchorRoot).transform;
         model.localPosition = localPosition;
         model.localRotation = localRotation;
         model.localScale = Vector3.one * scale;
-        SetPlatformVisible(platformVisible);
+        Debug.Log($"[PlacementController] Model shown on {root.name}.");
     }
 
     /// <summary>Removes the model and its anchor (also cancels a Place() in progress).</summary>
@@ -307,7 +299,6 @@ public class PlacementController : MonoBehaviour
     void RemoveAnchor(ARAnchor anchor, Transform root)
     {
         // The anchor manager destroys the anchor's GameObject once ARCore has removed it.
-        // Cloud anchors aren't ARAnchors: destroying their GameObject detaches them.
         if (anchor != null && anchorManager != null && anchorManager.enabled && anchorManager.subsystem != null &&
             anchorManager.TryRemoveAnchor(anchor))
             return;

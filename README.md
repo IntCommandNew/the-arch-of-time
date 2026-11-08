@@ -53,6 +53,40 @@ Each week we add what is new, a video of the new features, and screenshots where
 
 <!-- Copy this block for each new week, newest week on top -->
 
+### Week 6: Two ways to play and the In Iași mode
+
+**What's new**
+
+- The app now starts with a choice of two ways to play, each with its own saved progress:
+  - **In Iași**: walk to the real places of the academy's story.
+  - **Anywhere**: place the academy on a floor or a table and collect the arch pieces around you.
+- Redesigned the whole interface: new colours, a classic title font and an arch emblem that fills in as you collect the pieces, drawn after the arch replica in Parcul Expoziției.
+- Third iteration of the academy model: the grass and gravel are separate from the base, and the building sits directly on it.
+- **In Iași** mode:
+  - The academy and the four arch pieces are placed on Google's 3D map of the city, in the Unity Editor (Geospatial Creator).
+  - Pick a target from the list. A found piece can't be picked again until the whole arch is complete.
+  - With the camera off, the app shows how far the target is and in which direction. Close to it, a dial points the way and says "Warmer" or "Colder".
+  - At the spot, open the camera and look around. Once the phone knows exactly where it is (using Street View images), the academy or the piece appears at its place. Pieces are collected; the academy is there to walk around.
+  - The camera closes by itself when you walk away from the target.
+- **Anywhere** mode: scan, place and adjust the academy (move, turn, resize up to 5 times its size, raise or lower), then find and collect the four arch pieces that appear around you, one at a time.
+- The academy stays solid up close, so you can look at its details from very near.
+- Removed saving and restoring the placement: the academy is placed again each time, and only the collected pieces are kept.
+
+**Video**
+
+https://github.com/user-attachments/assets/a7d9f125-6053-492c-b6fe-b72ccc457fe4
+
+**Screenshots**
+
+_No screenshots this week._
+
+**AI prompt logs**
+
+Every prompt given to an AI tool this week and what was done after it (see [AI usage](docs/AIUsage.md)):
+
+- [Claude web 01](docs/prompts/LogPromptWeek6_Web01.md): the third iteration of the academy model
+- [Claude Code 01](docs/prompts/LogPromptWeek6_Code01.md): the two modes and the new interface, the In Iași mode, fixes after the phone tests
+
 ### Week 5: Main modules, the academy model and the first AR prototype
 
 **What's new**
@@ -108,7 +142,9 @@ _No screenshots this week._
 
 **AI prompt logs**
 
-- [Claude web 01](docs/prompts/LogPromptWeek4_Web01.md): the earlier course assignments (AR cactus, VR darts, robot hands), then defining The Arch of Time, the README and the State of the Art document (the same conversation continues in week 5, Claude web 04)
+Every prompt given to an AI tool this week and what was done after it (see [AI usage](docs/AIUsage.md)):
+
+- [Claude web 01](docs/prompts/LogPromptWeek4_Web01.md): the earlier course assignments, defining The Arch of Time, the README and the State of the Art document
 
 ## Team
 

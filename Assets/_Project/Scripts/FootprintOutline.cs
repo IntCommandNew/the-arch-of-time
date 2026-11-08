@@ -41,7 +41,7 @@ public class FootprintOutline : MonoBehaviour
             return;
         }
 
-        // A new model (placed again or restored): make a new outline under it.
+        // A new model (placed again): make a new outline under it.
         if (outline == null || outlineModel != model)
         {
             if (outline != null) Destroy(outline.gameObject);

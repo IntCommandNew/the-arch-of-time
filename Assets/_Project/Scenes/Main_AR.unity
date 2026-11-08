@@ -767,12 +767,13 @@ GameObject:
   - component: {fileID: 513184572}
   - component: {fileID: 513184573}
   - component: {fileID: 513184574}
-  - component: {fileID: 513184575}
   - component: {fileID: 513184576}
   - component: {fileID: 513184577}
   - component: {fileID: 513184578}
   - component: {fileID: 513184579}
   - component: {fileID: 513184580}
+  - component: {fileID: 513184582}
+  - component: {fileID: 513184581}
   m_Layer: 0
   m_Name: App
   m_TagString: Untagged
@@ -825,37 +826,25 @@ MonoBehaviour:
   startupGate: {fileID: 513184571}
   placement: {fileID: 513184572}
   adjust: {fileID: 513184574}
-  persistence: {fileID: 513184575}
   occlusion: {fileID: 513184578}
   footprint: {fileID: 513184579}
   modelFade: {fileID: 513184577}
   pieces: {fileID: 513184580}
   ui: {fileID: 466582595}
+  cityTargets: {fileID: 11400000, guid: a3a9795b599597340a6ab4078de8d19f, type: 2}
+  guide: {fileID: 513184582}
+  cityContent: {fileID: 513184581}
   seeThroughWhileAdjusting: 1
   scanHint: Move your phone slowly over the ground
   aimHint: Aim the ring at the spot, then tap "Place here"
   placeFailedHint: Couldn't place it there. Aim at the ground and try again
-  adjustHint: "Drag to move \xB7 twist with two fingers to turn"
-  exploreHint: Walk around the building
+  adjustHint: 'Drag to move. Two fingers: twist to turn, pinch to resize'
   editCancelledHint: Changes discarded
   occlusionOffText: 'Hidden by real objects: Off'
   occlusionOnText: 'Hidden by real objects: On'
   occlusionUnsupportedText: 'Hidden by real objects: not on this phone'
   hideBaseText: Hide base
   showBaseText: Show base
-  walkAroundText: Walk slowly around the spot where you placed it, keeping it in
-    view. This helps the app find it again.
-  savingText: Saving...
-  saveFailedTitle: Couldn't save
-  savedHint: Saved. It will be here next time
-  savedWithoutLocationHint: Saved. (Your location wasn't known, so no directions
-    to it next time)
-  savedUpdateHint: Changes saved
-  notSavedHint: Not saved. Use Edit, then Done, to save it
-  restoringTitle: Finding your building...
-  restoreFailedTitle: Couldn't find the saved building
-  restoredCloudHint: Restored at the saved spot
-  qualityCheckSeconds: 0.25
 --- !u!114 &513184571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -948,36 +937,15 @@ MonoBehaviour:
   ui: {fileID: 466582595}
   earthManager: {fileID: 1873267314}
   minScale: 0.25
-  maxScale: 75
-  realSizeScale: 50
+  maxScale: 5
   streetLevel: 0.0147
+  modelHeight: 0.428
+  minDragDepth: 0.5
+  modelHalfWidth: 0.36
   nudgeStep: 0.02
   heightStep: 0.005
   maxHeadingAccuracy: 25
   refreshSeconds: 0.5
---- !u!114 &513184575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 513184567}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df10507bcc2a4754b973daa544e80f08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PersistenceController
-  placement: {fileID: 513184572}
-  anchorManager: {fileID: 1873267315}
-  earthManager: {fileID: 1873267314}
-  arCamera: {fileID: 301144159}
-  cloudAnchorTtlDays: 365
-  hostTimeoutSeconds: 60
-  maxSaveLocationAccuracy: 30
-  sessionWaitSeconds: 20
-  maxGuideLocationAccuracy: 50
-  maxGuideHeadingAccuracy: 30
-  guidanceRefreshSeconds: 0.5
 --- !u!114 &513184576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1007,12 +975,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dccffab8a44694343b1c8ef1b06ea9ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NearFade
-  placement: {fileID: 513184572}
-  startPerScale: 0.08
-  minStart: 0.35
-  maxStart: 5
-  endFraction: 0.3
-  minEnd: 0.15
   seeThroughAmount: 0.5
   seeThroughSeconds: 0.25
 --- !u!114 &513184578
@@ -1066,15 +1028,62 @@ MonoBehaviour:
   aimedTint: {r: 2.2, g: 1.7, b: 0.7, a: 1}
   turnDegreesPerSecond: 30
   bobHeight: 0.05
-  totalPieces: 5
   minDistance: 1.5
   maxDistance: 4
   heightAboveFloor: 1
   fallbackFloorBelowCamera: 1.4
+  cityPieceSize: {x: 1.2, y: 0.8, z: 0.6}
+  cityCollectDistance: 40
+  cityAimTolerance: 0.9
   collectDistance: 6
   aimTolerance: 0.25
   collectSeconds: 0.4
   refreshSeconds: 0.3
+--- !u!114 &513184581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7456047fc34bec43845e0ad71a0346e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CityContent
+  earthManager: {fileID: 1873267314}
+  anchorManager: {fileID: 1873267315}
+  arCamera: {fileID: 301144159}
+  placement: {fileID: 513184572}
+  pieces: {fileID: 513184580}
+  academyScale: 35
+  academyStreetLevel: 0.0147
+  maxHorizontalAccuracy: 8
+  maxHeadingAccuracy: 15
+--- !u!114 &513184582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e87a9f2430501fb41b60f5eea1e3c700, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CityGuide
+  earthManager: {fileID: 1873267314}
+  pieceHotRadius: 60
+  pieceArriveRadius: 15
+  academyHotRadius: 150
+  academyArriveRadius: 60
+  leaveMarginFraction: 0.5
+  minLeaveMargin: 15
+  trendStep: 3
+  refreshSeconds: 0.25
+  editorLatitude: 47.165
+  editorLongitude: 27.579
+  editorHeading: 0
 --- !u!1 &598177549
 GameObject:
   m_ObjectHideFlags: 0

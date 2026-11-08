@@ -12,14 +12,23 @@ using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 /// The Adjust step: moves, turns, sizes and raises the placed model.
 ///
 /// Gestures (only while active; a touch that starts on the UI is ignored):
-///   - one finger: drag the model over an endless virtual ground (the anchor's level plane), so it
-///     can go beyond the detected planes;
-///   - two fingers: twist to turn it around its own centre.
+///   - one finger: drag the model along the ground (the anchor's level plane; it can go beyond the
+///     detected planes). It follows the finger at the model's own distance: sideways on screen moves it
+///     sideways, up on screen pushes it away, by as much as the finger moved over the model. (The first
+///     version put the model where the finger's ray met the floor: with the finger on a big model's walls,
+///     near the horizon, that point was far away and the model ran off.)
+///   - two fingers: twist to turn it around its own centre, pinch / spread to make it smaller / bigger
+///     (both at once are fine).
 /// Commands (AppController calls these for the buttons): camera-relative nudges, turn by degrees,
-/// size (slider and presets), height, show/hide the base, face south.
+/// size (slider and the presets Default size x1 / Max size x5), height, show/hide the base, face south.
+///
+/// The free placement mode is for a floor or a table, indoors (user, 8 Nov 2026): sizes go up to x5.
+/// Life size (x35, about 25 m) was tried and dropped here: indoors such a building is drawn over the walls,
+/// its base sits near the horizon above the visible floor and it can't look grounded. The academy at life
+/// size is the in-city mode's job (CityContent).
 ///
 /// Everything changes only the model's LOCAL transform under the anchor (see the anchor convention
-/// in PlacementController); that local transform is what will be saved.
+/// in PlacementController).
 /// </summary>
 public class AdjustController : MonoBehaviour
 {
@@ -32,14 +41,22 @@ public class AdjustController : MonoBehaviour
 
     [Header("Size")]
     [SerializeField] float minScale = 0.25f;
-    [SerializeField] float maxScale = 75f;
-    [Tooltip("Scale at which the model has the real building's size. The academy model is 1:50.")]
-    [SerializeField] float realSizeScale = 50f;
+    [Tooltip("The largest size, also the \"Max size\" preset (x5: about 3.6 x 3 m, 2 m tall).")]
+    [SerializeField] float maxScale = 5f;
     [Tooltip("Street level in the model at scale 1, in metres above the platform's underside: where the " +
              "paved ground meets the building's walls (measured all round the footprint: 0.0147; the " +
-             "figure stands on raised grass at 0.05). 'Street level' and the Real size preset lower the " +
-             "model by this x scale, so the building's base sits on the real ground.")]
+             "figure stands on raised grass at 0.05). The 'Street' height button lowers the model by this " +
+             "x scale, so the building's walls stand on the real ground.")]
     [SerializeField] float streetLevel = 0.0147f;
+
+    [Header("Dragging")]
+    [Tooltip("Height of the model at scale 1 (metres): the drag is measured at the model's middle.")]
+    [SerializeField] float modelHeight = 0.428f;
+    [Tooltip("The drag is measured at least this far from the camera (metres).")]
+    [SerializeField] float minDragDepth = 0.5f;
+    [Tooltip("Half the model's width at scale 1 (metres). The drag is measured at least this x scale away, so a " +
+             "big model right in front of the camera still moves by about its width per screen swipe.")]
+    [SerializeField] float modelHalfWidth = 0.36f;
 
     [Header("Steps (metres at scale 1; they grow with the scale)")]
     [SerializeField] float nudgeStep = 0.02f;
@@ -58,7 +75,6 @@ public class AdjustController : MonoBehaviour
     public float Scale => model != null ? model.localScale.x : 1f;
     public float MinScale => minScale;
     public float MaxScale => maxScale;
-    public bool HasRealSize => realSizeScale > 0f;
     /// <summary>Height of the model's base above the anchor's ground, in metres.</summary>
     public float Height => model != null ? model.localPosition.y : 0f;
     public bool PlatformVisible => placement == null || placement.PlatformVisible;
@@ -77,9 +93,11 @@ public class AdjustController : MonoBehaviour
     readonly HashSet<int> gestureTouchIds = new HashSet<int>(); // touches that began outside the UI
     readonly List<Touch> gestureTouches = new List<Touch>();
     int dragTouchId = -1;
-    Vector3 grabOffset;       // model position minus the grabbed ground point (anchor space)
+    Vector2 lastDragScreen;   // the dragging finger's previous screen position
+    float dragDepth;          // the model's distance in front of the camera when the drag began
     bool twisting;
     float lastTwistAngle;
+    float lastPinchDistance;
     bool waitForRelease;      // after a twist, no drag until every finger is lifted
 
     void OnEnable()
@@ -159,7 +177,10 @@ public class AdjustController : MonoBehaviour
         NotifyChanged();
     }
 
-    /// <summary>Sets the size. The height scales along, so the model keeps its relation to the ground.</summary>
+    /// <summary>
+    /// Sets the size around the model's pivot (the base's underside), with its height scaled along: a base on
+    /// the floor stays on the floor, a model lowered to street level stays at street level.
+    /// </summary>
     public void SetScale(float scale)
     {
         if (!CanEdit()) return;
@@ -173,20 +194,17 @@ public class AdjustController : MonoBehaviour
         NotifyChanged();
     }
 
-    /// <summary>Tabletop preset: scale 1, standing on its base.</summary>
-    public void ApplyTabletop()
+    /// <summary>Default size preset: the model's own size (x1), standing on its base where it is.</summary>
+    public void ApplyDefaultSize() => ApplyPreset(1f);
+
+    /// <summary>Max size preset: the largest size (x5), standing on its base where it is.</summary>
+    public void ApplyMaxSize() => ApplyPreset(maxScale);
+
+    void ApplyPreset(float scale)
     {
         if (!CanEdit()) return;
-        model.localScale = Vector3.one;
+        model.localScale = Vector3.one * Mathf.Clamp(scale, minScale, maxScale);
         SetHeightValue(0f);
-    }
-
-    /// <summary>Real size preset: the real building's size, street level on the ground.</summary>
-    public void ApplyRealSize()
-    {
-        if (!CanEdit() || !HasRealSize) return;
-        model.localScale = Vector3.one * Mathf.Clamp(realSizeScale, minScale, maxScale);
-        SetHeightValue(-streetLevel * Scale);
     }
 
     /// <summary>Raises (+1) or lowers (-1) the model by one step.</summary>
@@ -288,7 +306,7 @@ public class AdjustController : MonoBehaviour
         {
             dragTouchId = -1;
             waitForRelease = true;
-            Twist(gestureTouches[0].screenPosition, gestureTouches[1].screenPosition);
+            TwistAndPinch(gestureTouches[0].screenPosition, gestureTouches[1].screenPosition);
             return;
         }
 
@@ -317,50 +335,76 @@ public class AdjustController : MonoBehaviour
 
     void Drag(Touch touch)
     {
-        if (!TryGroundPoint(touch.screenPosition, out var ground)) return;
-
+        Vector2 screen = touch.screenPosition;
         if (touch.touchId != dragTouchId)
         {
             dragTouchId = touch.touchId;
-            grabOffset = model.localPosition - ground;
-            grabOffset.y = 0f;
+            lastDragScreen = screen;
+            dragDepth = ModelDepth();
             return;
         }
+        MoveByScreenDrag(lastDragScreen, screen, dragDepth);
+        lastDragScreen = screen;
+    }
 
-        var position = ground + grabOffset;
-        position.y = model.localPosition.y;
-        if ((position - model.localPosition).sqrMagnitude < 1e-10f) return;
-        model.localPosition = position;
+    /// The depth a drag is measured at: how far in front of the camera the model's centre is, but at
+    /// least half the model's width (at real size the user may stand inside the building, where its centre
+    /// is only a metre or two away and the 25 m building would crawl) and at least minDragDepth.
+    public float ModelDepth()
+    {
+        if (model == null || arCamera == null) return minDragDepth;
+        Vector3 centre = model.position + anchor.up * (0.5f * modelHeight * Scale);
+        var cameraTransform = arCamera.transform;
+        float depth = Vector3.Dot(centre - cameraTransform.position, cameraTransform.forward);
+        return Mathf.Max(minDragDepth, modelHalfWidth * Scale, depth);
+    }
+
+    /// <summary>
+    /// Moves the model along the ground by a finger movement on screen, measured at the given depth:
+    /// the screen's right is the camera's right on the ground, the screen's up is away from the camera.
+    /// </summary>
+    public void MoveByScreenDrag(Vector2 from, Vector2 to, float depth)
+    {
+        if (!CanEdit() || (to - from).sqrMagnitude < 1e-6f) return;
+        var cameraTransform = arCamera.transform;
+        Vector3 a = arCamera.ScreenToWorldPoint(new Vector3(from.x, from.y, depth));
+        Vector3 b = arCamera.ScreenToWorldPoint(new Vector3(to.x, to.y, depth));
+        Vector3 moved = b - a;
+        Vector3 right = Flat(cameraTransform.right);
+        Vector3 away = Flat(cameraTransform.forward);
+        if (away == Vector3.zero) away = Flat(cameraTransform.up); // looking straight down
+        Vector3 world = right * Vector3.Dot(moved, cameraTransform.right) +
+                        away * Vector3.Dot(moved, cameraTransform.up);
+        Vector3 local = anchor.InverseTransformVector(world);
+        local.y = 0f;
+        model.localPosition += local;
         NotifyChanged();
     }
 
-    void Twist(Vector2 a, Vector2 b)
+    /// Two fingers: the change of their angle turns the model, the change of their distance sizes it
+    /// (spreading by 10 % makes it 10 % bigger; SetScale keeps the street level where it is).
+    void TwistAndPinch(Vector2 a, Vector2 b)
     {
         float angle = Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
+        float distance = Vector2.Distance(a, b);
         if (!twisting)
         {
             twisting = true;
             lastTwistAngle = angle;
+            lastPinchDistance = distance;
             return;
         }
         float delta = Mathf.DeltaAngle(lastTwistAngle, angle);
         lastTwistAngle = angle;
         // Fingers turning counter-clockwise on screen turn the model counter-clockwise seen from above.
         if (Mathf.Abs(delta) > 0.01f) Rotate(-delta);
-    }
 
-    /// Where a screen point hits the anchor's level plane, in anchor space (y = 0).
-    bool TryGroundPoint(Vector2 screenPosition, out Vector3 local)
-    {
-        local = default;
-        var ray = arCamera.ScreenPointToRay(screenPosition);
-        var plane = new Plane(anchor.up, anchor.position);
-        // Near the horizon a tiny finger movement would throw the model far away: limit the reach.
-        float maxDistance = 20f + 2f * Scale;
-        if (!plane.Raycast(ray, out float distance) || distance > maxDistance) return false;
-        local = anchor.InverseTransformPoint(ray.GetPoint(distance));
-        local.y = 0f;
-        return true;
+        if (lastPinchDistance > 1f && distance > 1f)
+        {
+            float ratio = distance / lastPinchDistance;
+            if (Mathf.Abs(ratio - 1f) > 0.001f) SetScale(Scale * ratio);
+        }
+        lastPinchDistance = distance;
     }
 
     void ResetGestures()

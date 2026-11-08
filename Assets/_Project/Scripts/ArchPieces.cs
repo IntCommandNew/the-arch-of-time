@@ -5,13 +5,16 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 /// <summary>
-/// Arch pieces (test mode for the quest's collecting, until the destinations and the arch model exist).
+/// The arch pieces (until the arch model exists, a placeholder block).
 ///
 /// Spawn(): a placeholder piece (a stone block) appears at a random spot 1.5 to 4 m around the user,
 /// in any direction (also behind), floating ~1 m above the detected floor and anchored in AR so it
 /// stays put. It slowly turns and bobs. The centre of the screen is the aim: when it is on a piece
 /// within reach, the piece turns gold (IsAimed) and Collect() takes it (it spins away). One piece is
-/// out at a time; Spawn() again moves it. The collected count is remembered (PlayerPrefs).
+/// out at a time; Spawn() again moves it. Which pieces are collected is saved per mode (GameProgress).
+///
+/// In-city mode: ShowOn(anchor, piece) puts that particular piece on a geospatial anchor (CityContent),
+/// bigger and collectable from farther away, since it is found outdoors at a GPS-level place.
 ///
 /// No UI of its own: AppController shows the count, the hint and the buttons.
 /// </summary>
@@ -35,13 +38,18 @@ public class ArchPieces : MonoBehaviour
     [SerializeField] float bobHeight = 0.05f;
 
     [Header("Spawning")]
-    [SerializeField] int totalPieces = 5;
     [SerializeField] float minDistance = 1.5f;
     [SerializeField] float maxDistance = 4f;
     [Tooltip("Height of the piece above the floor (metres).")]
     [SerializeField] float heightAboveFloor = 1f;
     [Tooltip("Floor height below the camera when no floor has been detected (metres).")]
     [SerializeField] float fallbackFloorBelowCamera = 1.4f;
+
+    [Header("In-city pieces (ShowOn)")]
+    [Tooltip("Size of an in-city piece (metres), as previewed in the authoring scene.")]
+    [SerializeField] Vector3 cityPieceSize = new Vector3(1.2f, 0.8f, 0.6f);
+    [SerializeField] float cityCollectDistance = 40f;
+    [SerializeField] float cityAimTolerance = 0.9f;
 
     [Header("Collecting")]
     [Tooltip("Farthest a piece can be collected from (metres).")]
@@ -55,14 +63,16 @@ public class ArchPieces : MonoBehaviour
     /// <summary>Count, piece, aim or direction changed.</summary>
     public event Action Changed;
 
-    public int Collected { get; private set; }
-    public int Total => totalPieces;
-    public bool AllCollected => Collected >= totalPieces;
+    public GameMode Mode { get; private set; } = GameMode.Free;
+    public int Collected => GameProgress.CollectedCount(Mode);
+    public int Total => GameProgress.PieceCount;
+    public bool AllCollected => GameProgress.NextPiece(Mode) < 0;
     public bool HasPiece => piece != null && !collecting;
     public bool IsAimed { get; private set; }
     public bool IsSpawning { get; private set; }
+    /// <summary>The last piece collected (0 to 3), or -1.</summary>
+    public int LastCollected { get; private set; } = -1;
 
-    const string CollectedKey = "ArchPieces.Collected";
     static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
     static readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
@@ -76,31 +86,33 @@ public class ArchPieces : MonoBehaviour
     bool collecting;
     float collectStart;
     float nextRefresh;
+    int shownPiece = -1;        // ShowOn(): the piece to mark when collected (-1: the next one)
+    Vector3 size;               // of the piece that is out
+    float baseHeight;           // its height above its anchor
+    float reach;                // how far it can be collected from
+    float tolerance;            // how far the aim may pass from it
 
-    void Awake()
+    /// <summary>Pieces can be spawned and collected from now on, saved as progress of this mode.</summary>
+    public void Begin(GameMode mode)
     {
-        Collected = Mathf.Clamp(PlayerPrefs.GetInt(CollectedKey, 0), 0, totalPieces);
-    }
-
-    /// <summary>Entering the pieces mode.</summary>
-    public void Begin()
-    {
+        Mode = mode;
         active = true;
+        LastCollected = -1;
         Changed?.Invoke();
     }
 
-    /// <summary>Leaving the pieces mode: the piece that is out goes away.</summary>
+    /// <summary>No more pieces for now: the piece that is out goes away (progress is kept).</summary>
     public void End()
     {
         active = false;
         RemovePiece();
     }
 
+    /// <summary>Starts this mode's collection again from 0.</summary>
     public void ResetProgress()
     {
-        Collected = 0;
-        PlayerPrefs.SetInt(CollectedKey, 0);
-        PlayerPrefs.Save();
+        RemovePiece();
+        GameProgress.ResetPieces(Mode);
         Changed?.Invoke();
     }
 
@@ -112,6 +124,11 @@ public class ArchPieces : MonoBehaviour
         RemovePiece();
         IsSpawning = true;
         int version = spawnVersion;
+        shownPiece = -1;
+        size = pieceSize;
+        baseHeight = heightAboveFloor;
+        reach = collectDistance;
+        tolerance = aimTolerance;
         Changed?.Invoke();
 
         Vector3 cameraPosition = arCamera.transform.position;
@@ -187,14 +204,33 @@ public class ArchPieces : MonoBehaviour
         return float.IsPositiveInfinity(lowest) ? cameraPosition.y - fallbackFloorBelowCamera : lowest;
     }
 
+    /// <summary>
+    /// In-city mode: shows a particular piece on an anchor made elsewhere (its place in the city).
+    /// This component then owns the anchor: End() removes it.
+    /// </summary>
+    public void ShowOn(Transform root, int pieceNumber)
+    {
+        if (!active || root == null) return;
+        RemovePiece();
+        shownPiece = pieceNumber;
+        size = cityPieceSize;
+        baseHeight = 0f; // the anchor is already at the piece's height
+        reach = cityCollectDistance;
+        tolerance = cityAimTolerance;
+        pieceRoot = root;
+        piece = CreatePiece(root);
+        Debug.Log($"[ArchPieces] Piece {pieceNumber} shown on {root.name}.");
+        Changed?.Invoke();
+    }
+
     Transform CreatePiece(Transform root)
     {
         var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         go.name = "Arch piece (placeholder)";
         Destroy(go.GetComponent<Collider>()); // aiming is a ray test, no physics
         go.transform.SetParent(root, false);
-        go.transform.localPosition = new Vector3(0f, heightAboveFloor, 0f);
-        go.transform.localScale = pieceSize;
+        go.transform.localPosition = new Vector3(0f, baseHeight, 0f);
+        go.transform.localScale = size;
         pieceRenderer = go.GetComponent<MeshRenderer>();
         if (pieceMaterial != null) pieceRenderer.sharedMaterial = pieceMaterial;
         block ??= new MaterialPropertyBlock();
@@ -240,16 +276,16 @@ public class ArchPieces : MonoBehaviour
         if (collecting)
         {
             float t = Mathf.Clamp01((Time.unscaledTime - collectStart) / collectSeconds);
-            piece.localScale = pieceSize * (1f - t);
+            piece.localScale = size * (1f - t);
             piece.Rotate(0f, 720f * Time.unscaledDeltaTime, 0f, Space.Self);
             piece.localPosition += Vector3.up * (0.6f * Time.unscaledDeltaTime);
             if (t >= 1f)
             {
+                int collected = shownPiece >= 0 ? shownPiece : GameProgress.NextPiece(Mode);
                 RemovePiece();
-                Collected = Mathf.Min(Collected + 1, totalPieces);
-                PlayerPrefs.SetInt(CollectedKey, Collected);
-                PlayerPrefs.Save();
-                Debug.Log($"[ArchPieces] Piece collected: {Collected} / {totalPieces}.");
+                GameProgress.MarkCollected(Mode, collected);
+                LastCollected = collected;
+                Debug.Log($"[ArchPieces] Piece collected ({Mode} mode): {Collected} / {Total}.");
                 Changed?.Invoke();
             }
             return;
@@ -258,7 +294,7 @@ public class ArchPieces : MonoBehaviour
         // Idle animation: slow turn and bob.
         piece.Rotate(0f, turnDegreesPerSecond * Time.unscaledDeltaTime, 0f, Space.Self);
         var position = piece.localPosition;
-        position.y = heightAboveFloor + Mathf.Sin(Time.unscaledTime * 2f) * bobHeight;
+        position.y = baseHeight + Mathf.Sin(Time.unscaledTime * 2f) * bobHeight * Mathf.Max(1f, size.y / pieceSize.y);
         piece.localPosition = position;
 
         bool aimed = IsAimedAt(piece.position);
@@ -282,8 +318,8 @@ public class ArchPieces : MonoBehaviour
         Ray ray = arCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Vector3 toPoint = point - ray.origin;
         float along = Vector3.Dot(toPoint, ray.direction);
-        if (along <= 0f || along > collectDistance) return false;
-        return (toPoint - ray.direction * along).sqrMagnitude <= aimTolerance * aimTolerance;
+        if (along <= 0f || along > reach) return false;
+        return (toPoint - ray.direction * along).sqrMagnitude <= tolerance * tolerance;
     }
 
     void SetTint(Color tint)
@@ -304,6 +340,7 @@ public class ArchPieces : MonoBehaviour
         IsSpawning = false;
         collecting = false;
         IsAimed = false;
+        shownPiece = -1;
         if (piece != null) Destroy(piece.gameObject);
         piece = null;
         pieceRenderer = null;

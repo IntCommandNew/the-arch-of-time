@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c99c6b7e51ef8214bbcb5cf1bc076614, type: 3}
+  m_Name: CityTargets
+  m_EditorClassIdentifier: Assembly-CSharp::CityTargets
+  targets:
+  - name: Academy
+    kind: 0
+    piece: -1
+    latitude: 47.16604786765112
+    longitude: 27.57823102141012
+    altitudeType: 0
+    altitude: 0
+    eunRotation: {x: -0, y: 0.8356669, z: -0, w: 0.5492367}
+    scale: 35
+  - name: Left column
+    kind: 1
+    piece: 0
+    latitude: 47.16624922181205
+    longitude: 27.577595217986733
+    altitudeType: 0
+    altitude: 1
+    eunRotation: {x: 0, y: 0, z: 0, w: 1}
+    scale: 0
+  - name: Right column
+    kind: 1
+    piece: 1
+    latitude: 47.05710461588993
+    longitude: 26.91532954567008
+    altitudeType: 0
+    altitude: 1
+    eunRotation: {x: 0, y: 0, z: 0, w: 1}
+    scale: 0
+  - name: Arc
+    kind: 1
+    piece: 2
+    latitude: 47.056730063146084
+    longitude: 26.915782492528773
+    altitudeType: 0
+    altitude: 1
+    eunRotation: {x: 0, y: 0, z: 0, w: 1}
+    scale: 0
+  - name: Top beam
+    kind: 1
+    piece: 3
+    latitude: 47.16585743090995
+    longitude: 27.579048154340217
+    altitudeType: 0
+    altitude: 1
+    eunRotation: {x: 0, y: 0, z: 0, w: 1}
+    scale: 0

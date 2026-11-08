@@ -1,22 +1,110 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="MainUI.uss" />
 
-    <!-- Everything sits inside "safe-area", which AppUI keeps clear of the notch / camera cut-out. -->
+    <!-- Solid background behind the menu screens (mode choice, starting, blocked). It covers the whole
+         screen, notch strip included, so the camera view never shows around them. -->
+    <ui:VisualElement name="backdrop" class="backdrop is-hidden" picking-mode="Ignore" />
+
+    <!-- Everything else sits inside "safe-area", which AppUI keeps clear of the notch / camera cut-out. -->
     <ui:VisualElement name="safe-area" class="safe-area" picking-mode="Ignore">
 
         <!-- One element per app screen. AppUI shows exactly one at a time. -->
 
+        <!-- Mode: the first screen. Two ways to play, each with its own progress. -->
+        <ui:VisualElement name="screen-mode" class="screen">
+            <ui:VisualElement class="mode__head">
+                <ui:Label text="The Arch of Time" class="mode__title" />
+                <ui:Label text="Academia Mih&#x103;ilean&#x103;, Ia&#x219;i" class="mode__subtitle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="mode__choices">
+                <ui:Button name="btn-mode-city" class="choice">
+                    <ui:Label text="In Ia&#x219;i" class="choice__name" />
+                    <ui:Label text="Walk to the real places where the academy's story happened." class="choice__text" />
+                    <ui:VisualElement class="choice__progress">
+                        <ArchEmblem name="mode-city-arch" class="arch" />
+                        <ui:Label name="mode-city-count" text="0 of 4 arch pieces" class="choice__status" />
+                    </ui:VisualElement>
+                </ui:Button>
+                <ui:Button name="btn-mode-free" class="choice">
+                    <ui:Label text="Anywhere" class="choice__name" />
+                    <ui:Label text="Place the academy on a table, in a room or in a park, then find the pieces of its arch around you." class="choice__text" />
+                    <ui:VisualElement class="choice__progress">
+                        <ArchEmblem name="mode-free-arch" class="arch" />
+                        <ui:Label name="mode-free-count" text="0 of 4 arch pieces" class="choice__status" />
+                    </ui:VisualElement>
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- In Iasi, the targets: the academy and the four pieces. A found piece can't be picked
+             (slate rule) until all four are found and the arch is started over. -->
+        <ui:VisualElement name="screen-city" class="screen is-hidden">
+            <ui:VisualElement class="city__head">
+                <ui:Label text="In Ia&#x219;i" class="city__title" />
+                <ui:VisualElement class="choice__progress">
+                    <ArchEmblem name="city-arch" class="arch" />
+                    <ui:Label name="city-count" text="0 of 4 pieces found" class="choice__status" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView class="city__list" mode="Vertical">
+                <ui:Button name="btn-target-0" class="target">
+                    <ui:Label name="target-name-0" text="The academy" class="target__name" />
+                    <ui:Label name="target-status-0" text="Where it stood" class="target__status" />
+                </ui:Button>
+                <ui:Button name="btn-target-1" class="target">
+                    <ui:Label name="target-name-1" text="Left column" class="target__name" />
+                    <ui:Label name="target-status-1" text="" class="target__status" />
+                </ui:Button>
+                <ui:Button name="btn-target-2" class="target">
+                    <ui:Label name="target-name-2" text="Right column" class="target__name" />
+                    <ui:Label name="target-status-2" text="" class="target__status" />
+                </ui:Button>
+                <ui:Button name="btn-target-3" class="target">
+                    <ui:Label name="target-name-3" text="Arc" class="target__name" />
+                    <ui:Label name="target-status-3" text="" class="target__status" />
+                </ui:Button>
+                <ui:Button name="btn-target-4" class="target">
+                    <ui:Label name="target-name-4" text="Top beam" class="target__name" />
+                    <ui:Label name="target-status-4" text="" class="target__status" />
+                </ui:Button>
+            </ui:ScrollView>
+            <ui:VisualElement class="options-row">
+                <ui:Button name="btn-city-reset" text="Start over" class="btn btn--option is-hidden" />
+                <ui:Button name="btn-city-back" text="Modes" class="btn btn--option" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Guide: walking to the picked target with the camera off. Far: distance and compass direction.
+             Near: the dial points at it, warmer / colder. Arrived: the camera can be opened. -->
+        <ui:VisualElement name="screen-guide" class="screen is-hidden">
+            <ui:VisualElement class="guide__head">
+                <ui:Label name="guide-name" text="Left column" class="guide__name" />
+                <ui:Label name="guide-stage" text="Find it in the city" class="guide__stage" />
+            </ui:VisualElement>
+            <GuideDial name="guide-dial" class="dial">
+                <ui:Label name="guide-big" text="1.2 km" class="dial__big" />
+                <ui:Label name="guide-small" text="to the north-east" class="dial__small" />
+            </GuideDial>
+            <ui:VisualElement class="guide__foot">
+                <ui:Label name="guide-accuracy" text="Finding your position..." class="guide__accuracy" />
+                <ui:Button name="btn-open-camera" text="Open the camera" class="btn btn--primary" />
+                <ui:VisualElement class="options-row">
+                    <ui:Button name="btn-guide-back" text="Targets" class="btn btn--option" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- Starting: shown while permissions are asked and ARCore is checked. -->
-        <ui:VisualElement name="screen-starting" class="screen screen--centered" picking-mode="Ignore">
+        <ui:VisualElement name="screen-starting" class="screen screen--centered is-hidden">
             <ui:VisualElement class="card">
-                <ui:Label text="Starting AR..." class="card__title" />
+                <ui:Label text="Starting the camera" class="card__title" />
                 <ui:Label name="starting-detail" text="Preparing the camera" class="card__text card__text--last" />
             </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- Blocked: AR can't run (permissions missing, unsupported phone, ARCore missing),
              or the session ended because a permission was revoked (only "Close app"). -->
-        <ui:VisualElement name="screen-blocked" class="screen screen--centered is-hidden" picking-mode="Ignore">
+        <ui:VisualElement name="screen-blocked" class="screen screen--centered is-hidden">
             <ui:VisualElement class="card">
                 <ui:Label name="blocked-title" text="Permissions needed" class="card__title" />
                 <ui:Label name="blocked-message" text="This app needs the camera and precise location to work." class="card__text" />
@@ -28,22 +116,36 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Scan / Place: AR is running. The hint says what to do; "Place here" is enabled once the
-             reticle is on the ground. -->
+        <!-- Scan / Place: the hint says what to do; "Place here" is enabled once the reticle is on the ground. -->
         <ui:VisualElement name="screen-scan" class="screen screen--bottom is-hidden" picking-mode="Ignore">
-            <ui:Label name="scan-hint" text="Move your phone slowly over the ground" class="hint hint--above-actions" picking-mode="Ignore" />
-            <!-- Test mode for collecting the arch pieces (until the quest destinations exist). -->
-            <ui:Button name="btn-pieces-from-scan" text="Arch pieces" class="btn btn--on-camera btn--option" />
-            <ui:Button name="btn-place" text="Place here" class="btn btn--primary btn--wide" />
+            <ui:Label name="scan-hint" text="Move your phone slowly over the ground" class="hint" picking-mode="Ignore" />
+            <ui:VisualElement class="actions-row actions-row--on-camera" picking-mode="Ignore">
+                <ui:Button name="btn-leave-from-scan" text="Modes" class="btn btn--on-camera btn--narrow" />
+                <ui:Button name="btn-place" text="Place here" class="btn btn--primary" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- Adjust: the model is placed. Drag / twist on the camera view; the panel has a tab per
              kind of change (only the selected tab's tools are shown). The panel blocks touches,
              so gestures that start on it don't move the model. -->
         <ui:VisualElement name="screen-adjust" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
-            <ui:Label name="adjust-hint" text="Drag to move &#xB7; twist with two fingers to turn" class="hint hint--above-actions" picking-mode="Ignore" />
+            <ui:Label name="adjust-hint" text="Drag to move. Two fingers: twist to turn, pinch to resize" class="hint" picking-mode="Ignore" />
             <ui:VisualElement class="panel">
-                <ui:Label name="adjust-readout" text="&#xD7;1" class="panel__readout" />
+                <!-- Live values: size, front bearing, height. -->
+                <ui:VisualElement class="readout">
+                    <ui:VisualElement class="readout__item">
+                        <ui:Label name="readout-size" text="&#xD7;1" class="readout__value" />
+                        <ui:Label text="Size" class="readout__label" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="readout__item">
+                        <ui:Label name="readout-front" text="-" class="readout__value" />
+                        <ui:Label text="Front faces" class="readout__label" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="readout__item">
+                        <ui:Label name="readout-height" text="0.00 m" class="readout__value" />
+                        <ui:Label text="Height" class="readout__label" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
 
                 <ui:VisualElement class="tabs">
                     <ui:Button name="tab-move" text="Move" class="tab" />
@@ -75,10 +177,10 @@
 
                 <!-- Size: logarithmic slider + presets; the base (platform) can be hidden. -->
                 <ui:VisualElement name="tool-size" class="tool tool--column is-hidden">
-                    <ui:Slider name="scale-slider" low-value="-0.6" high-value="1.9" class="scale-slider" />
+                    <ui:Slider name="scale-slider" low-value="-0.6" high-value="0.7" class="scale-slider" />
                     <ui:VisualElement class="tool__row">
-                        <ui:Button name="btn-tabletop" text="Tabletop" class="btn btn--tool" />
-                        <ui:Button name="btn-real-size" text="Real size" class="btn btn--tool" />
+                        <ui:Button name="btn-default-size" text="Default size" class="btn btn--tool" />
+                        <ui:Button name="btn-max-size" text="Max size" class="btn btn--tool" />
                         <ui:Button name="btn-platform" text="Hide base" class="btn btn--tool" />
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -102,73 +204,49 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Explore: the placement is confirmed; no gestures. -->
-        <ui:VisualElement name="screen-explore" class="screen screen--bottom is-hidden" picking-mode="Ignore">
-            <ui:Label name="explore-hint" text="Walk around the building" class="hint hint--above-actions" picking-mode="Ignore" />
-            <!-- Display option: real things in front of the building can hide it (depth occlusion). -->
-            <ui:Button name="btn-occlusion" text="Hidden by real objects: Off" class="btn btn--on-camera btn--option" />
-            <ui:VisualElement name="explore-actions" class="actions-row actions-row--on-camera" picking-mode="Ignore">
-                <ui:Button name="btn-edit" text="Edit" class="btn btn--on-camera" />
-                <ui:Button name="btn-new-location" text="New location" class="btn btn--on-camera" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- Save: after "Done". Walking around the spot first makes the cloud anchor reliable; the
-             meter shows how well ARCore knows the spot. At the bottom, so the spot stays in view. -->
-        <ui:VisualElement name="screen-save" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+        <!-- Explore: the academy is placed; pieces of the arch appear around the user to be collected. -->
+        <ui:VisualElement name="screen-explore" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
+            <ui:Label name="explore-hint" text="Tap &quot;Spawn piece&quot;, then find it around you" class="hint" picking-mode="Ignore" />
             <ui:VisualElement class="panel">
-                <ui:Label text="Save this spot" class="panel__title" />
-                <ui:Label name="save-message" text="Walk slowly around the spot where you placed it, keeping it in view." class="panel__text" />
-                <ui:VisualElement name="save-meter" class="meter meter--low">
-                    <ui:VisualElement class="meter__bar meter__bar--1" />
-                    <ui:VisualElement class="meter__bar meter__bar--2" />
-                    <ui:VisualElement class="meter__bar meter__bar--3" />
+                <ui:VisualElement class="pieces">
+                    <ArchEmblem name="explore-arch" class="arch" />
+                    <ui:VisualElement class="pieces__text">
+                        <ui:Label text="The arch" class="pieces__title" />
+                        <ui:Label name="pieces-count" text="0 of 4 pieces found" class="pieces__count" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Label name="save-quality" text="Keep walking around" class="panel__caption" />
-                <ui:Label text="Saving uploads visual data of this spot to Google (ARCore Cloud Anchors); Google keeps it for up to 365 days." class="panel__note" />
                 <ui:VisualElement class="actions-row">
-                    <ui:Button name="btn-save-skip" text="Not now" class="btn" />
-                    <ui:Button name="btn-save" text="Save" class="btn btn--primary" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- Restore: at launch, when a placement is saved. At the bottom, so the camera view stays free
-             for pointing at the spot. -->
-        <ui:VisualElement name="screen-restore" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
-            <ui:VisualElement class="panel">
-                <ui:Label name="restore-title" text="Finding your building..." class="panel__title" />
-                <ui:Label name="restore-message" text="Point the camera at where it was." class="panel__text" />
-                <ui:Button name="btn-pieces-from-restore" text="Arch pieces" class="btn btn--option" />
-                <ui:VisualElement class="actions-row">
-                    <ui:Button name="btn-restore-new" text="Place a new one" class="btn" />
-                    <ui:Button name="btn-restore-retry" text="Try again" class="btn btn--primary is-hidden" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- Arch pieces (test mode): spawn a placeholder piece around you, aim at it, collect it. -->
-        <ui:VisualElement name="screen-pieces" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
-            <ui:Label name="pieces-hint" text="Tap &quot;Spawn piece&quot;, then find it around you" class="hint hint--above-actions" picking-mode="Ignore" />
-            <ui:VisualElement class="panel">
-                <ui:Label name="pieces-count" text="Arch pieces: 0 / 5" class="panel__title panel__title--centered" />
-                <ui:Button name="btn-pieces-reset" text="Reset pieces" class="btn btn--option" />
-                <ui:VisualElement class="actions-row">
-                    <ui:Button name="btn-pieces-back" text="Back" class="btn" />
+                    <ui:Button name="btn-edit" text="Edit" class="btn" />
                     <ui:Button name="btn-spawn-piece" text="Spawn piece" class="btn" />
+                    <ui:Button name="btn-reset-pieces" text="Start over" class="btn is-hidden" />
                     <ui:Button name="btn-collect-piece" text="Collect" class="btn btn--primary" />
                 </ui:VisualElement>
+                <ui:VisualElement class="options-row">
+                    <!-- Display option: real things in front of the building can hide it (depth occlusion). -->
+                    <ui:Button name="btn-occlusion" text="Hidden by real objects: Off" class="btn btn--option" />
+                    <ui:Button name="btn-leave-from-explore" text="Modes" class="btn btn--option btn--narrow" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Confirmation before "New location" removes the model. Shown over the explore screen. -->
-        <ui:VisualElement name="confirm-new-location" class="screen screen--centered is-hidden" picking-mode="Ignore">
+        <!-- In Iasi, at the spot: the camera looks for the target's place, then shows it. -->
+        <ui:VisualElement name="screen-city-ar" class="screen screen--bottom is-hidden" picking-mode="Ignore">
+            <ui:Label name="city-ar-hint" text="Point the camera at the buildings around you" class="hint" picking-mode="Ignore" />
+            <ui:VisualElement class="actions-row actions-row--on-camera" picking-mode="Ignore">
+                <ui:Button name="btn-city-ar-back" text="Targets" class="btn btn--on-camera btn--narrow" />
+                <ui:Button name="btn-city-ar-retry" text="Try again" class="btn btn--primary is-hidden" />
+                <ui:Button name="btn-city-collect" text="Collect" class="btn btn--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Confirmation before leaving the mode: the placed academy goes away (progress stays). -->
+        <ui:VisualElement name="confirm-leave" class="screen screen--centered screen--dimmed is-hidden">
             <ui:VisualElement class="card">
-                <ui:Label text="Pick a new location?" class="card__title" />
-                <ui:Label text="The building will be removed from here, and you'll place it again." class="card__text" />
+                <ui:Label text="Back to the modes?" class="card__title" />
+                <ui:Label text="The academy is removed from here. The pieces you found stay found." class="card__text" />
                 <ui:VisualElement class="card__actions">
-                    <ui:Button name="btn-new-location-confirm" text="Remove and pick again" class="btn btn--primary" />
-                    <ui:Button name="btn-new-location-cancel" text="Cancel" class="btn" />
+                    <ui:Button name="btn-leave-confirm" text="Back to the modes" class="btn btn--primary" />
+                    <ui:Button name="btn-leave-cancel" text="Stay" class="btn" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

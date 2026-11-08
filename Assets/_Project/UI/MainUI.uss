@@ -1,6 +1,14 @@
 /* MainUI.uss: look of the whole app UI.
    Sizes are in reference pixels for a 1080 x 1920 portrait screen
-   (Panel Settings: Scale With Screen Size); they scale to any phone. */
+   (Panel Settings: Scale With Screen Size); they scale to any phone.
+
+   Palette (from the subject: the academy's stone, lithograph ink, the bronze of the arch):
+     ink        rgb(30, 38, 51)     panels and the start screens
+     limestone  rgb(236, 229, 211)  text
+     gilt       rgb(201, 154, 62)   main actions, selected tabs, collected pieces
+     patina     rgb(127, 163, 146)  a piece in sight
+     slate      rgb(58, 69, 86)     secondary buttons
+   Type: IM Fell English for titles only; Unity's sans for everything read on the move. */
 
 /* Layout containers */
 /* Positioned by AppUI to match Screen.safeArea (left/top/right/bottom set from code). */
@@ -20,6 +28,16 @@
     bottom: 0;
 }
 
+/* Solid ink behind the menu screens, over the whole screen (outside the safe area too). */
+.backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(30, 38, 51);
+}
+
 .screen--centered {
     justify-content: center;
     align-items: center;
@@ -32,34 +50,274 @@
     padding: 0 48px 96px 48px;
 }
 
+/* A bottom screen holding a panel: less padding, so the panel can be wide. */
+.screen--panel {
+    padding: 0 24px 32px 24px;
+}
+
+/* A card over the camera view (confirmations): the view dims behind it. */
+.screen--dimmed {
+    background-color: rgba(30, 38, 51, 0.55);
+}
+
 /* Generic visibility switch used by AppUI. */
 .is-hidden {
     display: none;
 }
 
-/* Card (starting / blocked messages) */
+/* Mode screen: the title at the top, the ways to play at the bottom (within thumb reach). */
+#screen-mode {
+    justify-content: space-between;
+    padding: 160px 72px 96px 72px;
+}
+
+.mode__title {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 132px;
+    color: rgb(236, 229, 211);
+    white-space: normal;
+}
+
+.mode__subtitle {
+    margin: 16px 0 0 4px;
+    padding: 0;
+    font-size: 36px;
+    color: rgba(236, 229, 211, 0.62);
+}
+
+/* A way to play: a full-width row, a gilt rule on the left when it can be played. */
+.choice {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0 0 40px 0;
+    padding: 36px 40px 36px 44px;
+    border-width: 0 0 0 10px;
+    border-color: rgb(201, 154, 62);
+    border-radius: 0 24px 24px 0;
+    background-color: rgba(236, 229, 211, 0.06);
+}
+
+.choice:hover {
+    background-color: rgba(236, 229, 211, 0.06);
+}
+
+.choice:active {
+    background-color: rgba(236, 229, 211, 0.14);
+}
+
+.choice__name {
+    margin: 0 0 12px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 72px;
+    color: rgb(236, 229, 211);
+}
+
+.choice__text {
+    margin: 0 0 24px 0;
+    padding: 0;
+    font-size: 34px;
+    color: rgba(236, 229, 211, 0.80);
+    white-space: normal;
+}
+
+.choice__status {
+    margin: 0;
+    padding: 0;
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: rgb(201, 154, 62);
+}
+
+.choice__progress {
+    flex-direction: row;
+    align-items: center;
+}
+
+.choice__progress .arch {
+    margin-right: 28px;
+}
+
+/* In Iasi: the target list. Same rule rows as the mode screen: gilt = still to find, slate = found. */
+#screen-city {
+    padding: 120px 72px 72px 72px;
+}
+
+.city__head {
+    margin-bottom: 48px;
+}
+
+.city__title {
+    margin: 0 0 24px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 104px;
+    color: rgb(236, 229, 211);
+}
+
+.city__list {
+    flex-grow: 1;
+}
+
+.target {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0 0 24px 0;
+    padding: 28px 40px 28px 44px;
+    border-width: 0 0 0 10px;
+    border-color: rgb(201, 154, 62);
+    border-radius: 0 24px 24px 0;
+    background-color: rgba(236, 229, 211, 0.06);
+}
+
+.target:hover {
+    background-color: rgba(236, 229, 211, 0.06);
+}
+
+.target:active {
+    background-color: rgba(236, 229, 211, 0.14);
+}
+
+/* A found piece: can't be picked again until the arch is started over. */
+.target:disabled {
+    opacity: 1;
+    border-color: rgb(58, 69, 86);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.target__name {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 60px;
+    color: rgb(236, 229, 211);
+}
+
+.target:disabled .target__name {
+    color: rgba(236, 229, 211, 0.45);
+}
+
+.target__status {
+    margin: 6px 0 0 0;
+    padding: 0;
+    font-size: 32px;
+    color: rgba(236, 229, 211, 0.70);
+}
+
+.target:disabled .target__status {
+    color: rgb(201, 154, 62);
+    -unity-font-style: bold;
+}
+
+/* Guide: the target's name at the top, the dial in the middle, the action within thumb reach. */
+#screen-guide {
+    justify-content: space-between;
+    align-items: center;
+    padding: 120px 72px 72px 72px;
+}
+
+.guide__head {
+    align-self: stretch;
+}
+
+.guide__name {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 96px;
+    color: rgb(236, 229, 211);
+    white-space: normal;
+}
+
+.guide__stage {
+    margin: 12px 0 0 4px;
+    padding: 0;
+    font-size: 34px;
+    color: rgba(236, 229, 211, 0.62);
+    white-space: normal;
+}
+
+/* GuideDial draws the ring and the pointer; the two labels sit in its middle. */
+.dial {
+    width: 720px;
+    height: 720px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 110px;
+}
+
+.dial__big {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 132px;
+    color: rgb(236, 229, 211);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.dial__big--warmer {
+    color: rgb(201, 154, 62);
+}
+
+.dial__big--colder {
+    color: rgb(127, 163, 146);
+}
+
+.dial__small {
+    margin: 12px 0 0 0;
+    padding: 0;
+    font-size: 38px;
+    color: rgba(236, 229, 211, 0.80);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.guide__foot {
+    align-self: stretch;
+}
+
+.guide__accuracy {
+    margin: 0 0 28px 0;
+    padding: 0;
+    font-size: 28px;
+    color: rgba(236, 229, 211, 0.50);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* The arch emblem (ArchEmblem draws it): keep the 100 x 112 aspect of its drawing. */
+.arch {
+    width: 120px;
+    height: 134px;
+    flex-shrink: 0;
+}
+
+/* Card (city, starting, blocked, confirmations) */
 .card {
     width: 100%;
     max-width: 900px;
     padding: 56px 52px 40px 52px;
     border-radius: 36px;
-    background-color: rgba(18, 20, 24, 0.88);
+    background-color: rgba(30, 38, 51, 0.94);
 }
 
 .card__title {
     margin: 0 0 20px 0;
     padding: 0;
-    font-size: 54px;
-    -unity-font-style: bold;
-    color: rgb(244, 241, 234);
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 60px;
+    color: rgb(236, 229, 211);
     white-space: normal;
 }
 
 .card__text {
     margin: 0 0 40px 0;
     padding: 0;
-    font-size: 38px;
-    color: rgba(244, 241, 234, 0.82);
+    font-size: 36px;
+    color: rgba(236, 229, 211, 0.82);
     white-space: normal;
 }
 
@@ -80,55 +338,48 @@
     padding: 0 32px;
     border-width: 0;
     border-radius: 60px;
-    background-color: rgba(255, 255, 255, 0.14);
-    color: rgb(244, 241, 234);
+    background-color: rgb(58, 69, 86);
+    color: rgb(236, 229, 211);
     font-size: 40px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
 .btn:hover {
-    background-color: rgba(255, 255, 255, 0.14);
+    background-color: rgb(58, 69, 86);
 }
 
 .btn:active {
-    background-color: rgba(255, 255, 255, 0.28);
+    background-color: rgb(78, 91, 112);
 }
 
 .btn--primary {
-    background-color: rgb(217, 164, 65);
-    color: rgb(27, 20, 8);
+    background-color: rgb(201, 154, 62);
+    color: rgb(30, 38, 51);
 }
 
 .btn--primary:hover {
-    background-color: rgb(217, 164, 65);
+    background-color: rgb(201, 154, 62);
 }
 
 .btn--primary:active {
-    background-color: rgb(185, 134, 44);
+    background-color: rgb(171, 128, 46);
 }
 
-/* Secondary button drawn straight over the camera image (not on a card): dark like the hints,
-   so it stays readable over bright floors. */
+/* Secondary button drawn straight over the camera image (not on a panel): ink, so it stays
+   readable over bright floors. */
 .btn--on-camera {
-    background-color: rgba(18, 20, 24, 0.80);
+    background-color: rgba(30, 38, 51, 0.88);
     border-width: 2px;
-    border-color: rgba(244, 241, 234, 0.35);
+    border-color: rgba(236, 229, 211, 0.30);
 }
 
 .btn--on-camera:hover {
-    background-color: rgba(18, 20, 24, 0.80);
+    background-color: rgba(30, 38, 51, 0.88);
 }
 
 .btn--on-camera:active {
-    background-color: rgba(48, 52, 60, 0.90);
-}
-
-/* Full-width action at the bottom of a screen (e.g. "Place here"). */
-.btn--wide {
-    width: 640px;
-    max-width: 100%;
-    margin-bottom: 0;
+    background-color: rgb(58, 69, 86);
 }
 
 /* Shown but not usable yet (e.g. "Place here" before the ground is found). */
@@ -136,119 +387,71 @@
     opacity: 0.4;
 }
 
-/* Hint pill (scan instructions) */
+/* Hint pill (what to do now) */
 .hint {
     max-width: 900px;
-    margin: 0;
+    margin: 0 0 32px 0;
     padding: 28px 44px;
     border-radius: 48px;
-    background-color: rgba(18, 20, 24, 0.80);
-    color: rgb(244, 241, 234);
+    background-color: rgba(30, 38, 51, 0.88);
+    color: rgb(236, 229, 211);
     font-size: 38px;
     white-space: normal;
     -unity-text-align: middle-center;
 }
 
-.hint--above-actions {
-    margin-bottom: 32px;
+/* A piece is in sight: the hint takes the patina colour. */
+.hint--in-sight {
+    background-color: rgb(127, 163, 146);
+    color: rgb(30, 38, 51);
+    -unity-font-style: bold;
 }
 
-/* Adjust panel */
-/* A bottom screen holding a panel: less padding, so the panel can be wide. */
-.screen--panel {
-    padding: 0 24px 32px 24px;
-}
-
+/* Panel (adjust, explore) */
 .panel {
     width: 100%;
     max-width: 1000px;
     padding: 28px 20px 24px 20px;
     border-radius: 40px;
-    background-color: rgba(18, 20, 24, 0.88);
+    background-color: rgba(30, 38, 51, 0.92);
 }
 
-.panel__readout {
-    margin: 0 8px 20px 8px;
-    padding: 0;
-    font-size: 32px;
-    color: rgba(244, 241, 234, 0.90);
-    white-space: normal;
-    -unity-text-align: middle-center;
-}
-
-.panel__title {
-    margin: 0 8px 12px 8px;
-    padding: 0;
-    font-size: 46px;
-    -unity-font-style: bold;
-    color: rgb(244, 241, 234);
-    white-space: normal;
-}
-
-.panel__title--centered {
-    -unity-text-align: middle-center;
-}
-
-.panel__text {
-    margin: 0 8px 24px 8px;
-    padding: 0;
-    font-size: 34px;
-    color: rgba(244, 241, 234, 0.85);
-    white-space: normal;
-}
-
-.panel__caption {
-    margin: 0 8px 20px 8px;
-    padding: 0;
-    font-size: 30px;
-    color: rgba(244, 241, 234, 0.85);
-    -unity-text-align: middle-center;
-}
-
-/* Small print (e.g. the cloud anchor data notice). */
-.panel__note {
-    margin: 0 8px 24px 8px;
-    padding: 0;
-    font-size: 24px;
-    color: rgba(244, 241, 234, 0.55);
-    white-space: normal;
-}
-
-/* Three-bar quality meter: low = 1 red bar, mid = 2 amber, high = 3 green. */
-.meter {
+/* Live values while adjusting: three columns, value above its label. */
+.readout {
     flex-direction: row;
-    height: 24px;
-    margin: 0 8px 12px 8px;
+    margin: 0 8px 20px 8px;
 }
 
-.meter__bar {
+.readout__item {
     flex-grow: 1;
     flex-basis: 0;
-    margin: 0 6px;
-    border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.15);
+    align-items: center;
 }
 
-.meter--low .meter__bar--1 {
-    background-color: rgb(229, 83, 75);
+.readout__value {
+    margin: 0;
+    padding: 0;
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(236, 229, 211);
+    -unity-text-align: middle-center;
 }
 
-.meter--mid .meter__bar--1,
-.meter--mid .meter__bar--2 {
-    background-color: rgb(217, 164, 65);
+.readout__label {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 26px;
+    color: rgba(236, 229, 211, 0.60);
+    -unity-text-align: middle-center;
 }
 
-.meter--high .meter__bar {
-    background-color: rgb(76, 175, 80);
-}
-
-/* Segmented control: one pill per tab, the selected one gold. */
+/* Segmented control: one pill per tab, the selected one gilt. */
 .tabs {
     flex-direction: row;
     margin: 0 8px 20px 8px;
     padding: 6px;
     border-radius: 48px;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(236, 229, 211, 0.08);
 }
 
 .tab {
@@ -260,7 +463,7 @@
     border-width: 0;
     border-radius: 42px;
     background-color: rgba(0, 0, 0, 0);
-    color: rgba(244, 241, 234, 0.75);
+    color: rgba(236, 229, 211, 0.75);
     font-size: 34px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -271,13 +474,13 @@
 }
 
 .tab:active {
-    background-color: rgba(255, 255, 255, 0.10);
+    background-color: rgba(236, 229, 211, 0.10);
 }
 
 .tab--selected,
 .tab--selected:hover {
-    background-color: rgb(217, 164, 65);
-    color: rgb(27, 20, 8);
+    background-color: rgb(201, 154, 62);
+    color: rgb(30, 38, 51);
 }
 
 /* The tools of the selected tab. */
@@ -312,7 +515,7 @@
     font-size: 54px;
 }
 
-/* Logarithmic size slider: thick track, big gold handle. */
+/* Logarithmic size slider: thick track, big gilt handle. */
 .scale-slider {
     height: 96px;
     margin: 0 36px 16px 36px;
@@ -331,7 +534,7 @@
     margin-top: -6px;
     border-width: 0;
     border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(236, 229, 211, 0.25);
 }
 
 .scale-slider .unity-base-slider__dragger {
@@ -341,11 +544,37 @@
     margin-left: -32px;
     border-width: 0;
     border-radius: 32px;
-    background-color: rgb(217, 164, 65);
+    background-color: rgb(201, 154, 62);
 }
 
 .scale-slider .unity-base-slider__dragger-border {
     display: none;
+}
+
+/* The arch's progress at the top of the explore panel. */
+.pieces {
+    flex-direction: row;
+    align-items: center;
+    margin: 4px 16px 24px 16px;
+}
+
+.pieces__text {
+    margin-left: 32px;
+}
+
+.pieces__title {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
+    font-size: 56px;
+    color: rgb(236, 229, 211);
+}
+
+.pieces__count {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 32px;
+    color: rgba(236, 229, 211, 0.75);
 }
 
 /* Two or more buttons side by side, sharing the width. */
@@ -362,26 +591,52 @@
     font-size: 36px;
 }
 
-/* An on/off button that is on (e.g. "See-through"): gold outline and text. */
-.btn--toggle-on,
-.btn--toggle-on:hover {
-    border-width: 3px;
-    border-color: rgb(217, 164, 65);
-    color: rgb(217, 164, 65);
-}
-
-/* A smaller on/off option above an actions row (e.g. "Hidden by real objects: Off"). */
-.btn--option {
-    height: 96px;
-    margin: 0 0 20px 0;
-    padding: 0 40px;
-    font-size: 32px;
-}
-
 /* An actions row straight over the camera image (not in a panel). */
 .actions-row--on-camera {
     width: 100%;
     max-width: 900px;
+}
+
+/* A button that only needs its text's width (e.g. "Modes"), next to a wide one. */
+.actions-row > .btn--narrow,
+.options-row > .btn--narrow {
+    flex-grow: 0;
+    flex-basis: auto;
+    padding: 0 44px;
+}
+
+/* An on/off button that is on (e.g. "See-through"): gilt outline and text. */
+.btn--toggle-on,
+.btn--toggle-on:hover {
+    border-width: 3px;
+    border-color: rgb(201, 154, 62);
+    color: rgb(201, 154, 62);
+}
+
+/* Smaller, quieter buttons under the main actions (display options, leaving the mode). */
+.options-row {
+    flex-direction: row;
+    margin-top: 16px;
+}
+
+.btn--option {
+    flex-grow: 1;
+    height: 88px;
+    margin: 0 8px;
+    padding: 0 32px;
+    border-width: 2px;
+    border-color: rgba(236, 229, 211, 0.22);
+    background-color: rgba(0, 0, 0, 0);
+    color: rgba(236, 229, 211, 0.85);
+    font-size: 30px;
+}
+
+.btn--option:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn--option:active {
+    background-color: rgba(236, 229, 211, 0.10);
 }
 
 /* Developer overlay */

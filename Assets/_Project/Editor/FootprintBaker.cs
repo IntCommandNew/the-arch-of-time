@@ -18,19 +18,24 @@ public static class FootprintBaker
     const string BuildingChild = "Building";
     public const string OutputPath = "Assets/_Project/Models/Academy/academy_footprint.asset";
 
-    // Defaults, at model scale 1 (metres). At y = 0.01 (the foundation, just above the mesh's bottom
-    // at 0.0063) the slice is one clean closed loop, 1.92 m long, with the octagonal bay. Higher
-    // slices add an inner loop and many tiny ones (drainpipes, posts).
-    const float DefaultSliceHeight = 0.01f;
-    const float DefaultLineWidth = 0.005f;
+    // Defaults, at model scale 1 (metres). Since model iteration 3 the building starts at the platform
+    // top (y = 0.0147) and is open at the bottom, so a slice just above it (0.016) cuts both the outer
+    // and the inner face of the walls: two closed loops (1.921 m and 1.906 m), with the octagonal bay.
+    // Only the longest loop (the outside) is kept. Higher slices add many tiny loops (drainpipes, posts).
+    const float DefaultSliceHeight = 0.016f;
+    // 2.5 mm at tabletop size, 25 cm at real size (x100).
+    const float DefaultLineWidth = 0.0025f;
     const float DefaultMinLoopLength = 0.06f;
 
     [MenuItem("Tools/The Arch of Time/Bake footprint outline")]
     static void BakeFromMenu() =>
         Debug.Log("[FootprintBaker] " + Bake(DefaultSliceHeight, DefaultLineWidth, DefaultMinLoopLength));
 
-    /// <summary>Slices the building, keeps the loops longer than minLoopLength, writes the mesh asset.</summary>
-    public static string Bake(float sliceHeight, float lineWidth, float minLoopLength)
+    /// <summary>
+    /// Slices the building, keeps the loops longer than minLoopLength (or only the longest one, the outside
+    /// of the walls, when outerOnly is set) and writes the mesh asset.
+    /// </summary>
+    public static string Bake(float sliceHeight, float lineWidth, float minLoopLength, bool outerOnly = true)
     {
         var lines = Slice(sliceHeight, out string problem);
         if (lines == null) return problem;
@@ -39,6 +44,11 @@ public static class FootprintBaker
         var report = new StringBuilder();
         foreach (var line in lines)
             if (Length(line) >= minLoopLength) kept.Add(line);
+        if (outerOnly && kept.Count > 1)
+        {
+            kept.Sort((a, b) => Length(b).CompareTo(Length(a)));
+            kept.RemoveRange(1, kept.Count - 1);
+        }
 
         var mesh = BuildStripMesh(kept, lineWidth);
         var existing = AssetDatabase.LoadAssetAtPath<Mesh>(OutputPath);

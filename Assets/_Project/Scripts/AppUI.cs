@@ -6,14 +6,15 @@ using UnityEngine.UIElements;
 /// <summary>The app's screens. Each one is a "screen-..." element in MainUI.uxml.</summary>
 public enum AppScreen
 {
-    Starting,
-    Blocked,
-    Scan,    // scanning and placing: hint + "Place here"
-    Adjust,  // the model is placed: adjust panel (move / turn / size / height), "Place again", "Done"
-    Explore, // placement confirmed: "Edit", "New location"
-    Save,    // after "Done": walk around the spot (quality meter), "Save" / "Not now"
-    Restore, // at launch with a saved placement: finding it, or why it wasn't found
-    Pieces,  // arch pieces test mode: spawn a piece around you, aim, collect
+    Mode,     // the first screen: choose how to play
+    City,     // In Iasi: the targets to pick from
+    Guide,    // In Iasi: walking to the picked target, camera off
+    CityAR,   // In Iasi: at the target, camera on (locating, then the academy or a piece)
+    Starting, // permissions and ARCore checks
+    Blocked,  // AR can't run (or a permission was revoked)
+    Scan,     // scanning and placing: hint + "Place here"
+    Adjust,   // the model is placed: adjust panel (move / turn / size / height), "Place again", "Done"
+    Explore,  // the model is placed: the arch pieces (spawn, aim, collect), "Edit"
 }
 
 /// <summary>Buttons of the adjust panel. The float that comes with them is noted per command.</summary>
@@ -23,7 +24,7 @@ public enum AdjustCommand
     Rotate,          // value: degrees, positive = clockwise seen from above
     FaceSouth,
     Scale,           // value: the new scale (from the slider)
-    Tabletop, RealSize, TogglePlatform,
+    DefaultSize, MaxSize, TogglePlatform,
     Lower, Raise, StreetLevel, BaseOnGround,
 }
 
@@ -36,13 +37,26 @@ public enum AdjustCommand
 [RequireComponent(typeof(UIDocument))]
 public class AppUI : MonoBehaviour
 {
-    /// <summary>"Try again" on the blocked screen.</summary>
+    /// <summary>A way to play was chosen on the mode screen.</summary>
+    public event Action<GameMode> ModeChosen;
+
+    /// <summary>In Iasi, the target list: "Modes", a target picked (index in CityTargets), "Start over".</summary>
+    public event Action CityBackClicked;
+    public event Action<int> TargetPicked;
+    public event Action CityResetClicked;
+
+    /// <summary>In Iasi, the guide: "Targets" and "Open the camera".</summary>
+    public event Action GuideBackClicked;
+    public event Action OpenCameraClicked;
+
+    /// <summary>In Iasi, at the target: "Targets", "Try again" (the anchor failed), "Collect".</summary>
+    public event Action CityARBackClicked;
+    public event Action CityARRetryClicked;
+    public event Action CityCollectClicked;
+
+    /// <summary>"Try again", "Open settings", "Close app" on the blocked screen.</summary>
     public event Action RetryClicked;
-
-    /// <summary>"Open settings" on the blocked screen.</summary>
     public event Action OpenSettingsClicked;
-
-    /// <summary>"Close app" on the blocked screen (after a permission was revoked).</summary>
     public event Action CloseClicked;
 
     /// <summary>"Place here" on the scan screen.</summary>
@@ -54,102 +68,92 @@ public class AppUI : MonoBehaviour
     /// <summary>A button (or the size slider) of the adjust panel. See AdjustCommand for the value.</summary>
     public event Action<AdjustCommand, float> AdjustCommandIssued;
 
-    /// <summary>"Done" on the adjust screen.</summary>
+    /// <summary>"Done", "See-through" and "Cancel" (instead of "Place again" when editing).</summary>
     public event Action DoneClicked;
-
-    /// <summary>"See-through" on the adjust screen.</summary>
     public event Action SeeThroughClicked;
-
-    /// <summary>"Cancel" on the adjust screen (shown instead of "Place again" when editing).</summary>
     public event Action CancelEditClicked;
 
-    /// <summary>"Edit" on the explore screen.</summary>
+    /// <summary>Buttons of the explore screen.</summary>
     public event Action EditClicked;
-
-    /// <summary>"New location" on the explore screen (asks for confirmation first).</summary>
-    public event Action NewLocationClicked;
-
-    /// <summary>The answer on the "Pick a new location?" card.</summary>
-    public event Action<bool> NewLocationAnswered;
-
-    /// <summary>"Hidden by real objects" on the explore screen.</summary>
-    public event Action OcclusionClicked;
-
-    /// <summary>"Arch pieces" on the scan or restore screen.</summary>
-    public event Action PiecesModeClicked;
-
-    /// <summary>Buttons of the arch pieces screen.</summary>
-    public event Action PiecesBackClicked;
     public event Action SpawnPieceClicked;
     public event Action CollectPieceClicked;
     public event Action ResetPiecesClicked;
+    public event Action OcclusionClicked;
 
-    /// <summary>"Save" on the save screen.</summary>
-    public event Action SaveClicked;
+    /// <summary>"Modes" (scan or explore screen): asks for confirmation first.</summary>
+    public event Action LeaveModeClicked;
 
-    /// <summary>"Not now" on the save screen.</summary>
-    public event Action SaveSkipClicked;
+    /// <summary>The answer on the "Back to the modes?" card.</summary>
+    public event Action<bool> LeaveModeAnswered;
 
-    /// <summary>"Try again" on the restore screen.</summary>
-    public event Action RestoreRetryClicked;
-
-    /// <summary>"Place a new one" on the restore screen.</summary>
-    public event Action RestoreNewClicked;
-
-    public AppScreen CurrentScreen { get; private set; } = AppScreen.Starting;
+    public AppScreen CurrentScreen { get; private set; } = AppScreen.Mode;
 
     UIDocument document;
     VisualElement root;
     VisualElement safeArea;
+    VisualElement backdrop;
     readonly Dictionary<AppScreen, VisualElement> screens = new Dictionary<AppScreen, VisualElement>();
 
     Label startingDetail;
     Label blockedTitle;
     Label blockedMessage;
-    Label scanHint;
-    Label adjustHint;
-    Label debugOverlay;
     Button retryButton;
     Button settingsButton;
     Button closeButton;
+    Label scanHint;
     Button placeButton;
-    Button placeAgainButton;
+    Label debugOverlay;
+    string debugText;
+
+    // Mode screen
+    ArchEmblem freeModeArch;
+    Label freeModeCount;
+    ArchEmblem cityModeArch;
+    Label cityModeCount;
+
+    // In Iasi
+    public const int CityTargetSlots = 5;
+    ArchEmblem cityArch;
+    Label cityCount;
+    readonly Button[] targetButtons = new Button[CityTargetSlots];
+    readonly Label[] targetNames = new Label[CityTargetSlots];
+    readonly Label[] targetStatuses = new Label[CityTargetSlots];
+    Button cityResetButton;
+    Label guideName;
+    Label guideStage;
+    GuideDial guideDial;
+    Label guideBig;
+    Label guideSmall;
+    Label guideAccuracy;
+    Button openCameraButton;
+    Label cityARHint;
+    Button cityARBackButton;
+    Button cityARRetryButton;
+    Button cityCollectButton;
 
     // Adjust panel
-    Label adjustReadout;
+    Label adjustHint;
+    Label readoutSize;
+    Label readoutFront;
+    Label readoutHeight;
     Slider scaleSlider;
     Button faceSouthButton;
-    Button realSizeButton;
     Button platformButton;
     Button seeThroughButton;
+    Button placeAgainButton;
     Button cancelEditButton;
     readonly List<(Button tab, VisualElement tool)> adjustTabs = new List<(Button, VisualElement)>();
     int selectedTab;
 
     // Explore
     Label exploreHint;
-    VisualElement exploreActions;
-    VisualElement newLocationConfirm;
-    Button occlusionButton;
-
-    // Save
-    Label saveMessage;
-    VisualElement saveMeter;
-    Label saveQuality;
-    Button saveButton;
-    Button saveSkipButton;
-
-    // Arch pieces
-    Label piecesHint;
+    ArchEmblem exploreArch;
     Label piecesCount;
     Button spawnPieceButton;
+    Button resetPiecesButton;
     Button collectPieceButton;
-
-    // Restore
-    Label restoreTitle;
-    Label restoreMessage;
-    Button restoreRetryButton;
-    Button restoreNewButton;
+    Button occlusionButton;
+    VisualElement leaveConfirm;
 
     // Every button wired in OnEnable, so OnDisable can unwire them.
     readonly List<(Button button, Action handler)> wiredButtons = new List<(Button, Action)>();
@@ -170,51 +174,31 @@ public class AppUI : MonoBehaviour
         root.pickingMode = PickingMode.Ignore; // empty areas let touches through to the AR view
 
         safeArea = Find<VisualElement>("safe-area");
+        backdrop = Find<VisualElement>("backdrop");
+        screens[AppScreen.Mode] = Find<VisualElement>("screen-mode");
+        screens[AppScreen.City] = Find<VisualElement>("screen-city");
+        screens[AppScreen.Guide] = Find<VisualElement>("screen-guide");
+        screens[AppScreen.CityAR] = Find<VisualElement>("screen-city-ar");
         screens[AppScreen.Starting] = Find<VisualElement>("screen-starting");
         screens[AppScreen.Blocked] = Find<VisualElement>("screen-blocked");
         screens[AppScreen.Scan] = Find<VisualElement>("screen-scan");
         screens[AppScreen.Adjust] = Find<VisualElement>("screen-adjust");
         screens[AppScreen.Explore] = Find<VisualElement>("screen-explore");
-        screens[AppScreen.Save] = Find<VisualElement>("screen-save");
-        screens[AppScreen.Restore] = Find<VisualElement>("screen-restore");
-        screens[AppScreen.Pieces] = Find<VisualElement>("screen-pieces");
-
-        startingDetail = Find<Label>("starting-detail");
-        blockedTitle = Find<Label>("blocked-title");
-        blockedMessage = Find<Label>("blocked-message");
-        scanHint = Find<Label>("scan-hint");
-        adjustHint = Find<Label>("adjust-hint");
         debugOverlay = Find<Label>("debug-overlay");
-        retryButton = Find<Button>("btn-retry");
-        settingsButton = Find<Button>("btn-settings");
-        closeButton = Find<Button>("btn-close");
-        placeButton = Find<Button>("btn-place");
-        placeAgainButton = Find<Button>("btn-place-again");
 
-        if (retryButton != null) retryButton.clicked += OnRetryClicked;
-        if (settingsButton != null) settingsButton.clicked += OnSettingsClicked;
-        if (closeButton != null) closeButton.clicked += OnCloseClicked;
-        if (placeButton != null) placeButton.clicked += OnPlaceClicked;
-        if (placeAgainButton != null) placeAgainButton.clicked += OnPlaceAgainClicked;
-
+        SetUpStartScreens();
+        SetUpCity();
+        SetUpScan();
         SetUpAdjustPanel();
         SetUpExplore();
-        SetUpSaveAndRestore();
-        SetUpPieces();
         root.RegisterCallback<GeometryChangedEvent>(OnRootGeometryChanged);
 
         appliedSafeArea = default;
         ShowScreen(CurrentScreen);
-        SetDebugText(null);
     }
 
     void OnDisable()
     {
-        if (retryButton != null) retryButton.clicked -= OnRetryClicked;
-        if (settingsButton != null) settingsButton.clicked -= OnSettingsClicked;
-        if (closeButton != null) closeButton.clicked -= OnCloseClicked;
-        if (placeButton != null) placeButton.clicked -= OnPlaceClicked;
-        if (placeAgainButton != null) placeAgainButton.clicked -= OnPlaceAgainClicked;
         foreach (var (button, handler) in wiredButtons) button.clicked -= handler;
         wiredButtons.Clear();
         foreach (var repeat in repeatButtons) repeat.SetAction(null, RepeatDelayMs, RepeatIntervalMs);
@@ -226,7 +210,7 @@ public class AppUI : MonoBehaviour
 
     void Update()
     {
-        // Rotation, split screen or a changed cut-out all change the safe area.
+        // A split screen or a changed cut-out changes the safe area.
         if (Screen.safeArea != appliedSafeArea ||
             Screen.width != appliedScreenSize.x || Screen.height != appliedScreenSize.y)
             ApplySafeArea();
@@ -238,6 +222,77 @@ public class AppUI : MonoBehaviour
         CurrentScreen = screen;
         foreach (var pair in screens)
             SetVisible(pair.Value, pair.Key == screen);
+        // The menu screens hide the camera view completely (it may still be running behind them).
+        SetVisible(backdrop, !IsCameraScreen(screen));
+        UpdateDebugOverlay();
+    }
+
+    // Start screens
+    /// <summary>The free placement mode's progress on the mode screen: which pieces are collected.</summary>
+    public void SetFreeModeProgress(Func<int, bool> isCollected, int collected, int total)
+    {
+        SetArch(freeModeArch, isCollected);
+        if (freeModeCount != null) freeModeCount.text = $"{collected} of {total} arch pieces";
+    }
+
+    /// <summary>The in-city mode's progress on the mode screen.</summary>
+    public void SetCityModeProgress(Func<int, bool> isCollected, int collected, int total)
+    {
+        SetArch(cityModeArch, isCollected);
+        if (cityModeCount != null) cityModeCount.text = $"{collected} of {total} arch pieces";
+    }
+
+    // In Iasi
+    /// <summary>
+    /// The target list: the arch's progress, and per row its name, status line and whether it can be
+    /// picked (a found piece can't). "Start over" shows once every piece is found.
+    /// </summary>
+    public void SetCityTargets(Func<int, bool> isCollected, int collected, int total, string[] names,
+                               string[] statuses, bool[] canPick, bool showReset)
+    {
+        SetArch(cityArch, isCollected);
+        if (cityCount != null) cityCount.text = $"{collected} of {total} pieces found";
+        for (int i = 0; i < CityTargetSlots; i++)
+        {
+            bool used = names != null && i < names.Length;
+            SetVisible(targetButtons[i], used);
+            if (!used) continue;
+            if (targetNames[i] != null) targetNames[i].text = names[i] ?? "";
+            if (targetStatuses[i] != null) targetStatuses[i].text = statuses != null ? statuses[i] ?? "" : "";
+            targetButtons[i]?.SetEnabled(canPick == null || canPick[i]);
+        }
+        SetVisible(cityResetButton, showReset);
+    }
+
+    /// <summary>
+    /// The guide screen. big: the distance or the warmer / colder word (trend: -1 colder, 1 warmer, 0
+    /// neither, which colours it); small: the line under it.
+    /// </summary>
+    public void SetGuide(string name, string stage, string big, string small, int trend, string accuracy,
+                         GuideDial.Look look, bool pointer, float angle, bool canOpenCamera)
+    {
+        if (guideName != null) guideName.text = name ?? "";
+        if (guideStage != null) guideStage.text = stage ?? "";
+        if (guideBig != null) guideBig.text = big ?? "";
+        guideBig?.EnableInClassList("dial__big--warmer", trend > 0);
+        guideBig?.EnableInClassList("dial__big--colder", trend < 0);
+        SetHint(guideSmall, small);
+        if (guideAccuracy != null) guideAccuracy.text = accuracy ?? "";
+        var tint = trend < 0 ? new Color32(127, 163, 146, 255) : new Color32(201, 154, 62, 255);
+        guideDial?.Set(look, pointer, angle, tint);
+        openCameraButton?.SetEnabled(canOpenCamera);
+    }
+
+    /// <summary>The in-city camera screen: the hint, and which of Collect / Try again show.</summary>
+    public void SetCityAR(string hint, bool inSight, bool showCollect, bool canCollect, bool showRetry)
+    {
+        SetHint(cityARHint, hint);
+        cityARHint?.EnableInClassList("hint--in-sight", inSight);
+        SetVisible(cityCollectButton, showCollect);
+        cityCollectButton?.SetEnabled(canCollect);
+        SetVisible(cityARRetryButton, showRetry);
+        // Alone (the academy, or a piece just collected), "Targets" takes the whole row.
+        cityARBackButton?.EnableInClassList("btn--narrow", showCollect || showRetry);
     }
 
     public void SetStartingDetail(string text)
@@ -256,31 +311,21 @@ public class AppUI : MonoBehaviour
         SetVisible(closeButton, showClose);
     }
 
-    public void SetScanHint(string text)
-    {
-        if (scanHint == null) return;
-        scanHint.text = text ?? "";
-        SetVisible(scanHint, !string.IsNullOrEmpty(text));
-    }
+    // Scan
+    public void SetScanHint(string text) => SetHint(scanHint, text);
 
     /// <summary>"Place here" is shown on the scan screen, but only enabled with ground under the reticle.</summary>
-    public void SetPlaceEnabled(bool enabled)
-    {
-        placeButton?.SetEnabled(enabled);
-    }
-
-    public void SetAdjustHint(string text)
-    {
-        if (adjustHint == null) return;
-        adjustHint.text = text ?? "";
-        SetVisible(adjustHint, !string.IsNullOrEmpty(text));
-    }
+    public void SetPlaceEnabled(bool enabled) => placeButton?.SetEnabled(enabled);
 
     // Adjust panel
-    /// <summary>The live line at the top of the adjust panel (size, front bearing, height).</summary>
-    public void SetAdjustReadout(string text)
+    public void SetAdjustHint(string text) => SetHint(adjustHint, text);
+
+    /// <summary>The live values at the top of the adjust panel.</summary>
+    public void SetAdjustReadout(string size, string front, string height)
     {
-        if (adjustReadout != null) adjustReadout.text = text ?? "";
+        if (readoutSize != null) readoutSize.text = size ?? "";
+        if (readoutFront != null) readoutFront.text = front ?? "";
+        if (readoutHeight != null) readoutHeight.text = height ?? "";
     }
 
     /// <summary>Range of the size slider. The slider is logarithmic: equal steps multiply the size.</summary>
@@ -298,14 +343,13 @@ public class AppUI : MonoBehaviour
     }
 
     public void SetFaceSouthEnabled(bool enabled) => faceSouthButton?.SetEnabled(enabled);
-    public void SetRealSizeEnabled(bool enabled) => realSizeButton?.SetEnabled(enabled);
 
     public void SetPlatformButtonText(string text)
     {
         if (platformButton != null) platformButton.text = text ?? "";
     }
 
-    /// <summary>Shows the "See-through" button as on (gold) or off.</summary>
+    /// <summary>Shows the "See-through" button as on (gilt) or off.</summary>
     public void SetSeeThroughOn(bool on) => seeThroughButton?.EnableInClassList("btn--toggle-on", on);
 
     /// <summary>Editing a confirmed placement: "Cancel" instead of "Place again".</summary>
@@ -316,19 +360,21 @@ public class AppUI : MonoBehaviour
     }
 
     // Explore
-    public void SetExploreHint(string text)
+    /// <summary>
+    /// The explore screen's arch pieces: which are collected, the count, the hint, and which buttons can be
+    /// used. When all are collected, "Start over" replaces "Spawn piece".
+    /// </summary>
+    public void SetPieces(Func<int, bool> isCollected, int collected, int total, string hint, bool inSight,
+                          bool canSpawn, bool canCollect, bool complete)
     {
-        if (exploreHint == null) return;
-        exploreHint.text = text ?? "";
-        SetVisible(exploreHint, !string.IsNullOrEmpty(text));
-    }
-
-    /// <summary>Shows the "Pick a new location?" card (and hides the explore buttons behind it).</summary>
-    public void SetNewLocationConfirmVisible(bool visible)
-    {
-        SetVisible(newLocationConfirm, visible);
-        SetVisible(exploreActions, !visible);
-        SetVisible(occlusionButton, !visible);
+        SetArch(exploreArch, isCollected);
+        if (piecesCount != null) piecesCount.text = $"{collected} of {total} pieces found";
+        SetHint(exploreHint, hint);
+        exploreHint?.EnableInClassList("hint--in-sight", inSight);
+        SetVisible(spawnPieceButton, !complete);
+        SetVisible(resetPiecesButton, complete);
+        spawnPieceButton?.SetEnabled(canSpawn);
+        collectPieceButton?.SetEnabled(canCollect);
     }
 
     /// <summary>The "Hidden by real objects" option: its text, and whether it can be used.</summary>
@@ -339,70 +385,32 @@ public class AppUI : MonoBehaviour
         occlusionButton.SetEnabled(enabled);
     }
 
-    // Save
-    /// <summary>The save screen's text; while busy (uploading) its buttons are disabled.</summary>
-    public void SetSaveStatus(string message, bool busy)
-    {
-        if (saveMessage != null) saveMessage.text = message ?? "";
-        saveButton?.SetEnabled(!busy);
-        saveSkipButton?.SetEnabled(!busy);
-    }
-
-    public void SetSaveButtonText(string text)
-    {
-        if (saveButton != null) saveButton.text = text ?? "";
-    }
-
-    /// <summary>The walk-around meter: level 0 (low), 1 (enough), 2 (good); below 0 hides it.</summary>
-    public void SetSaveQuality(int level, string label)
-    {
-        bool show = level >= 0;
-        SetVisible(saveMeter, show);
-        SetVisible(saveQuality, show);
-        if (!show) return;
-        if (saveQuality != null) saveQuality.text = label ?? "";
-        if (saveMeter == null) return;
-        saveMeter.EnableInClassList("meter--low", level == 0);
-        saveMeter.EnableInClassList("meter--mid", level == 1);
-        saveMeter.EnableInClassList("meter--high", level >= 2);
-    }
-
-    // Arch pieces
-    /// <summary>The pieces screen: count ("Arch pieces: 2 / 5"), hint, and which buttons can be used.</summary>
-    public void SetPiecesStatus(string count, string hint, bool canSpawn, bool canCollect)
-    {
-        if (piecesCount != null) piecesCount.text = count ?? "";
-        if (piecesHint != null)
-        {
-            piecesHint.text = hint ?? "";
-            SetVisible(piecesHint, !string.IsNullOrEmpty(hint));
-        }
-        spawnPieceButton?.SetEnabled(canSpawn);
-        collectPieceButton?.SetEnabled(canCollect);
-    }
-
-    // Restore
-    public void SetRestoreStatus(string title, string message, bool showRetry)
-    {
-        if (restoreTitle != null) restoreTitle.text = title ?? "";
-        if (restoreMessage != null) restoreMessage.text = message ?? "";
-        SetVisible(restoreRetryButton, showRetry);
-    }
+    /// <summary>Shows the "Back to the modes?" card over the current screen.</summary>
+    public void SetLeaveConfirmVisible(bool visible) => SetVisible(leaveConfirm, visible);
 
     // Developer overlay
-    /// <summary>Shows the overlay text (rich text allowed). Null or empty hides it.</summary>
+    /// <summary>
+    /// The overlay text (rich text allowed). Null or empty hides it. It is only shown over the camera
+    /// screens, not over the mode screen or the start cards.
+    /// </summary>
     public void SetDebugText(string text)
     {
+        debugText = text;
+        UpdateDebugOverlay();
+    }
+
+    void UpdateDebugOverlay()
+    {
         if (debugOverlay == null) return;
-        bool show = !string.IsNullOrEmpty(text);
-        if (show) debugOverlay.text = text;
+        bool show = IsCameraScreen(CurrentScreen) && !string.IsNullOrEmpty(debugText);
+        if (show) debugOverlay.text = debugText;
         SetVisible(debugOverlay, show);
     }
 
-    // Touch helpers (for AR gestures later)
+    // Touch helpers
     /// <summary>
     /// True if a screen position (Input System coordinates: origin bottom-left, pixels) is over
-    /// an interactive part of the UI, e.g. a card or button. Use it to ignore AR gestures there.
+    /// an interactive part of the UI, e.g. a panel or button. Used to ignore AR gestures there.
     /// </summary>
     public bool IsOverUI(Vector2 screenPosition)
     {
@@ -415,18 +423,77 @@ public class AppUI : MonoBehaviour
     }
 
     // Internals
-    void OnRetryClicked() => RetryClicked?.Invoke();
-    void OnSettingsClicked() => OpenSettingsClicked?.Invoke();
-    void OnCloseClicked() => CloseClicked?.Invoke();
-    void OnPlaceClicked() => PlaceClicked?.Invoke();
-    void OnPlaceAgainClicked() => PlaceAgainClicked?.Invoke();
+    void SetUpStartScreens()
+    {
+        freeModeArch = Find<ArchEmblem>("mode-free-arch");
+        freeModeCount = Find<Label>("mode-free-count");
+        cityModeArch = Find<ArchEmblem>("mode-city-arch");
+        cityModeCount = Find<Label>("mode-city-count");
+        Wire(Find<Button>("btn-mode-city"), () => ModeChosen?.Invoke(GameMode.InCity));
+        Wire(Find<Button>("btn-mode-free"), () => ModeChosen?.Invoke(GameMode.Free));
+
+        startingDetail = Find<Label>("starting-detail");
+        blockedTitle = Find<Label>("blocked-title");
+        blockedMessage = Find<Label>("blocked-message");
+        retryButton = Find<Button>("btn-retry");
+        settingsButton = Find<Button>("btn-settings");
+        closeButton = Find<Button>("btn-close");
+        Wire(retryButton, () => RetryClicked?.Invoke());
+        Wire(settingsButton, () => OpenSettingsClicked?.Invoke());
+        Wire(closeButton, () => CloseClicked?.Invoke());
+    }
+
+    void SetUpCity()
+    {
+        cityArch = Find<ArchEmblem>("city-arch");
+        cityCount = Find<Label>("city-count");
+        for (int i = 0; i < CityTargetSlots; i++)
+        {
+            int index = i;
+            targetButtons[i] = Find<Button>("btn-target-" + i);
+            targetNames[i] = Find<Label>("target-name-" + i);
+            targetStatuses[i] = Find<Label>("target-status-" + i);
+            Wire(targetButtons[i], () => TargetPicked?.Invoke(index));
+        }
+        cityResetButton = Find<Button>("btn-city-reset");
+        Wire(cityResetButton, () => CityResetClicked?.Invoke());
+        Wire(Find<Button>("btn-city-back"), () => CityBackClicked?.Invoke());
+
+        guideName = Find<Label>("guide-name");
+        guideStage = Find<Label>("guide-stage");
+        guideDial = Find<GuideDial>("guide-dial");
+        guideBig = Find<Label>("guide-big");
+        guideSmall = Find<Label>("guide-small");
+        guideAccuracy = Find<Label>("guide-accuracy");
+        openCameraButton = Find<Button>("btn-open-camera");
+        Wire(openCameraButton, () => OpenCameraClicked?.Invoke());
+        Wire(Find<Button>("btn-guide-back"), () => GuideBackClicked?.Invoke());
+
+        cityARHint = Find<Label>("city-ar-hint");
+        cityARRetryButton = Find<Button>("btn-city-ar-retry");
+        cityCollectButton = Find<Button>("btn-city-collect");
+        cityARBackButton = Find<Button>("btn-city-ar-back");
+        Wire(cityARBackButton, () => CityARBackClicked?.Invoke());
+        Wire(cityARRetryButton, () => CityARRetryClicked?.Invoke());
+        Wire(cityCollectButton, () => CityCollectClicked?.Invoke());
+    }
+
+    void SetUpScan()
+    {
+        scanHint = Find<Label>("scan-hint");
+        placeButton = Find<Button>("btn-place");
+        Wire(placeButton, () => PlaceClicked?.Invoke());
+        Wire(Find<Button>("btn-leave-from-scan"), () => LeaveModeClicked?.Invoke());
+    }
 
     void SetUpAdjustPanel()
     {
-        adjustReadout = Find<Label>("adjust-readout");
+        adjustHint = Find<Label>("adjust-hint");
+        readoutSize = Find<Label>("readout-size");
+        readoutFront = Find<Label>("readout-front");
+        readoutHeight = Find<Label>("readout-height");
         scaleSlider = Find<Slider>("scale-slider");
         faceSouthButton = Find<Button>("btn-face-south");
-        realSizeButton = Find<Button>("btn-real-size");
         platformButton = Find<Button>("btn-platform");
 
         // Tabs: each shows its own row of tools.
@@ -455,14 +522,16 @@ public class AppUI : MonoBehaviour
         Wire(Find<Button>("btn-rotate-left-10"), () => Issue(AdjustCommand.Rotate, -10f));
         Wire(Find<Button>("btn-rotate-right-10"), () => Issue(AdjustCommand.Rotate, 10f));
         Wire(faceSouthButton, () => Issue(AdjustCommand.FaceSouth));
-        Wire(Find<Button>("btn-tabletop"), () => Issue(AdjustCommand.Tabletop));
-        Wire(realSizeButton, () => Issue(AdjustCommand.RealSize));
+        Wire(Find<Button>("btn-default-size"), () => Issue(AdjustCommand.DefaultSize));
+        Wire(Find<Button>("btn-max-size"), () => Issue(AdjustCommand.MaxSize));
         Wire(platformButton, () => Issue(AdjustCommand.TogglePlatform));
         Wire(Find<Button>("btn-street-level"), () => Issue(AdjustCommand.StreetLevel));
         Wire(Find<Button>("btn-base-on-ground"), () => Issue(AdjustCommand.BaseOnGround));
         Wire(Find<Button>("btn-done"), () => DoneClicked?.Invoke());
         seeThroughButton = Find<Button>("btn-see-through");
         Wire(seeThroughButton, () => SeeThroughClicked?.Invoke());
+        placeAgainButton = Find<Button>("btn-place-again");
+        Wire(placeAgainButton, () => PlaceAgainClicked?.Invoke());
         cancelEditButton = Find<Button>("btn-cancel-edit");
         Wire(cancelEditButton, () => CancelEditClicked?.Invoke());
 
@@ -472,47 +541,22 @@ public class AppUI : MonoBehaviour
     void SetUpExplore()
     {
         exploreHint = Find<Label>("explore-hint");
-        exploreActions = Find<VisualElement>("explore-actions");
-        newLocationConfirm = Find<VisualElement>("confirm-new-location");
-        occlusionButton = Find<Button>("btn-occlusion");
-        Wire(occlusionButton, () => OcclusionClicked?.Invoke());
-        Wire(Find<Button>("btn-edit"), () => EditClicked?.Invoke());
-        Wire(Find<Button>("btn-new-location"), () => NewLocationClicked?.Invoke());
-        Wire(Find<Button>("btn-new-location-confirm"), () => NewLocationAnswered?.Invoke(true));
-        Wire(Find<Button>("btn-new-location-cancel"), () => NewLocationAnswered?.Invoke(false));
-        SetNewLocationConfirmVisible(false);
-    }
-
-    void SetUpSaveAndRestore()
-    {
-        saveMessage = Find<Label>("save-message");
-        saveMeter = Find<VisualElement>("save-meter");
-        saveQuality = Find<Label>("save-quality");
-        saveButton = Find<Button>("btn-save");
-        saveSkipButton = Find<Button>("btn-save-skip");
-        Wire(saveButton, () => SaveClicked?.Invoke());
-        Wire(saveSkipButton, () => SaveSkipClicked?.Invoke());
-
-        restoreTitle = Find<Label>("restore-title");
-        restoreMessage = Find<Label>("restore-message");
-        restoreRetryButton = Find<Button>("btn-restore-retry");
-        restoreNewButton = Find<Button>("btn-restore-new");
-        Wire(restoreRetryButton, () => RestoreRetryClicked?.Invoke());
-        Wire(restoreNewButton, () => RestoreNewClicked?.Invoke());
-    }
-
-    void SetUpPieces()
-    {
-        piecesHint = Find<Label>("pieces-hint");
+        exploreArch = Find<ArchEmblem>("explore-arch");
         piecesCount = Find<Label>("pieces-count");
         spawnPieceButton = Find<Button>("btn-spawn-piece");
+        resetPiecesButton = Find<Button>("btn-reset-pieces");
         collectPieceButton = Find<Button>("btn-collect-piece");
-        Wire(Find<Button>("btn-pieces-from-scan"), () => PiecesModeClicked?.Invoke());
-        Wire(Find<Button>("btn-pieces-from-restore"), () => PiecesModeClicked?.Invoke());
-        Wire(Find<Button>("btn-pieces-back"), () => PiecesBackClicked?.Invoke());
+        occlusionButton = Find<Button>("btn-occlusion");
+        leaveConfirm = Find<VisualElement>("confirm-leave");
+        Wire(Find<Button>("btn-edit"), () => EditClicked?.Invoke());
         Wire(spawnPieceButton, () => SpawnPieceClicked?.Invoke());
+        Wire(resetPiecesButton, () => ResetPiecesClicked?.Invoke());
         Wire(collectPieceButton, () => CollectPieceClicked?.Invoke());
-        Wire(Find<Button>("btn-pieces-reset"), () => ResetPiecesClicked?.Invoke());
+        Wire(occlusionButton, () => OcclusionClicked?.Invoke());
+        Wire(Find<Button>("btn-leave-from-explore"), () => LeaveModeClicked?.Invoke());
+        Wire(Find<Button>("btn-leave-confirm"), () => LeaveModeAnswered?.Invoke(true));
+        Wire(Find<Button>("btn-leave-cancel"), () => LeaveModeAnswered?.Invoke(false));
+        SetLeaveConfirmVisible(false);
     }
 
     void SelectAdjustTab(int index)
@@ -523,6 +567,19 @@ public class AppUI : MonoBehaviour
             adjustTabs[i].tab.EnableInClassList("tab--selected", i == selectedTab);
             SetVisible(adjustTabs[i].tool, i == selectedTab);
         }
+    }
+
+    static void SetArch(ArchEmblem arch, Func<int, bool> isCollected) => arch?.SetCollected(isCollected);
+
+    static bool IsCameraScreen(AppScreen screen) =>
+        screen == AppScreen.Scan || screen == AppScreen.Adjust || screen == AppScreen.Explore ||
+        screen == AppScreen.CityAR;
+
+    static void SetHint(Label hint, string text)
+    {
+        if (hint == null) return;
+        hint.text = text ?? "";
+        SetVisible(hint, !string.IsNullOrEmpty(text));
     }
 
     void OnScaleSliderChanged(ChangeEvent<float> e) => Issue(AdjustCommand.Scale, Mathf.Pow(10f, e.newValue));
@@ -543,6 +600,7 @@ public class AppUI : MonoBehaviour
         button.SetAction(() => Issue(command, value), RepeatDelayMs, RepeatIntervalMs);
         repeatButtons.Add(button);
     }
+
     void OnRootGeometryChanged(GeometryChangedEvent _) => ApplySafeArea();
 
     /// Insets the safe-area container so nothing sits under the notch, camera hole or gesture bar.
