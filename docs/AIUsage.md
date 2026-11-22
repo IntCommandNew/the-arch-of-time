@@ -46,6 +46,7 @@ _Last updated: 22 November 2026_
 | Code (contact shadow, longer base) | Claude Code | Wrote the contact shadow (a soft dark band on the ground where the academy and the arch stand, baked from the models' outlines, following the hidden base and the arch's pieces) and an Editor tool that makes the academy's base slab longer on the street side so the arch stands on it, keeping its thickness and texture |
 | Code (occlusion by real buildings) | Claude Code | Wrote the In Iasi mode's occlusion: the real buildings around the phone, from Google's Streetscape Geometry (Street View data), drawn invisibly so the academy, the arch and the pieces are hidden behind real buildings; one switch for both modes |
 | Report material | Claude Code | Rendered the week 8 report's screen pictures in the Unity Editor (the final letter, the finale score, the progress screen with a perfect score, the compass in its stages; English and Romanian) and cut the sound samples from the app's recorded narration (Sturdza and the narrator, English and Romanian), also as short videos of the matching screens so GitHub can play them |
+| Course presentation | Claude Code | Filled slides 3 to 12 of the shared course template (docs/presentation): the layout in the app's own design language, the texts from the project's real work, Editor renders and frames from the user's recordings, the embedded videos and voices; the user reviews it |
 | Unity Editor work | Claude Code | Did part of the project setup and configuration in the Unity Editor |
 
 ## Prompt logs
@@ -113,3 +114,5 @@ This document will be updated as the project evolves, for example when:
 | 22 November 2026 | A "Play the finale" button for the In Iasi mode written with Claude Code to record the progress videos, then removed; the moved In Iasi targets' heights set with Claude Code. |
 | 22 November 2026 | Week 8 report pictures and sound samples made with Claude Code from the app (Editor renders; the voices are the app's ElevenLabs narration). |
 | 22 November 2026 | The compass needle in the In Iasi guide removed with Claude Code (it never appeared on the phone; to be reimplemented). |
+| 22 November 2026 | The team's part of the shared course presentation (slides 3 to 12 of IMR08_03) made with Claude Code. |
+| 22 November 2026 | The Anywhere map screenshot rendered with Claude Code; the In Iasi targets moved back to their real places in Iasi (heights set and exported with Claude Code). |

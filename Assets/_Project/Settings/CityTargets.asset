@@ -16,17 +16,17 @@ MonoBehaviour:
   - name: Academy
     kind: 0
     piece: -1
-    latitude: 47.05786685634921
-    longitude: 26.914509455140305
+    latitude: 47.166074855509024
+    longitude: 27.578248154009366
     altitudeType: 0
     altitude: 0
-    eunRotation: {x: -0, y: 0.997712, z: -0, w: 0.06760726}
+    eunRotation: {x: 0, y: 0.83388585, z: 0, w: 0.551937}
     scale: 35
   - name: Left column
     kind: 1
     piece: 0
-    latitude: 47.056286140676875
-    longitude: 26.916224028801103
+    latitude: 47.159767950975684
+    longitude: 27.584725871135774
     altitudeType: 0
     altitude: 1
     eunRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -34,8 +34,8 @@ MonoBehaviour:
   - name: Right column
     kind: 1
     piece: 1
-    latitude: 47.05710461514669
-    longitude: 26.915329540765395
+    latitude: 47.16636711608737
+    longitude: 27.577912072285752
     altitudeType: 0
     altitude: 1
     eunRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -43,8 +43,8 @@ MonoBehaviour:
   - name: Arc
     kind: 1
     piece: 2
-    latitude: 47.0567300616203
-    longitude: 26.91578247405875
+    latitude: 47.185663
+    longitude: 27.561295
     altitudeType: 0
     altitude: 1
     eunRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -52,8 +52,8 @@ MonoBehaviour:
   - name: Top beam
     kind: 1
     piece: 3
-    latitude: 47.16585743083163
-    longitude: 27.57904815473427
+    latitude: 47.173952598186084
+    longitude: 27.57513844094798
     altitudeType: 0
     altitude: 1
     eunRotation: {x: 0, y: 0, z: 0, w: 1}

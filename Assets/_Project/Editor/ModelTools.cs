@@ -248,7 +248,8 @@ public static class ModelTools
     /// Renders a model to a PNG: camera at (yaw, pitch) degrees around the model's bounds centre (yaw 0 looks
     /// from +Z towards -Z).
     public static string Render(string assetPath, float yaw, float pitch, string png, int size = 1024,
-                                string onlyChild = null, bool transparent = false, bool withArch = false)
+                                string onlyChild = null, bool transparent = false, bool withArch = false,
+                                float explode = 0f)
     {
         var preview = new PreviewRenderUtility();
         try
@@ -264,6 +265,20 @@ public static class ModelTools
             }
             if (!string.IsNullOrEmpty(onlyChild))
                 foreach (Transform child in go.transform) child.gameObject.SetActive(child.name == onlyChild);
+            if (explode > 0f)
+            {
+                // Exploded view: each child moved away from the model's centre (e.g. the arch's four pieces).
+                var whole = new Bounds(go.transform.position, Vector3.zero);
+                foreach (var r in go.GetComponentsInChildren<Renderer>()) whole.Encapsulate(r.bounds);
+                foreach (Transform child in go.transform)
+                {
+                    var parts = child.GetComponentsInChildren<Renderer>();
+                    if (parts.Length == 0) continue;
+                    var own = parts[0].bounds;
+                    foreach (var r in parts) own.Encapsulate(r.bounds);
+                    child.position += (own.center - whole.center) * explode;
+                }
+            }
             var bounds = new Bounds(go.transform.position, Vector3.zero);
             foreach (var r in go.GetComponentsInChildren<Renderer>()) bounds.Encapsulate(r.bounds);
             float radius = bounds.extents.magnitude;

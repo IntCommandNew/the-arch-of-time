@@ -7,7 +7,7 @@
 | Conversation | Code 04 |
 | Topic | Reading the project from the handoff, a longer academy base under the arch, a contact shadow where the models meet the ground, and occlusion by real buildings for the In Iasi mode |
 | Date | 2026-11-22 |
-| Prompts | 29 |
+| Prompts | 36 |
 
 ## Summary
 
@@ -466,6 +466,111 @@ A new Claude Code session started from the handoff file of the previous one and 
 
 **Files created or changed:** docs/MainModules.md, docs/StateOfTheArt.md, docs/prompts/LogPromptWeek4_Web01.md, docs/prompts/LogPromptWeek5_Web04.md, docs/prompts/LogPromptWeek8_Code04.md
 
+### Prompt 30
+
+**Prompt:**
+
+> push it
+
+**Attachments:** None
+
+**What was done:**
+
+- Pushed the Week 8 commit to GitHub (243 files stored with Git LFS, 65 MB). This prompt is recorded after the push, so it goes in with the next commit.
+
+**Files created or changed:** docs/prompts/LogPromptWeek8_Code04.md
+
+### Prompt 31
+
+**Prompt:**
+
+> [pasted: the brief for completing the shared course presentation template in the docs folder: leave the first two slides untouched and complete slides 3 to the end following the template; a design inspired by the app, avoiding generic AI slide looks; short, accurate content; the week 8 screenshots, original videos (with a caption for the compass video's still part) and voice recordings embedded; no slide transitions; an editable file that imports into Google Slides, with any media limits documented; a final quality check, about 120 lines]
+
+**Attachments:** docs/IMR08_03.pptx (the shared template)
+
+**What was done:**
+
+- Read the template (12 slides; slides 1 and 2 are the shared introduction) and the project's documents, design system, screenshots, recordings and voices; found that Google Slides drops embedded video and audio on import, so the deck works fully in PowerPoint and a guide says where to put the media back in Google Slides.
+- Made the stills: frames from the user's videos, renders of the academy, the arch in its four pieces and the seal, and the Unity map where the In Iasi places are set; cut the videos to the phone's screen at a size that keeps the file under Google Slides' import limit.
+- Filled slides 3 to 12 in the app's own design language (its typefaces, ink, Prussian blue and wax red, its sheet and register forms) with short texts about the real work: what the app is, the scope and the quest's loop, how the city and the components were modelled, the two videos of the implementation (with a timeline for the compass video's still part), what the phone tests showed and changed, the next steps and the links; with speaker notes. Checked every claim against the project and corrected the ones that were looser than the facts.
+- Embedded the three videos and eight voice recordings (each plays when clicked), the fonts, and no transitions; kept slides 1 and 2 byte-identical to the template; validated the file and checked it in PowerPoint.
+- Installed the app's two typefaces for the user's Windows account, so PowerPoint shows and embeds them.
+
+**Files created or changed:** docs/presentation/IMR08_03_TheArchOfTime.pptx (new), docs/presentation/media/ (11 files, new), docs/presentation/README.md (new), Assets/_Project/Editor/ModelTools.cs, docs/AIUsage.md, docs/prompts/LogPromptWeek8_Code04.md
+
+### Prompt 32
+
+**Prompt:**
+
+> looks nice, but I have a question: why is the paper color more brown in the slides that it is on my phone or screenshots or videos?
+
+**Attachments:** None
+
+**What was done:**
+
+- Measured the paper colour in the screenshots, the phone's recording and the rendered slides: it is the same everywhere (the recording is slightly darker). Explained why it looks browner on the slides (pure white around it, the orange and teal next to it, the phone's brighter screen) and offered to lighten only the slides' own paper shapes.
+
+**Files created or changed:** None
+
+### Prompt 33
+
+**Prompt:**
+
+> if the images and videos in the presentation come directly from images and videos from the app (from my phone or your play session), we have no right to change them becuase that is the real color, even thought it might look different. I would like to make an addition to the screenshots, both for the presentation and the @README.md file: the map in the free place mode, zoomed out and with no circle or pick marker on it. also, when you update the presentation, remove the reader notes on all slides.
+
+**Attachments:** README.md
+
+**What was done:**
+
+- Kept every real capture as it is.
+- Captured the Anywhere map, zoomed out, with no circle and no pick, in English and Romanian, and added it to the README's Week 8 screenshots and to slide 7 of the presentation (next to the other three phone screens, under "Anywhere").
+- Removed the speaker notes from all slides, rebuilt the deck (slides 1 and 2 still byte-identical to the template), checked it again and updated the presentation guide.
+
+**Files created or changed:** docs/screenshots/week8_anywhere_map_en.png and _ro.png (new), README.md, docs/presentation/IMR08_03_TheArchOfTime.pptx, docs/presentation/README.md, docs/prompts/LogPromptWeek8_Code04.md
+
+### Prompt 34
+
+**Prompt:**
+
+> I made some small adjustments to the presentation. now, to wrap things up, move the academy and the pieces to their spot in Iasi. after that, I will make sure the position is right so you can run the tools to set the position and make a new build I can use in Iasi.
+
+**Attachments:** None
+
+**What was done:**
+
+- Moved the academy back to its site in Iași and each arch piece to its place in the quest (Trei Ierarhi Monastery, Colegiul Național, the arch replica in Parcul Expoziției, the UAIC main building), using the coordinates in the research notes, in the Unity authoring scene. Measured the ground height under each one with the Cesium map. Left the export for after the user's check.
+
+**Files created or changed:** None in the repository (the authoring scene)
+
+### Prompt 35
+
+**Prompt:**
+
+> I adjusted the positions. make sure the elevation is right, use the tools, then build it and put it on my phone.
+
+**Attachments:** None
+
+**What was done:**
+
+- Measured the ground height under each adjusted target again, exported the five targets to the app's settings, made a release build and installed it on the phone over Wi-Fi.
+
+**Files created or changed:** Assets/_Project/Settings/CityTargets.asset
+
+### Prompt 36
+
+**Prompt:**
+
+> update the handoff file, create a local backup commit and a GitHub commit. push it. record this prompt first so that it will not have to be comited next week. this can be made a rule for every prompt given when a GitHub commit must be pushed.
+
+**Attachments:** None
+
+**What was done:**
+
+- Recorded this prompt in the log before committing, so it goes in with the same push (now a rule for every prompt that asks for a push).
+- Updated the local handoff file for the next conversation, added the presentation file type (.pptx) to Git LFS, made a local backup, then committed and pushed: the In Iasi targets at their real places, the Anywhere map screenshots, the README, the course presentation, the AI usage acknowledgement and this log.
+
+**Files created or changed:** .gitattributes, docs/AIUsage.md, docs/prompts/LogPromptWeek8_Code04.md
+
 ## Outputs used in the project
 
 | Output | Made in prompt | Notes |
@@ -478,4 +583,5 @@ A new Claude Code session started from the handoff file of the previous one and 
 | docs/screenshots/week8_*.png, docs/audio/week8_*.mp3 | 21 | Week 8 report pictures and sound samples |
 | docs/videos/week8_video1/2/3_github.mp4 | 24 | To upload to GitHub; not in git |
 | docs/SoundSamples.md and the sound videos | 26 | The voices for the week 8 report |
+| docs/presentation (the deck, its media and guide) | 31 | The team's part of the course presentation |
 | Local backup branches (7) | 2, 6, 8, 17, 20, 21, 28 | Never pushed |

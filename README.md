@@ -100,6 +100,12 @@ The In Iași guide on the way to the first piece:
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/week8_compass_1_far_en.png" width="180"> | <img src="docs/screenshots/week8_compass_2_warmer_en.png" width="180"> | <img src="docs/screenshots/week8_compass_3_colder_en.png" width="180"> | <img src="docs/screenshots/week8_compass_4_arrived_en.png" width="180"> |
 
+In the Anywhere mode, the map of Iași where you choose the next place:
+
+| The map, before you choose |
+|:---:|
+| <img src="docs/screenshots/week8_anywhere_map_en.png" width="240"> |
+
 The same screens in Romanian are in [docs/screenshots](docs/screenshots) (the files ending in `_ro`).
 
 **AI prompt logs**
