@@ -204,7 +204,7 @@ public class AdjustController : MonoBehaviour
     {
         if (!CanEdit()) return;
         model.localScale = Vector3.one * Mathf.Clamp(scale, minScale, maxScale);
-        SetHeightValue(0f);
+        SetHeightValue(PlatformVisible ? 0f : -streetLevel * Scale); // base hidden: the street on the ground
     }
 
     /// <summary>Raises (+1) or lowers (-1) the model by one step.</summary>
@@ -228,11 +228,18 @@ public class AdjustController : MonoBehaviour
         SetHeightValue(0f);
     }
 
+    /// <summary>
+    /// Shows or hides the base slab. Hiding it lowers the model by the street level, so the street stays on the
+    /// ground instead of floating a slab's height above it; showing it raises the model back (user, 22 Nov 2026).
+    /// A height set by hand is kept on top of that. The Street / Base height buttons still work as before.
+    /// </summary>
     public void SetPlatformVisible(bool visible)
     {
         if (!CanEdit()) return;
+        bool was = PlatformVisible;
         placement.SetPlatformVisible(visible);
-        NotifyChanged();
+        if (was != visible) SetHeightValue(Height + (visible ? 1f : -1f) * streetLevel * Scale);
+        else NotifyChanged();
     }
 
     /// <summary>Turns the model so its front faces south (needs a good Geospatial heading).</summary>

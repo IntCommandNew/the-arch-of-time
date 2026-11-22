@@ -11,12 +11,16 @@ using UnityEngine;
 /// street level under the model.
 ///
 /// Menu: Tools > The Arch of Time > Bake footprint outline. Re-bake after a new model iteration.
+/// BakeArch does the same for the arch (its two piers' plinths, near the ground: two rectangles).
 /// </summary>
 public static class FootprintBaker
 {
     const string PrefabPath = "Assets/_Project/Prefabs/academy.prefab";
     const string BuildingChild = "Building";
     public const string OutputPath = "Assets/_Project/Models/Academy/academy_footprint.asset";
+    const string ArchPath = "Assets/_Project/Models/Arch/arch.fbx";
+    static readonly string[] ArchPiers = { "LeftColumn", "RightColumn" };
+    public const string ArchOutputPath = "Assets/_Project/Models/Arch/arch_footprint.asset";
 
     // Defaults, at model scale 1 (metres). Since model iteration 3 the building starts at the platform
     // top (y = 0.0147) and is open at the bottom, so a slice just above it (0.016) cuts both the outer
@@ -39,6 +43,29 @@ public static class FootprintBaker
     {
         var lines = Slice(sliceHeight, out string problem);
         if (lines == null) return problem;
+        return Write(lines, sliceHeight, lineWidth, minLoopLength, outerOnly, OutputPath);
+    }
+
+    /// <summary>
+    /// The arch's outline: a slice through its two piers (plinths) at sliceHeight above the arch's base, every
+    /// loop longer than minLoopLength kept (one per pier), written to arch_footprint.asset.
+    /// </summary>
+    [MenuItem("Tools/The Arch of Time/Bake arch outline")]
+    public static string BakeArch() => BakeArch(0.010f, DefaultLineWidth, 0.1f);
+
+    public static string BakeArch(float sliceHeight, float lineWidth, float minLoopLength)
+    {
+        var root = AssetDatabase.LoadAssetAtPath<GameObject>(ArchPath);
+        var lines = Slice(root, ArchPiers, sliceHeight, out string problem);
+        if (lines == null) return problem;
+        string result = Write(lines, sliceHeight, lineWidth, minLoopLength, false, ArchOutputPath);
+        Debug.Log("[FootprintBaker] " + result);
+        return result;
+    }
+
+    static string Write(List<List<Vector2>> lines, float sliceHeight, float lineWidth, float minLoopLength,
+                        bool outerOnly, string outputPath)
+    {
 
         var kept = new List<List<Vector2>>();
         var report = new StringBuilder();
@@ -51,7 +78,7 @@ public static class FootprintBaker
         }
 
         var mesh = BuildStripMesh(kept, lineWidth);
-        var existing = AssetDatabase.LoadAssetAtPath<Mesh>(OutputPath);
+        var existing = AssetDatabase.LoadAssetAtPath<Mesh>(outputPath);
         if (existing != null)
         {
             existing.Clear();
@@ -60,14 +87,14 @@ public static class FootprintBaker
         }
         else
         {
-            AssetDatabase.CreateAsset(mesh, OutputPath);
+            AssetDatabase.CreateAsset(mesh, outputPath);
         }
         AssetDatabase.SaveAssets();
 
         report.Append($"slice y={sliceHeight}: {lines.Count} lines, kept {kept.Count} (>= {minLoopLength} m): ");
         foreach (var line in kept)
             report.Append($"[{line.Count} pts, {Length(line):0.000} m{(IsClosed(line) ? ", closed" : "")}] ");
-        report.Append($"-> {OutputPath}");
+        report.Append($"-> {outputPath}");
         return report.ToString();
     }
 
@@ -118,34 +145,40 @@ public static class FootprintBaker
 
     // Slicing
     /// Lines (in the model's XZ plane) where the building mesh crosses the plane y = sliceHeight.
-    static List<List<Vector2>> Slice(float sliceHeight, out string problem)
+    internal static List<List<Vector2>> Slice(float sliceHeight, out string problem) =>
+        Slice(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath), new[] { BuildingChild }, sliceHeight,
+              out problem);
+
+    /// Lines where the named children's meshes cross the plane y = sliceHeight (in the root's space).
+    internal static List<List<Vector2>> Slice(GameObject root, string[] children, float sliceHeight, out string problem)
     {
         problem = null;
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
-        var building = prefab != null ? prefab.transform.Find(BuildingChild) : null;
-        var mesh = building != null ? building.GetComponent<MeshFilter>()?.sharedMesh : null;
-        if (mesh == null)
-        {
-            problem = $"No mesh found at {PrefabPath} / {BuildingChild}.";
-            return null;
-        }
-
-        // Model space = the prefab root's space.
-        Matrix4x4 toModel = prefab.transform.worldToLocalMatrix * building.localToWorldMatrix;
-        var vertices = mesh.vertices;
-        for (int i = 0; i < vertices.Length; i++) vertices[i] = toModel.MultiplyPoint3x4(vertices[i]);
-        var triangles = mesh.triangles;
-
         var segments = new List<(Vector2, Vector2)>();
         var crossing = new List<Vector2>(3);
-        for (int t = 0; t < triangles.Length; t += 3)
+        foreach (string childName in children)
         {
-            crossing.Clear();
-            AddCrossing(vertices[triangles[t]], vertices[triangles[t + 1]], sliceHeight, crossing);
-            AddCrossing(vertices[triangles[t + 1]], vertices[triangles[t + 2]], sliceHeight, crossing);
-            AddCrossing(vertices[triangles[t + 2]], vertices[triangles[t]], sliceHeight, crossing);
-            if (crossing.Count == 2 && (crossing[0] - crossing[1]).sqrMagnitude > 1e-12f)
-                segments.Add((crossing[0], crossing[1]));
+            var child = root != null ? root.transform.Find(childName) : null;
+            var mesh = child != null ? child.GetComponent<MeshFilter>()?.sharedMesh : null;
+            if (mesh == null)
+            {
+                problem = $"No mesh found at {(root != null ? root.name : "(none)")} / {childName}.";
+                return null;
+            }
+
+            // Model space = the root's space.
+            Matrix4x4 toModel = root.transform.worldToLocalMatrix * child.localToWorldMatrix;
+            var vertices = mesh.vertices;
+            for (int i = 0; i < vertices.Length; i++) vertices[i] = toModel.MultiplyPoint3x4(vertices[i]);
+            var triangles = mesh.triangles;
+            for (int t = 0; t < triangles.Length; t += 3)
+            {
+                crossing.Clear();
+                AddCrossing(vertices[triangles[t]], vertices[triangles[t + 1]], sliceHeight, crossing);
+                AddCrossing(vertices[triangles[t + 1]], vertices[triangles[t + 2]], sliceHeight, crossing);
+                AddCrossing(vertices[triangles[t + 2]], vertices[triangles[t]], sliceHeight, crossing);
+                if (crossing.Count == 2 && (crossing[0] - crossing[1]).sqrMagnitude > 1e-12f)
+                    segments.Add((crossing[0], crossing[1]));
+            }
         }
         return ChainSegments(segments);
     }

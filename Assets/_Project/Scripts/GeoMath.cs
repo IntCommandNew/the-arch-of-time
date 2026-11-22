@@ -1,15 +1,14 @@
 using System;
 using UnityEngine;
 
-/// <summary>Distances and compass directions between latitude/longitude points, and directions in words.</summary>
+/// <summary>
+/// Distances and compass directions between latitude/longitude points, and directions in words (in the current
+/// language: UiText.json keys compass.N, compassShort.N, dir.*).
+/// </summary>
 public static class GeoMath
 {
     const double ToRad = Math.PI / 180.0;
     const double EarthRadius = 6371008.8; // mean radius (metres)
-
-    static readonly string[] CompassPoints = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
-    static readonly string[] CompassNames =
-        { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" };
 
     /// <summary>Distance in metres between two points (haversine, accurate enough for a city).</summary>
     public static double Distance(double lat1, double lon1, double lat2, double lon2)
@@ -30,10 +29,10 @@ public static class GeoMath
     }
 
     /// <summary>"N", "NE", ... for a bearing in degrees.</summary>
-    public static string CompassPoint(float bearing) => CompassPoints[CompassIndex(bearing)];
+    public static string CompassPoint(float bearing) => Localization.Ui("compassShort." + CompassIndex(bearing));
 
     /// <summary>"north", "north-east", ... for a bearing in degrees.</summary>
-    public static string CompassName(float bearing) => CompassNames[CompassIndex(bearing)];
+    public static string CompassName(float bearing) => Localization.Ui("compass." + CompassIndex(bearing));
 
     /// <summary>"350 m", "1.2 km", "12 km".</summary>
     public static string FormatDistance(double metres)
@@ -50,12 +49,12 @@ public static class GeoMath
     public static string RelativeDirection(float angle)
     {
         float a = Mathf.Abs(angle);
-        string side = angle > 0f ? "right" : "left";
-        if (a <= 20f) return "ahead";
-        if (a <= 60f) return $"ahead, slightly to the {side}";
-        if (a <= 120f) return $"to your {side}";
-        if (a <= 160f) return $"behind you, to the {side}";
-        return "behind you";
+        string side = angle > 0f ? "Right" : "Left";
+        if (a <= 20f) return Localization.Ui("dir.ahead");
+        if (a <= 60f) return Localization.Ui("dir.ahead" + side);
+        if (a <= 120f) return Localization.Ui("dir." + side.ToLowerInvariant());
+        if (a <= 160f) return Localization.Ui("dir.behind" + side);
+        return Localization.Ui("dir.behind");
     }
 
     static int CompassIndex(float bearing) => Mathf.RoundToInt(Mathf.Repeat(bearing, 360f) / 45f) % 8;

@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: academy
       objectReference: {fileID: 0}
+    - target: {fileID: 3236166618530371999, guid: eefe3b75809067d4fb8e708591c63e08, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: f2df91c1ca525ff46beb97ab445d495a, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

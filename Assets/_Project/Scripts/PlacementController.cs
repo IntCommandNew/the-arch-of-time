@@ -88,6 +88,15 @@ public class PlacementController : MonoBehaviour
     Transform model;
     int placeVersion; // bumped by Clear(), so a Place() still in progress is thrown away
 
+    // Diagnostics: ARCore can move an anchor when it corrects its tracking (user, 21 Nov 2026: the academy
+    // jumped ~2 m after many pose_manager warnings). Jumps and tracking changes are logged, nothing is changed.
+    const float AnchorJumpMetres = 0.15f;
+    Vector3 lastAnchorPosition;
+    bool anchorWatched;
+    TrackingState lastAnchorState;
+    ARSessionState lastSessionState;
+    NotTrackingReason lastNotTrackingReason;
+
     // Search
     /// <summary>Starts looking for ground and showing the reticle.</summary>
     public void BeginSearch()
@@ -120,6 +129,40 @@ public class PlacementController : MonoBehaviour
             if (reticle != null) reticle.Hide();
             SetHasGround(false);
         }
+    }
+
+    void LateUpdate() => WatchTracking();
+
+    /// Logs an anchor jump (more than AnchorJumpMetres in one frame) and changes of the anchor's and the AR
+    /// session's tracking, so a moved model can be traced in the phone's log.
+    void WatchTracking()
+    {
+        if (ARSession.state != lastSessionState || ARSession.notTrackingReason != lastNotTrackingReason)
+        {
+            if (model != null)
+                Debug.Log($"[PlacementController] AR session {ARSession.state}, tracking " +
+                          $"{ARSession.notTrackingReason}.");
+            lastSessionState = ARSession.state;
+            lastNotTrackingReason = ARSession.notTrackingReason;
+        }
+        if (anchorRoot == null || model == null)
+        {
+            anchorWatched = false;
+            return;
+        }
+        Vector3 position = anchorRoot.position;
+        var state = arAnchor != null ? arAnchor.trackingState : TrackingState.Tracking;
+        if (anchorWatched)
+        {
+            float moved = Vector3.Distance(position, lastAnchorPosition);
+            if (moved > AnchorJumpMetres)
+                Debug.LogWarning($"[PlacementController] The anchor jumped {moved:0.00} m in one frame (ARCore " +
+                                 $"corrected its tracking): anchor {state}, session {ARSession.notTrackingReason}.");
+            if (state != lastAnchorState) Debug.Log($"[PlacementController] Anchor tracking: {state}.");
+        }
+        lastAnchorPosition = position;
+        lastAnchorState = state;
+        anchorWatched = true;
     }
 
     /// <summary>Shows or hides the detected planes (they stay detected).</summary>

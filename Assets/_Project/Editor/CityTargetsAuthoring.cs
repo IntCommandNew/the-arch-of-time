@@ -9,12 +9,12 @@ using UnityEngine;
 /// Placing the in-city targets with Geospatial Creator.
 ///
 /// "Create city authoring scene" makes Assets/_Project/Scenes/CityAuthoring.unity: a Geospatial Creator
-/// origin (paste the Google Map Tiles API key in its inspector to see the city in 3D) and one anchor per
-/// target, each with a preview (the academy at real size, a block for each piece). The scene is
-/// git-ignored, because the key is saved inside it and the repository is public.
+/// origin with Cesium ion's map of the city (see CityAuthoringMap) and one anchor per target, each with a
+/// preview (the academy at real size, a block for each piece). The scene is git-ignored (it held the Google
+/// Map Tiles API key until 20 Nov 2026).
 ///
 /// Move and turn the anchors in the Scene view, then "Export city targets" writes their positions to
-/// Assets/_Project/Settings/CityTargets.asset, which the app reads (no key in it).
+/// Assets/_Project/Settings/CityTargets.asset, which the app reads.
 /// The anchors are found by name, so keep the names.
 /// </summary>
 public static class CityTargetsAuthoring
@@ -24,9 +24,10 @@ public static class CityTargetsAuthoring
     const string AcademyPrefabPath = "Assets/_Project/Prefabs/academy.prefab";
     const string StoneMaterialPath = "Assets/_Project/Models/Academy/Materials/m_stone.mat";
 
-    // Iasi city centre, a starting point for the origin (move it with the origin's search box).
+    // Iasi city centre, a starting point for the origin, and the origin's height (WGS84 m, near the ground).
     const double StartLatitude = 47.1585;
     const double StartLongitude = 27.6014;
+    const double StartHeight = 60;
 
     // The academy's scale on the map (exported with it; change the preview's scale to change it), its
     // street level in the model (the building's bottom, put on the ground), and a piece's block (metres).
@@ -39,6 +40,9 @@ public static class CityTargetsAuthoring
     // Put city anchors on the 3D ground: points sampled on a ring around a Terrain anchor (metres).
     const float GroundSampleRadius = 12f;
     const int GroundSamples = 8;
+    // ... only for anchors this close to the Scene view camera (metres): farther away only coarse tiles are
+    // loaded (with the view 52 km away, the Iasi anchors came out 7 to 33 m too high, 20 Nov 2026).
+    const float GroundMaxViewDistance = 3000f;
 
     // Export refuses anchors farther than this from the map origin (metres): their position went wrong.
     const double MaxDistanceFromOrigin = 200000;
@@ -77,17 +81,24 @@ public static class CityTargetsAuthoring
     /// </summary>
     public static string PutAnchorsOnGround()
     {
-        var tileset = Object.FindFirstObjectByType<Cesium3DTileset>();
+        // Every map layer shown (Cesium ion's terrain and buildings, see CityAuthoringMap).
+        var tilesets = Object.FindObjectsByType<Cesium3DTileset>(FindObjectsSortMode.None);
         var georeference = Object.FindFirstObjectByType<CesiumGeoreference>();
-        if (tileset == null || georeference == null)
-            return "No 3D tiles in the open scene: paste the Map Tiles API key in the origin's inspector first.";
-        if (!tileset.createPhysicsMeshes)
+        if (tilesets.Length == 0 || georeference == null)
+            return "No map in the open scene: Tools > The Arch of Time > Add Cesium ion map.";
+        bool turnedOn = false;
+        foreach (var tileset in tilesets)
         {
+            if (tileset.createPhysicsMeshes) continue;
             tileset.createPhysicsMeshes = true;
             tileset.RecreateTileset();
             EditorUtility.SetDirty(tileset);
-            EditorSceneManager.MarkSceneDirty(tileset.gameObject.scene);
-            return "Turned on collision for the 3D tiles. Wait until they have reloaded, then run this again.";
+            turnedOn = true;
+        }
+        if (turnedOn)
+        {
+            EditorSceneManager.MarkSceneDirty(georeference.gameObject.scene);
+            return "Turned on collision for the map. Wait until it has reloaded, then run this again.";
         }
 
         Physics.SyncTransforms();
@@ -95,6 +106,13 @@ public static class CityTargetsAuthoring
         foreach (var anchor in Object.FindObjectsByType<ARGeospatialCreatorAnchor>(FindObjectsSortMode.None))
         {
             if (anchor.AltitudeType == AnchorAltitudeType.WGS84) continue;
+            var view = SceneView.lastActiveSceneView;
+            if (view != null
+                && Vector3.Distance(view.camera.transform.position, anchor.transform.position) > GroundMaxViewDistance)
+            {
+                report.Append($" {anchor.name}: too far from the view (move the view there and wait);");
+                continue;
+            }
             // From latitude / longitude: the anchor's Unity position can be out of date.
             var above = georeference.TransformEarthCenteredEarthFixedPositionToUnity(
                 CesiumWgs84Ellipsoid.LongitudeLatitudeHeightToEarthCenteredEarthFixed(
@@ -153,7 +171,12 @@ public static class CityTargetsAuthoring
         var originObject = new GameObject("AR Geospatial Creator Origin", typeof(ARGeospatialCreatorOrigin));
         originObject.tag = "EditorOnly";
         var origin = originObject.GetComponent<ARGeospatialCreatorOrigin>();
-        origin.SetOriginPoint(StartLatitude, StartLongitude, 0);
+        origin.SetOriginPoint(StartLatitude, StartLongitude, StartHeight);
+        // The georeference places the map; the object must be active when it is added (an inactive one
+        // stayed at Cesium's default place in Colorado, 8 Nov 2026).
+        var georeference = originObject.AddComponent<CesiumGeoreference>();
+        georeference.SetOriginLongitudeLatitudeHeight(StartLongitude, StartLatitude, StartHeight);
+        string map = CityAuthoringMap.AddIonMap(origin);
         AddAnchorManagerStandIn();
 
         var academyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AcademyPrefabPath);
@@ -187,7 +210,7 @@ public static class CityTargetsAuthoring
         }
 
         EditorSceneManager.SaveScene(scene, ScenePath);
-        return $"Created {ScenePath}. Paste the Map Tiles API key in the origin's inspector, then move the anchors.";
+        return $"Created {ScenePath}. {map} Move the anchors, then export.";
     }
 
     /// <summary>

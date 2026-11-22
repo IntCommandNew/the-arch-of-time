@@ -53,6 +53,84 @@ Each week we add what is new, a video of the new features, and screenshots where
 
 <!-- Copy this block for each new week, newest week on top -->
 
+### Week 8: The whole quest, recorded voices and a more realistic academy
+
+**What's new**
+
+- The whole quest is now in the app, in English and Romanian, written from trusted historical sources:
+  - Prince Mihail Sturdza greets you at the academy, then a riddle leads you to each of the four places of the academy's story.
+  - At each place: collect the arch piece, read what the place remembers and answer three questions. With every answer right, a wax seal appears near you and opens a secret.
+  - The finale: back at the academy, the arch rises (1845), is demolished (1890), then the academy is demolished too (1963). With all five seals found, the prince sends you a letter.
+  - A progress screen with the pieces, the seals and the score for each place.
+- Recorded voices: the prince and a narrator read every card, in both languages, made with AI voices (ElevenLabs). The voice can be paused and resumed.
+- A new design for the whole interface, inspired by what Iași printed between 1835 and 1858: rag paper and ink, the colours of the first Moldavian stamps and red wax seals.
+- New 3D models: the fourth iteration of the academy (bevelled edges, new colours), the academy's arch, split into the four pieces you collect, and the wax seal. The arch stands by the academy and fills in as you collect its pieces.
+- A more realistic look:
+  - A softer, more even light that follows the real light only a little, with a counter-light and neutral reflections.
+  - A dark contact shadow where the academy and the arch meet the ground, and a stronger shadow on the real ground.
+  - The base now reaches under the arch, and hiding the base lowers the academy onto the ground.
+- **Anywhere** mode: choose the next place on a map of Iași with its main streets and landmarks.
+- **In Iași** mode:
+  - The places are visited in the order of the story, instead of being picked from a list.
+  - Real buildings can now hide the academy, the arch and the pieces, using the building shapes Google makes from Street View ("Hidden by buildings" switch).
+  - Close to a place, the dial says "Warmer" or "Colder" and in which direction to go.
+- The map used in the Unity Editor to place the In Iași targets is now Cesium ion's, because Google's 3D map is no longer available to accounts in the European Economic Area.
+
+**Video**
+
+https://github.com/user-attachments/assets/0fc632a4-ae9c-44ab-8c85-18ba8bb0dd68
+
+https://github.com/user-attachments/assets/245804ef-4488-4d49-8f30-3912feaf0764
+
+https://github.com/user-attachments/assets/715840b1-cc40-4358-b911-73265b9976e6
+
+The videos have no sound. To hear the app's voices, Prince Mihail Sturdza and the narrator in English and Romanian, see the [sound samples](docs/SoundSamples.md).
+
+**Screenshots**
+
+The end of the quest with every answer right and all five seals found:
+
+| The finale's last card | The prince's letter | Progress with a perfect score |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/week8_finale_score_en.png" width="240"> | <img src="docs/screenshots/week8_secret_letter_en.png" width="240"> | <img src="docs/screenshots/week8_progress_perfect_en.png" width="240"> |
+
+The In Iași guide on the way to the first piece:
+
+| Far away | Getting closer | Walking away | Arrived |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/week8_compass_1_far_en.png" width="180"> | <img src="docs/screenshots/week8_compass_2_warmer_en.png" width="180"> | <img src="docs/screenshots/week8_compass_3_colder_en.png" width="180"> | <img src="docs/screenshots/week8_compass_4_arrived_en.png" width="180"> |
+
+The same screens in Romanian are in [docs/screenshots](docs/screenshots) (the files ending in `_ro`).
+
+**AI prompt logs**
+
+Every prompt given to an AI tool this week and what was done after it (see [AI usage](docs/AIUsage.md)):
+
+- [Claude web 01](docs/prompts/LogPromptWeek8_Web01.md): the fourth iteration of the academy model, the arch model and its four pieces
+- [Claude web 02](docs/prompts/LogPromptWeek8_Web02.md): the wax seal model
+- [Claude Code 01](docs/prompts/LogPromptWeek8_Code01.md): the Cesium ion map in the Editor, the whole quest's content, the new design
+- [Claude Code 02](docs/prompts/LogPromptWeek8_Code02.md): the recorded voices, the language choice, the map names, the new models and the arch by the academy
+- [Claude Code 03](docs/prompts/LogPromptWeek8_Code03.md): the new lighting of the academy and the arch
+- [Claude Code 04](docs/prompts/LogPromptWeek8_Code04.md): the contact shadow and the longer base, occlusion by real buildings, the report material
+
+### Week 7
+
+**What's new**
+
+_No work was done this week._
+
+**Video**
+
+_No video this week._
+
+**Screenshots**
+
+_No screenshots this week._
+
+**AI prompt logs**
+
+_No prompt logs this week._
+
 ### Week 6: Two ways to play and the In Iași mode
 
 **What's new**

@@ -4,19 +4,29 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
+/// <summary>What can be collected: a piece of the arch, or a wax seal (it opens a secret).</summary>
+public enum ItemKind
+{
+    Piece,
+    Seal,
+}
+
 /// <summary>
-/// The arch pieces (until the arch model exists, a placeholder block).
+/// The arch pieces and the seals. A piece is the arch model's own piece (Models/Arch/arch.fbx: LeftColumn,
+/// RightColumn, Arc, TopBeam = pieces 0 to 3), scaled so its longest side is pieceLength and turning around
+/// its own middle; a seal is the wax seal model (Models/Seal/seal.fbx, its stamped face +Z towards the user),
+/// sized the same way. (Primitives stand in only if a model is missing.)
 ///
-/// Spawn(): a placeholder piece (a stone block) appears at a random spot 1.5 to 4 m around the user,
-/// in any direction (also behind), floating ~1 m above the detected floor and anchored in AR so it
-/// stays put. It slowly turns and bobs. The centre of the screen is the aim: when it is on a piece
-/// within reach, the piece turns gold (IsAimed) and Collect() takes it (it spins away). One piece is
-/// out at a time; Spawn() again moves it. Which pieces are collected is saved per mode (GameProgress).
+/// Spawn(kind, index): the item appears at a random spot 1.5 to 4 m around the user, in any direction (also
+/// behind), floating ~1 m above the detected floor and anchored in AR so it stays put. It slowly turns and
+/// bobs. The centre of the screen is the aim: when it is on the item within reach, it lights up (IsAimed) and
+/// Collect() takes it (it spins away). One item is out at a time. A collected piece is saved per mode
+/// (GameProgress); a collected seal only raises ItemCollected (QuestFlow saves it with its secret).
 ///
 /// In-city mode: ShowOn(anchor, piece) puts that particular piece on a geospatial anchor (CityContent),
 /// bigger and collectable from farther away, since it is found outdoors at a GPS-level place.
 ///
-/// No UI of its own: AppController shows the count, the hint and the buttons.
+/// No UI of its own: AppController and QuestFlow show the count, the hint and the buttons.
 /// </summary>
 public class ArchPieces : MonoBehaviour
 {
@@ -26,48 +36,75 @@ public class ArchPieces : MonoBehaviour
     [SerializeField] ARPlaneManager planeManager;
     [SerializeField] Camera arCamera;
 
-    [Header("Piece (placeholder)")]
-    [Tooltip("The academy's stone material (m_stone), so the placeholder matches the building.")]
+    [Header("Piece")]
+    [Tooltip("Models/Arch/arch.fbx: its children LeftColumn, RightColumn, Arc and TopBeam are the pieces.")]
+    [SerializeField] GameObject archPieceModels;
+    [Tooltip("Longest side of a piece around the user (metres): as big as the old placeholder block.")]
+    [SerializeField] float pieceLength = 0.3f;
+    [Tooltip("The academy's stone material (m_stone): the base of the placeholder seal's wax material.")]
     [SerializeField] Material pieceMaterial;
-    [Tooltip("Size of the placeholder block (metres).")]
-    [SerializeField] Vector3 pieceSize = new Vector3(0.3f, 0.2f, 0.15f);
-    [Tooltip("Multiplies the stone colour while aimed at. Above 1 brightens it: a plain gold (<= 1) only " +
-             "darkened the beige stone to brown, which didn't read as a highlight.")]
-    [SerializeField] Color aimedTint = new Color(2.2f, 1.7f, 0.7f);
+    [Tooltip("Multiplies the item's colour at the top of the aimed pulse: a slightly warm brightening, so the " +
+             "stone keeps its own colours (a strong gold, 2.2 / 1.7 / 0.7, made every piece look the same).")]
+    [SerializeField] Color aimedTint = new Color(1.5f, 1.42f, 1.22f);
+    [Tooltip("While aimed at, the item's light pulses this many times a second (user, 21 Nov 2026: the old strong " +
+             "gold tint hid what the piece was).")]
+    [SerializeField] float aimedPulsesPerSecond = 1.5f;
     [SerializeField] float turnDegreesPerSecond = 30f;
     [SerializeField] float bobHeight = 0.05f;
 
+    [Header("Seal")]
+    [Tooltip("Models/Seal/seal.fbx: the academy's wax seal (made with Claude web, 21 Nov 2026).")]
+    [SerializeField] GameObject sealModel;
+    [Tooltip("The seal faces the user and sways this many degrees to each side (its back is plain wax).")]
+    [SerializeField] float sealSwayDegrees = 20f;
+    [Tooltip("Diameter of the seal (metres; its longest side), and the thickness of the fallback disc.")]
+    [SerializeField] Vector2 sealSize = new Vector2(0.36f, 0.06f); // twice the first size: its stamp reads
+    [SerializeField] Color sealColor = new Color(0.55f, 0.07f, 0.06f);
+
     [Header("Spawning")]
-    [SerializeField] float minDistance = 1.5f;
-    [SerializeField] float maxDistance = 4f;
-    [Tooltip("Height of the piece above the floor (metres).")]
+    [Tooltip("How far from the user an item appears (metres; user, 21 Nov 2026: closer, for small rooms).")]
+    [SerializeField] float minDistance = 0.9f;
+    [SerializeField] float maxDistance = 2.2f;
+    [Tooltip("Height of the item above the floor (metres).")]
     [SerializeField] float heightAboveFloor = 1f;
     [Tooltip("Floor height below the camera when no floor has been detected (metres).")]
     [SerializeField] float fallbackFloorBelowCamera = 1.4f;
 
     [Header("In-city pieces (ShowOn)")]
-    [Tooltip("Size of an in-city piece (metres), as previewed in the authoring scene.")]
-    [SerializeField] Vector3 cityPieceSize = new Vector3(1.2f, 0.8f, 0.6f);
+    [Tooltip("Longest side of an in-city piece (metres), as big as the blocks previewed in the authoring scene.")]
+    [SerializeField] float cityPieceLength = 1.2f;
     [SerializeField] float cityCollectDistance = 40f;
     [SerializeField] float cityAimTolerance = 0.9f;
 
     [Header("Collecting")]
-    [Tooltip("Farthest a piece can be collected from (metres).")]
+    [Tooltip("Farthest an item can be collected from (metres).")]
     [SerializeField] float collectDistance = 6f;
-    [Tooltip("How far (metres) the aim may pass from the piece's centre and still count.")]
+    [Tooltip("How far (metres) the aim may pass from the item's centre and still count.")]
     [SerializeField] float aimTolerance = 0.25f;
     [SerializeField] float collectSeconds = 0.4f;
-    [Tooltip("Seconds between Changed events while a piece is out (keeps the direction hint current).")]
+    [Tooltip("Seconds between Changed events while an item is out (keeps the direction hint current).")]
     [SerializeField] float refreshSeconds = 0.3f;
 
-    /// <summary>Count, piece, aim or direction changed.</summary>
+    /// <summary>Count, item, aim or direction changed.</summary>
     public event Action Changed;
+
+    /// <summary>An item was collected (its spin finished): the kind and its piece / seal number.</summary>
+    public event Action<ItemKind, int> ItemCollected;
 
     public GameMode Mode { get; private set; } = GameMode.Free;
     public int Collected => GameProgress.CollectedCount(Mode);
     public int Total => GameProgress.PieceCount;
     public bool AllCollected => GameProgress.NextPiece(Mode) < 0;
+
+    /// <summary>An item is out and can be collected (not spinning away).</summary>
     public bool HasPiece => piece != null && !collecting;
+
+    /// <summary>What is out (or being spawned): a piece or a seal.</summary>
+    public ItemKind OutKind { get; private set; } = ItemKind.Piece;
+
+    /// <summary>The piece / seal number of what is out, or -1.</summary>
+    public int OutIndex => piece != null || IsSpawning ? shownPiece : -1;
+
     public bool IsAimed { get; private set; }
     public bool IsSpawning { get; private set; }
     /// <summary>The last piece collected (0 to 3), or -1.</summary>
@@ -80,19 +117,21 @@ public class ArchPieces : MonoBehaviour
     int spawnVersion;           // bumped by RemovePiece(), so a spawn still in progress is thrown away
     ARAnchor pieceAnchor;
     Transform pieceRoot;        // the anchor (in the Editor, a stand-in)
-    Transform piece;
+    Transform piece;            // the item that is out (for a seal: its holder)
     Renderer pieceRenderer;
+    Material itemMaterial;      // the material of the item that is out (stone, or the seal's wax)
+    Material sealMaterial;      // made once from the stone material: red wax, no texture
     MaterialPropertyBlock block;
     bool collecting;
     float collectStart;
     float nextRefresh;
-    int shownPiece = -1;        // ShowOn(): the piece to mark when collected (-1: the next one)
-    Vector3 size;               // of the piece that is out
+    int shownPiece = -1;        // the piece / seal number of the item that is out
+    Vector3 size;               // of the item that is out
     float baseHeight;           // its height above its anchor
     float reach;                // how far it can be collected from
     float tolerance;            // how far the aim may pass from it
 
-    /// <summary>Pieces can be spawned and collected from now on, saved as progress of this mode.</summary>
+    /// <summary>Items can be spawned and collected from now on, saved as progress of this mode.</summary>
     public void Begin(GameMode mode)
     {
         Mode = mode;
@@ -101,31 +140,42 @@ public class ArchPieces : MonoBehaviour
         Changed?.Invoke();
     }
 
-    /// <summary>No more pieces for now: the piece that is out goes away (progress is kept).</summary>
+    /// <summary>No more items for now: the one that is out goes away (progress is kept).</summary>
     public void End()
     {
         active = false;
         RemovePiece();
     }
 
-    /// <summary>Starts this mode's collection again from 0.</summary>
+    /// <summary>Removes the item that is out, if any (e.g. a seal left behind when the quest moves on).</summary>
+    public void Remove()
+    {
+        RemovePiece();
+        Changed?.Invoke();
+    }
+
+    /// <summary>Starts this mode's quest again from 0.</summary>
     public void ResetProgress()
     {
         RemovePiece();
-        GameProgress.ResetPieces(Mode);
+        GameProgress.ResetAll(Mode);
         Changed?.Invoke();
     }
 
     // Spawning
-    /// <summary>Puts a piece at a random spot around the user (replacing the one that is out).</summary>
-    public async void Spawn()
+    /// <summary>Puts the next piece at a random spot around the user (replacing what is out).</summary>
+    public void Spawn() => Spawn(ItemKind.Piece, GameProgress.NextPiece(Mode));
+
+    /// <summary>Puts this piece or seal at a random spot around the user (replacing what is out).</summary>
+    public async void Spawn(ItemKind kind, int index)
     {
-        if (!active || IsSpawning || AllCollected || arCamera == null) return;
+        if (!active || IsSpawning || index < 0 || arCamera == null) return;
         RemovePiece();
         IsSpawning = true;
         int version = spawnVersion;
-        shownPiece = -1;
-        size = pieceSize;
+        OutKind = kind;
+        shownPiece = index;
+        size = kind == ItemKind.Seal ? new Vector3(sealSize.x, sealSize.y, sealSize.x) : Vector3.one * pieceLength;
         baseHeight = heightAboveFloor;
         reach = collectDistance;
         tolerance = aimTolerance;
@@ -151,13 +201,13 @@ public class ArchPieces : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"[ArchPieces] The piece's anchor could not be created ({result.status}).");
+                    Debug.LogWarning($"[ArchPieces] The {kind}'s anchor could not be created ({result.status}).");
                 }
             }
 #if UNITY_EDITOR
             else
             {
-                root = new GameObject("Piece anchor (Editor stand-in)").transform;
+                root = new GameObject("Item anchor (Editor stand-in)").transform;
                 root.SetPositionAndRotation(pose.position, pose.rotation);
             }
 #endif
@@ -178,7 +228,7 @@ public class ArchPieces : MonoBehaviour
             pieceAnchor = anchor;
             pieceRoot = root;
             piece = CreatePiece(root);
-            Debug.Log($"[ArchPieces] Piece spawned {Vector3.Distance(cameraPosition, spot):0.0} m away.");
+            Debug.Log($"[ArchPieces] {kind} {index} spawned {Vector3.Distance(cameraPosition, spot):0.0} m away.");
         }
         Changed?.Invoke();
     }
@@ -212,8 +262,9 @@ public class ArchPieces : MonoBehaviour
     {
         if (!active || root == null) return;
         RemovePiece();
+        OutKind = ItemKind.Piece;
         shownPiece = pieceNumber;
-        size = cityPieceSize;
+        size = Vector3.one * cityPieceLength;
         baseHeight = 0f; // the anchor is already at the piece's height
         reach = cityCollectDistance;
         tolerance = cityAimTolerance;
@@ -223,23 +274,85 @@ public class ArchPieces : MonoBehaviour
         Changed?.Invoke();
     }
 
+    static readonly string[] PieceNames = { "LeftColumn", "RightColumn", "Arc", "TopBeam" };
+
     Transform CreatePiece(Transform root)
     {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.name = "Arch piece (placeholder)";
-        Destroy(go.GetComponent<Collider>()); // aiming is a ray test, no physics
-        go.transform.SetParent(root, false);
-        go.transform.localPosition = new Vector3(0f, baseHeight, 0f);
-        go.transform.localScale = size;
-        pieceRenderer = go.GetComponent<MeshRenderer>();
-        if (pieceMaterial != null) pieceRenderer.sharedMaterial = pieceMaterial;
+        bool seal = OutKind == ItemKind.Seal;
+        // A holder carries the motion (turning, bobbing, the collect spin); the shape inside carries the size.
+        var holder = new GameObject(seal ? "Seal" : "Arch piece").transform;
+        holder.SetParent(root, false);
+        holder.localPosition = new Vector3(0f, baseHeight, 0f);
+        var pieceModel = seal ? SealModel() : PieceModel(shownPiece);
+        if (pieceModel != null)
+        {
+            // The arch's piece (its mesh is in the arch's space, pivot at the arch's foot) or the seal: moved to
+            // turn around its own middle, and scaled so its longest side is the wanted length.
+            var shape = Instantiate(pieceModel, holder, false);
+            shape.name = seal ? "Seal model" : "Arch piece " + PieceNames[shownPiece];
+            var bounds = shape.GetComponent<MeshFilter>().sharedMesh.bounds;
+            float scale = Mathf.Max(size.x, size.y, size.z) /
+                          Mathf.Max(0.001f, Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z));
+            shape.transform.localRotation = Quaternion.identity;
+            shape.transform.localScale = Vector3.one * scale;
+            shape.transform.localPosition = -bounds.center * scale;
+            pieceRenderer = shape.GetComponent<MeshRenderer>();
+            itemMaterial = pieceRenderer.sharedMaterial;
+        }
+        else
+        {
+            // A model is missing: a primitive stands in (a red wax disc, a stone block).
+            var shape = GameObject.CreatePrimitive(seal ? PrimitiveType.Cylinder : PrimitiveType.Cube);
+            shape.name = seal ? "Seal (placeholder)" : "Arch piece (placeholder)";
+            Destroy(shape.GetComponent<Collider>()); // aiming is a ray test, no physics
+            shape.transform.SetParent(holder, false);
+            if (seal)
+            {
+                // The disc faces the user; a cylinder primitive is 2 units tall, so half the thickness on Y.
+                shape.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                shape.transform.localScale = new Vector3(size.x, size.y * 0.5f, size.z);
+            }
+            else
+            {
+                shape.transform.localScale = new Vector3(size.x, size.y * 0.66f, size.z * 0.5f);
+            }
+            pieceRenderer = shape.GetComponent<MeshRenderer>();
+            itemMaterial = seal ? SealMaterial() : pieceMaterial;
+            if (itemMaterial != null) pieceRenderer.sharedMaterial = itemMaterial;
+        }
         block ??= new MaterialPropertyBlock();
         SetTint(Color.white);
-        return go.transform;
+        return holder;
+    }
+
+    /// The seal model (its mesh on the root), or null.
+    GameObject SealModel() => sealModel != null && sealModel.GetComponent<MeshFilter>() != null ? sealModel : null;
+
+    /// The arch model's piece (a child of arch.fbx), or null.
+    GameObject PieceModel(int index)
+    {
+        if (archPieceModels == null || index < 0 || index >= PieceNames.Length) return null;
+        var child = archPieceModels.transform.Find(PieceNames[index]);
+        return child != null && child.GetComponent<MeshFilter>() != null ? child.gameObject : null;
+    }
+
+    Material SealMaterial()
+    {
+        if (sealMaterial != null || pieceMaterial == null) return sealMaterial;
+        sealMaterial = new Material(pieceMaterial) { name = "Seal wax (placeholder)" };
+        if (sealMaterial.HasProperty("_BaseMap")) sealMaterial.SetTexture("_BaseMap", null);
+        if (sealMaterial.HasProperty(BaseColorId)) sealMaterial.SetColor(BaseColorId, sealColor);
+        if (sealMaterial.HasProperty("_Smoothness")) sealMaterial.SetFloat("_Smoothness", 0.45f);
+        return sealMaterial;
+    }
+
+    void OnDestroy()
+    {
+        if (sealMaterial != null) Destroy(sealMaterial);
     }
 
     // Aiming and collecting
-    /// <summary>Collects the piece being aimed at (it spins away, the count goes up).</summary>
+    /// <summary>Collects the item being aimed at (it spins away; a piece adds to the count).</summary>
     public void Collect()
     {
         if (!HasPiece || !IsAimed) return;
@@ -249,7 +362,7 @@ public class ArchPieces : MonoBehaviour
         Changed?.Invoke();
     }
 
-    /// <summary>Where the piece is from the user's view: angle (positive = right), distance, on screen.</summary>
+    /// <summary>Where the item is from the user's view: angle (positive = right), distance, on screen.</summary>
     public bool TryGetPieceDirection(out float angle, out float distance, out bool onScreen)
     {
         angle = 0f; distance = 0f; onScreen = false;
@@ -276,32 +389,56 @@ public class ArchPieces : MonoBehaviour
         if (collecting)
         {
             float t = Mathf.Clamp01((Time.unscaledTime - collectStart) / collectSeconds);
-            piece.localScale = size * (1f - t);
+            piece.localScale = Vector3.one * (1f - t);
             piece.Rotate(0f, 720f * Time.unscaledDeltaTime, 0f, Space.Self);
             piece.localPosition += Vector3.up * (0.6f * Time.unscaledDeltaTime);
             if (t >= 1f)
             {
+                var kind = OutKind;
                 int collected = shownPiece >= 0 ? shownPiece : GameProgress.NextPiece(Mode);
                 RemovePiece();
-                GameProgress.MarkCollected(Mode, collected);
-                LastCollected = collected;
-                Debug.Log($"[ArchPieces] Piece collected ({Mode} mode): {Collected} / {Total}.");
+                if (kind == ItemKind.Piece)
+                {
+                    GameProgress.MarkCollected(Mode, collected);
+                    LastCollected = collected;
+                }
+                Debug.Log($"[ArchPieces] {kind} {collected} collected ({Mode} mode): {Collected} / {Total} pieces.");
                 Changed?.Invoke();
+                ItemCollected?.Invoke(kind, collected);
             }
             return;
         }
 
-        // Idle animation: slow turn and bob.
-        piece.Rotate(0f, turnDegreesPerSecond * Time.unscaledDeltaTime, 0f, Space.Self);
+        // Idle animation: a piece turns slowly; a seal faces the user (its stamped face, +Z), swaying a little,
+        // so its back (plain wax) isn't what is seen. Both bob.
+        if (OutKind == ItemKind.Seal && arCamera != null)
+        {
+            Vector3 toUser = arCamera.transform.position - piece.position;
+            toUser.y = 0f;
+            if (toUser.sqrMagnitude > 0.0001f)
+                piece.rotation = Quaternion.LookRotation(toUser.normalized, Vector3.up) *
+                                 Quaternion.Euler(0f, Mathf.Sin(Time.unscaledTime * 0.9f) * sealSwayDegrees, 0f);
+        }
+        else
+        {
+            piece.Rotate(0f, turnDegreesPerSecond * Time.unscaledDeltaTime, 0f, Space.Self);
+        }
         var position = piece.localPosition;
-        position.y = baseHeight + Mathf.Sin(Time.unscaledTime * 2f) * bobHeight * Mathf.Max(1f, size.y / pieceSize.y);
+        float bob = bobHeight * Mathf.Max(1f, size.y / pieceLength); // a big in-city piece bobs more
+        position.y = baseHeight + Mathf.Sin(Time.unscaledTime * 2f) * bob;
         piece.localPosition = position;
 
         bool aimed = IsAimedAt(piece.position);
+        if (aimed)
+        {
+            // A gentle pulse of light: between a little and fully aimedTint, so the item still looks like itself.
+            float pulse = 0.5f - 0.5f * Mathf.Cos(Time.unscaledTime * Mathf.PI * 2f * aimedPulsesPerSecond);
+            SetTint(Color.Lerp(Color.white, aimedTint, 0.35f + 0.65f * pulse));
+        }
         if (aimed != IsAimed)
         {
             IsAimed = aimed;
-            SetTint(aimed ? aimedTint : Color.white);
+            if (!aimed) SetTint(Color.white);
             Changed?.Invoke();
         }
         else if (Time.unscaledTime >= nextRefresh)
@@ -326,8 +463,8 @@ public class ArchPieces : MonoBehaviour
     {
         if (pieceRenderer == null) return;
         block ??= new MaterialPropertyBlock();
-        Color baseColor = pieceMaterial != null && pieceMaterial.HasProperty(BaseColorId)
-            ? pieceMaterial.GetColor(BaseColorId)
+        Color baseColor = itemMaterial != null && itemMaterial.HasProperty(BaseColorId)
+            ? itemMaterial.GetColor(BaseColorId)
             : Color.white;
         block.SetColor(BaseColorId, baseColor * tint);
         pieceRenderer.SetPropertyBlock(block);

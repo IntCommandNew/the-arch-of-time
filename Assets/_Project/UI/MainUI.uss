@@ -1,14 +1,29 @@
-/* MainUI.uss: look of the whole app UI.
-   Sizes are in reference pixels for a 1080 x 1920 portrait screen
-   (Panel Settings: Scale With Screen Size); they scale to any phone.
+/* The Arch of Time: the interface's styles. The design is described in docs/Design.md: Iasi's printed matter of
+   1835 to 1858 (rag paper, iron-gall ink, the blue ink and the rose / green papers of the 1858 Cap de bour stamps,
+   the prince's red wax). Light paper with dark ink, which also reads best outdoors in the sun.
+   Colours (Palette.cs has the same values for what is drawn in code):
+     paper      rgb(230, 223, 204)  sheets, slips, menu pages
+     ink        rgb(34, 27, 22)     text, rules, outlines; at 72 % for secondary text
+     prussian   rgb(30, 57, 102)    the main action, collected pieces, "colder"
+     rose       rgb(227, 180, 170)  where you are now, a wrong answer
+     verdigris  rgb(169, 195, 160)  a right answer
+     wax        rgb(140, 32, 28)    seals and secrets only; "warmer"
+   Type: Bodoni Moda Display (titles, place names), Bodoni Moda Poster (large figures), EB Garamond (what is read
+   or narrated), Unity's sans (controls and short status lines). Sizes are at the 1080 x 1920 reference; the
+   phone's panel is about 974 px wide. Spacing on an 8 px scale. */
 
-   Palette (from the subject: the academy's stone, lithograph ink, the bronze of the arch):
-     ink        rgb(30, 38, 51)     panels and the start screens
-     limestone  rgb(236, 229, 211)  text
-     gilt       rgb(201, 154, 62)   main actions, selected tabs, collected pieces
-     patina     rgb(127, 163, 146)  a piece in sight
-     slate      rgb(58, 69, 86)     secondary buttons
-   Type: IM Fell English for titles only; Unity's sans for everything read on the move. */
+:root {
+    --paper: rgb(230, 223, 204);
+    --paper-deep: rgb(214, 205, 182);
+    --ink: rgb(34, 27, 22);
+    --ink-soft: rgba(34, 27, 22, 0.72);
+    --ink-rule: rgba(34, 27, 22, 0.28);
+    --prussian: rgb(30, 57, 102);
+    --prussian-pressed: rgb(20, 40, 74);
+    --rose: rgb(227, 180, 170);
+    --verdigris: rgb(169, 195, 160);
+    --wax: rgb(140, 32, 28);
+}
 
 /* Layout containers */
 /* Positioned by AppUI to match Screen.safeArea (left/top/right/bottom set from code). */
@@ -28,14 +43,14 @@
     bottom: 0;
 }
 
-/* Solid ink behind the menu screens, over the whole screen (outside the safe area too). */
+/* Paper behind the menu pages, over the whole screen (outside the safe area too). */
 .backdrop {
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: rgb(30, 38, 51);
+    background-color: var(--paper);
 }
 
 .screen--centered {
@@ -46,380 +61,415 @@
 
 .screen--bottom {
     justify-content: flex-end;
-    align-items: center;
-    padding: 0 48px 96px 48px;
+    padding: 0 24px 24px 24px;
 }
 
-/* A bottom screen holding a panel: less padding, so the panel can be wide. */
-.screen--panel {
-    padding: 0 24px 32px 24px;
+/* An overlay's background: a child stretched by AppUI past the safe area (to the screen's edges). */
+.bleed {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
-/* A card over the camera view (confirmations): the view dims behind it. */
-.screen--dimmed {
-    background-color: rgba(30, 38, 51, 0.55);
+.sheet-layer > .bleed {
+    background-color: rgba(34, 27, 22, 0.30);
 }
 
-/* Generic visibility switch used by AppUI. */
+.progress > .bleed,
+.map > .bleed {
+    background-color: var(--paper);
+}
+
+.screen--dimmed > .bleed {
+    background-color: rgba(34, 27, 22, 0.50);
+}
+
 .is-hidden {
     display: none;
 }
 
-/* Mode screen: the title at the top, the ways to play at the bottom (within thumb reach). */
-#screen-mode {
-    justify-content: space-between;
-    padding: 160px 72px 96px 72px;
-}
-
-.mode__title {
-    margin: 0;
-    padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 132px;
-    color: rgb(236, 229, 211);
-    white-space: normal;
-}
-
-.mode__subtitle {
-    margin: 16px 0 0 4px;
-    padding: 0;
-    font-size: 36px;
-    color: rgba(236, 229, 211, 0.62);
-}
-
-/* A way to play: a full-width row, a gilt rule on the left when it can be played. */
-.choice {
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 0 0 40px 0;
-    padding: 36px 40px 36px 44px;
-    border-width: 0 0 0 10px;
-    border-color: rgb(201, 154, 62);
-    border-radius: 0 24px 24px 0;
-    background-color: rgba(236, 229, 211, 0.06);
-}
-
-.choice:hover {
-    background-color: rgba(236, 229, 211, 0.06);
-}
-
-.choice:active {
-    background-color: rgba(236, 229, 211, 0.14);
-}
-
-.choice__name {
-    margin: 0 0 12px 0;
-    padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 72px;
-    color: rgb(236, 229, 211);
-}
-
-.choice__text {
+/* The thick-and-thin rule over a printed article (Albina Romaneasca): the head of a sheet, the title page. */
+.rule {
     margin: 0 0 24px 0;
-    padding: 0;
-    font-size: 34px;
-    color: rgba(236, 229, 211, 0.80);
+}
+
+.rule__thick {
+    height: 6px;
+    background-color: var(--ink);
+}
+
+.rule__thin {
+    height: 2px;
+    margin-top: 5px;
+    background-color: var(--ink);
+}
+
+.rule--centred {
+    width: 360px;
+    align-self: center;
+    margin: 24px 0 24px 0;
+}
+
+/* Buttons. Labels wrap (Romanian runs ~30 % longer); they never run out of a button. */
+.btn {
+    min-height: 120px;
+    margin: 0 0 16px 0;
+    padding: 12px 24px;
+    border-width: 3px;
+    border-color: var(--ink);
+    border-radius: 8px;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-size: 40px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
     white-space: normal;
 }
 
-.choice__status {
-    margin: 0;
-    padding: 0;
-    font-size: 32px;
-    -unity-font-style: bold;
-    color: rgb(201, 154, 62);
+.btn:active {
+    background-color: var(--paper-deep);
 }
 
-.choice__progress {
+.btn:disabled {
+    opacity: 0.4;
+}
+
+/* The one main action of a screen: printed in the stamps' blue. */
+.btn--primary {
+    border-color: var(--prussian);
+    background-color: var(--prussian);
+    color: var(--paper);
+}
+
+.btn--primary:active {
+    border-color: var(--prussian-pressed);
+    background-color: var(--prussian-pressed);
+}
+
+/* Smaller actions under the main one: text with a fine outline, in one row. */
+.btn--quiet {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-height: 88px;
+    margin: 0 6px;
+    padding: 8px 16px;
+    border-width: 2px;
+    border-color: var(--ink-rule);
+    font-size: 32px;
+    -unity-font-style: normal;
+}
+
+/* An option that is on (see-through, the voice): inked in, like a stamped box. */
+.btn--toggle-on,
+.btn--quiet.btn--toggle-on {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--paper);
+}
+
+/* A full-width option line (e.g. "Hidden by real objects: off"). */
+.btn--switch {
+    flex-grow: 0;
+    flex-basis: auto;
+    margin: 12px 0 0 0;
+}
+
+
+.btn--tool {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-height: 104px;
+    margin: 0 6px;
+    padding: 8px 12px;
+    border-width: 2px;
+    font-size: 32px;
+    -unity-font-style: normal;
+}
+
+.btn--symbol {
+    font-size: 48px;
+}
+
+.quiet-row {
+    flex-direction: row;
+    margin: 0 -6px;
+}
+
+.actions-row {
+    flex-direction: row;
+    margin: 8px -6px 0 -6px;
+}
+
+.actions-row > .btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 6px;
+    padding: 8px 12px;
+    font-size: 36px;
+}
+
+/* Title page (language, modes): set like an 1835 title page. */
+.titlepage {
+    padding: 96px 64px 48px 64px;
+}
+
+.titlepage__head {
+    align-items: center;
+    margin-bottom: 48px;
+}
+
+.titlepage__title {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Poster.ttf");
+    font-size: 88px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.titlepage__subtitle {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 44px;
+    color: var(--ink-soft);
+    -unity-text-align: middle-center;
+}
+
+.titlepage__entries {
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+/* After a language change the page's texts come in again, so the change can be seen (AppUI). */
+.titlepage__head,
+.titlepage__entries {
+    transition-property: opacity;
+    transition-duration: 260ms;
+    transition-timing-function: ease-out;
+}
+
+.titlepage__head.is-refreshing,
+.titlepage__entries.is-refreshing {
+    opacity: 0;
+}
+
+/* The language line at the page's foot: its name, then both languages, each in its own language; the
+   current one is inked in, like the stamped box of an option that is on. */
+.langline {
+    flex-direction: row;
+    align-items: center;
+    margin: 32px 0 0 0;
+    padding: 32px 8px 0 8px;
+    border-top-width: 2px;
+    border-color: var(--ink);
+}
+
+.langline__label {
+    flex-shrink: 0;
+    width: 180px; /* the same in both languages, so the options don't move under the finger */
+    margin: 0 32px 0 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 38px;
+    color: var(--ink-soft);
+    -unity-text-align: middle-left;
+}
+
+.langline__options {
+    flex-grow: 1;
+    flex-direction: row;
+    border-width: 2px;
+    border-color: var(--ink);
+    border-radius: 8px;
+}
+
+.langline__option {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-height: 88px;
+    margin: 0;
+    padding: 8px 16px;
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--ink);
+    font-size: 34px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.langline__option--first {
+    border-right-width: 2px;
+    border-color: var(--ink);
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.langline__option--last {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.langline__option:active {
+    background-color: var(--paper-deep);
+}
+
+.langline__option--current,
+.langline__option--current:active {
+    background-color: var(--ink);
+    color: var(--paper);
+    -unity-font-style: bold;
+}
+
+/* An entry of the title page's contents: a ruled row, its text left-aligned. */
+.entry {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+    padding: 40px 8px 40px 8px;
+    border-width: 2px 0 0 0;
+    border-color: var(--ink);
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-text-align: upper-left;
+}
+
+.entry:active {
+    background-color: var(--paper-deep);
+}
+
+.entry--with-arch {
     flex-direction: row;
     align-items: center;
 }
 
-.choice__progress .arch {
-    margin-right: 28px;
-}
-
-/* In Iasi: the target list. Same rule rows as the mode screen: gilt = still to find, slate = found. */
-#screen-city {
-    padding: 120px 72px 72px 72px;
-}
-
-.city__head {
-    margin-bottom: 48px;
-}
-
-.city__title {
-    margin: 0 0 24px 0;
-    padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 104px;
-    color: rgb(236, 229, 211);
-}
-
-.city__list {
+.entry__body {
     flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 32px;
 }
 
-.target {
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 0 0 24px 0;
-    padding: 28px 40px 28px 44px;
-    border-width: 0 0 0 10px;
-    border-color: rgb(201, 154, 62);
-    border-radius: 0 24px 24px 0;
-    background-color: rgba(236, 229, 211, 0.06);
-}
-
-.target:hover {
-    background-color: rgba(236, 229, 211, 0.06);
-}
-
-.target:active {
-    background-color: rgba(236, 229, 211, 0.14);
-}
-
-/* A found piece: can't be picked again until the arch is started over. */
-.target:disabled {
-    opacity: 1;
-    border-color: rgb(58, 69, 86);
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.target__name {
-    margin: 0;
+.entry__name {
+    margin: 0 0 12px 0;
     padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 60px;
-    color: rgb(236, 229, 211);
-}
-
-.target:disabled .target__name {
-    color: rgba(236, 229, 211, 0.45);
-}
-
-.target__status {
-    margin: 6px 0 0 0;
-    padding: 0;
-    font-size: 32px;
-    color: rgba(236, 229, 211, 0.70);
-}
-
-.target:disabled .target__status {
-    color: rgb(201, 154, 62);
-    -unity-font-style: bold;
-}
-
-/* Guide: the target's name at the top, the dial in the middle, the action within thumb reach. */
-#screen-guide {
-    justify-content: space-between;
-    align-items: center;
-    padding: 120px 72px 72px 72px;
-}
-
-.guide__head {
-    align-self: stretch;
-}
-
-.guide__name {
-    margin: 0;
-    padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 96px;
-    color: rgb(236, 229, 211);
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    -unity-text-align: upper-left;
     white-space: normal;
 }
 
-.guide__stage {
-    margin: 12px 0 0 4px;
-    padding: 0;
-    font-size: 34px;
-    color: rgba(236, 229, 211, 0.62);
-    white-space: normal;
-}
-
-/* GuideDial draws the ring and the pointer; the two labels sit in its middle. */
-.dial {
-    width: 720px;
-    height: 720px;
-    justify-content: center;
-    align-items: center;
-    padding: 0 110px;
-}
-
-.dial__big {
+.entry__text {
     margin: 0;
     padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 132px;
-    color: rgb(236, 229, 211);
-    -unity-text-align: middle-center;
-    white-space: normal;
-}
-
-.dial__big--warmer {
-    color: rgb(201, 154, 62);
-}
-
-.dial__big--colder {
-    color: rgb(127, 163, 146);
-}
-
-.dial__small {
-    margin: 12px 0 0 0;
-    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
     font-size: 38px;
-    color: rgba(236, 229, 211, 0.80);
-    -unity-text-align: middle-center;
+    color: var(--ink-soft);
+    -unity-text-align: upper-left;
     white-space: normal;
 }
 
-.guide__foot {
-    align-self: stretch;
-}
-
-.guide__accuracy {
-    margin: 0 0 28px 0;
+.entry__status {
+    margin: 16px 0 0 0;
     padding: 0;
-    font-size: 28px;
-    color: rgba(236, 229, 211, 0.50);
-    -unity-text-align: middle-center;
+    font-size: 30px;
+    color: var(--prussian);
+    -unity-font-style: bold;
+    -unity-text-align: upper-left;
     white-space: normal;
 }
 
-/* The arch emblem (ArchEmblem draws it): keep the 100 x 112 aspect of its drawing. */
+/* The engraved arch (ArchEmblem; drawing box 100 x 112). */
 .arch {
     width: 120px;
     height: 134px;
     flex-shrink: 0;
 }
 
-/* Card (city, starting, blocked, confirmations) */
-.card {
-    width: 100%;
-    max-width: 900px;
-    padding: 56px 52px 40px 52px;
-    border-radius: 36px;
-    background-color: rgba(30, 38, 51, 0.94);
+.arch--title {
+    width: 200px;
+    height: 224px;
+    align-self: center;
+    margin-bottom: 32px;
 }
 
-.card__title {
-    margin: 0 0 20px 0;
-    padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 60px;
-    color: rgb(236, 229, 211);
-    white-space: normal;
+.arch--entry {
+    width: 140px;
+    height: 157px;
 }
 
-.card__text {
-    margin: 0 0 40px 0;
-    padding: 0;
-    font-size: 36px;
-    color: rgba(236, 229, 211, 0.82);
-    white-space: normal;
+.arch--slip {
+    width: 88px;
+    height: 99px;
 }
 
-.card__text--last {
-    margin-bottom: 16px;
+.arch--large {
+    width: 200px;
+    height: 224px;
 }
 
-.card__actions {
-    flex-direction: column;
+/* The slip: the paper at the bottom of every camera screen. */
+.slip {
+    padding: 32px 32px 24px 32px;
+    border-width: 3px;
+    border-color: var(--ink);
+    border-radius: 12px;
+    background-color: var(--paper);
 }
 
-/* Buttons */
-/* :hover is restated because touch screens can leave an element in the hover state after a tap. */
-
-.btn {
-    height: 120px;
-    margin: 0 0 20px 0;
-    padding: 0 32px;
-    border-width: 0;
-    border-radius: 60px;
-    background-color: rgb(58, 69, 86);
-    color: rgb(236, 229, 211);
-    font-size: 40px;
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-}
-
-.btn:hover {
-    background-color: rgb(58, 69, 86);
-}
-
-.btn:active {
-    background-color: rgb(78, 91, 112);
-}
-
-.btn--primary {
-    background-color: rgb(201, 154, 62);
-    color: rgb(30, 38, 51);
-}
-
-.btn--primary:hover {
-    background-color: rgb(201, 154, 62);
-}
-
-.btn--primary:active {
-    background-color: rgb(171, 128, 46);
-}
-
-/* Secondary button drawn straight over the camera image (not on a panel): ink, so it stays
-   readable over bright floors. */
-.btn--on-camera {
-    background-color: rgba(30, 38, 51, 0.88);
-    border-width: 2px;
-    border-color: rgba(236, 229, 211, 0.30);
-}
-
-.btn--on-camera:hover {
-    background-color: rgba(30, 38, 51, 0.88);
-}
-
-.btn--on-camera:active {
-    background-color: rgb(58, 69, 86);
-}
-
-/* Shown but not usable yet (e.g. "Place here" before the ground is found). */
-.btn:disabled {
-    opacity: 0.4;
-}
-
-/* Hint pill (what to do now) */
+/* What to do now: the slip's first line. */
 .hint {
-    max-width: 900px;
-    margin: 0 0 32px 0;
-    padding: 28px 44px;
-    border-radius: 48px;
-    background-color: rgba(30, 38, 51, 0.88);
-    color: rgb(236, 229, 211);
-    font-size: 38px;
+    margin: 0 0 24px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 42px;
+    color: var(--ink);
     white-space: normal;
-    -unity-text-align: middle-center;
 }
 
-/* A piece is in sight: the hint takes the patina colour. */
+/* A piece or seal is in the aim: the line turns to the stamps' blue. */
 .hint--in-sight {
-    background-color: rgb(127, 163, 146);
-    color: rgb(30, 38, 51);
+    color: var(--prussian);
     -unity-font-style: bold;
 }
 
-/* Panel (adjust, explore) */
-.panel {
-    width: 100%;
-    max-width: 1000px;
-    padding: 28px 20px 24px 20px;
-    border-radius: 40px;
-    background-color: rgba(30, 38, 51, 0.92);
+/* Explore: the arch and the count at the head of the slip. */
+.pieces {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-/* Live values while adjusting: three columns, value above its label. */
+.pieces__text {
+    margin-left: 24px;
+}
+
+.pieces__title {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 56px;
+    color: var(--ink);
+}
+
+.pieces__count {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 32px;
+    color: var(--ink-soft);
+}
+
+/* Adjust: live values, tabs, tools. */
 .readout {
     flex-direction: row;
-    margin: 0 8px 20px 8px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-width: 0 0 2px 0;
+    border-color: var(--ink-rule);
 }
 
 .readout__item {
@@ -428,97 +478,75 @@
     align-items: center;
 }
 
+.readout__item--wide {
+    flex-grow: 2;
+}
+
 .readout__value {
     margin: 0;
     padding: 0;
-    font-size: 36px;
+    /* Unity's sans, like the other controls: Bodoni's multiplication sign is a hairline at this size. */
+    font-size: 40px;
     -unity-font-style: bold;
-    color: rgb(236, 229, 211);
+    color: var(--ink);
     -unity-text-align: middle-center;
+    white-space: normal;
 }
 
 .readout__label {
     margin: 4px 0 0 0;
     padding: 0;
     font-size: 26px;
-    color: rgba(236, 229, 211, 0.60);
+    color: var(--ink-soft);
     -unity-text-align: middle-center;
 }
 
-/* Segmented control: one pill per tab, the selected one gilt. */
 .tabs {
     flex-direction: row;
-    margin: 0 8px 20px 8px;
-    padding: 6px;
-    border-radius: 48px;
-    background-color: rgba(236, 229, 211, 0.08);
+    margin-bottom: 20px;
+    border-width: 2px;
+    border-color: var(--ink);
+    border-radius: 8px;
 }
 
 .tab {
     flex-grow: 1;
     flex-basis: 0;
-    height: 84px;
+    min-height: 88px;
     margin: 0;
-    padding: 0;
+    padding: 8px 4px;
     border-width: 0;
-    border-radius: 42px;
+    border-radius: 0;
     background-color: rgba(0, 0, 0, 0);
-    color: rgba(236, 229, 211, 0.75);
-    font-size: 34px;
-    -unity-font-style: bold;
+    color: var(--ink);
+    font-size: 32px;
     -unity-text-align: middle-center;
+    white-space: normal;
 }
 
-.tab:hover {
-    background-color: rgba(0, 0, 0, 0);
+.tab--selected {
+    background-color: var(--ink);
+    color: var(--paper);
+    -unity-font-style: bold;
 }
 
-.tab:active {
-    background-color: rgba(236, 229, 211, 0.10);
-}
-
-.tab--selected,
-.tab--selected:hover {
-    background-color: rgb(201, 154, 62);
-    color: rgb(30, 38, 51);
-}
-
-/* The tools of the selected tab. */
 .tool {
     flex-direction: row;
-    margin-bottom: 20px;
+    margin: 0 -6px 16px -6px;
 }
 
-/* Rows stacked: each row keeps 16px below it, the tool itself only a little more.
-   (USS has no "+" sibling selector.) */
 .tool--column {
     flex-direction: column;
-    margin-bottom: 4px;
 }
 
 .tool__row {
     flex-direction: row;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
-.btn--tool {
-    flex-grow: 1;
-    flex-basis: 0;
-    height: 110px;
-    margin: 0 8px;
-    padding: 0 8px;
-    font-size: 36px;
-}
-
-/* Arrow-only buttons: bigger glyph. */
-.btn--symbol {
-    font-size: 54px;
-}
-
-/* Logarithmic size slider: thick track, big gilt handle. */
 .scale-slider {
     height: 96px;
-    margin: 0 36px 16px 36px;
+    margin: 0 30px 12px 30px;
 }
 
 .scale-slider .unity-base-slider__input {
@@ -530,113 +558,592 @@
 }
 
 .scale-slider .unity-base-slider__tracker {
-    height: 12px;
-    margin-top: -6px;
+    height: 6px;
+    margin-top: -3px;
     border-width: 0;
-    border-radius: 6px;
-    background-color: rgba(236, 229, 211, 0.25);
+    border-radius: 0;
+    background-color: var(--ink);
 }
 
 .scale-slider .unity-base-slider__dragger {
-    width: 64px;
-    height: 64px;
-    margin-top: -32px;
-    margin-left: -32px;
-    border-width: 0;
-    border-radius: 32px;
-    background-color: rgb(201, 154, 62);
+    width: 56px;
+    height: 56px;
+    margin-top: -28px;
+    margin-left: -28px;
+    border-width: 4px;
+    border-color: var(--ink);
+    border-radius: 28px;
+    background-color: var(--prussian);
 }
 
 .scale-slider .unity-base-slider__dragger-border {
     display: none;
 }
 
-/* The arch's progress at the top of the explore panel. */
-.pieces {
-    flex-direction: row;
-    align-items: center;
-    margin: 4px 16px 24px 16px;
+/* Guide (In Iasi, camera off): a paper page with the compass ring. */
+.guide {
+    padding: 72px 64px 32px 64px;
 }
 
-.pieces__text {
-    margin-left: 32px;
+.guide__head {
+    margin-bottom: 16px;
 }
 
-.pieces__title {
+.guide__name {
+    margin: 0 0 16px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.guide__riddle {
+    margin: 0 0 16px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 40px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.guide__stage {
     margin: 0;
     padding: 0;
-    -unity-font-definition: url("Fonts/IMFellEnglish-Regular.ttf");
-    font-size: 56px;
-    color: rgb(236, 229, 211);
+    font-size: 30px;
+    color: var(--ink-soft);
+    white-space: normal;
 }
 
-.pieces__count {
-    margin: 4px 0 0 0;
+.dial {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 120px;
+}
+
+.dial__big {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Poster.ttf");
+    font-size: 132px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.dial__big--warmer {
+    color: var(--wax);
+}
+
+.dial__big--colder {
+    color: var(--prussian);
+}
+
+.dial__small {
+    margin: 8px 0 0 0;
     padding: 0;
     font-size: 32px;
-    color: rgba(236, 229, 211, 0.75);
+    color: var(--ink-soft);
+    -unity-text-align: middle-center;
+    white-space: normal;
 }
 
-/* Two or more buttons side by side, sharing the width. */
-.actions-row {
-    flex-direction: row;
+
+.guide__accuracy {
+    margin: 0 0 16px 0;
+    padding: 0;
+    font-size: 26px;
+    color: var(--ink-soft);
+    -unity-text-align: middle-center;
+    white-space: normal;
 }
 
-.actions-row > .btn {
-    flex-grow: 1;
-    flex-basis: 0;
-    margin: 0 8px;
-    /* Three buttons must fit a phone width ("Place again", "See-through", "Done"). */
-    padding: 0 12px;
-    font-size: 36px;
-}
-
-/* An actions row straight over the camera image (not in a panel). */
-.actions-row--on-camera {
+/* Cards: starting, blocked, the confirmations. */
+.card {
     width: 100%;
     max-width: 900px;
+    padding: 48px 48px 32px 48px;
+    border-width: 3px;
+    border-color: var(--ink);
+    border-radius: 12px;
+    background-color: var(--paper);
 }
 
-/* A button that only needs its text's width (e.g. "Modes"), next to a wide one. */
-.actions-row > .btn--narrow,
-.options-row > .btn--narrow {
+.card__title {
+    margin: 0 0 24px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 56px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.card__text {
+    margin: 0 0 32px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 40px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.card__text--last {
+    margin-bottom: 0;
+}
+
+
+/* The story sheet and the quiz: a taller slip from the bottom. */
+.sheet-layer {
+    justify-content: flex-end;
+    padding: 0 24px 24px 24px;
+}
+
+.sheet {
+    width: 100%;
+    max-height: 82%;
+    padding: 40px 40px 24px 40px;
+    border-width: 3px;
+    border-color: var(--ink);
+    border-radius: 12px;
+    background-color: var(--paper);
+    transition-property: translate, opacity;
+    transition-duration: 280ms, 220ms;
+    transition-timing-function: ease-out-cubic, linear;
+}
+
+.sheet--enter {
+    translate: 0 120px;
+    opacity: 0;
+}
+
+.sheet__head {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.sheet__headings {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.sheet__title {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+/* Under the title: who speaks, or what the card is. */
+.sheet__byline {
+    margin: 8px 0 0 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 34px;
+    color: var(--ink-soft);
+    white-space: normal;
+}
+
+.sheet__scroll {
+    flex-shrink: 1;
+    margin-bottom: 24px;
+}
+
+.sheet__body {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 44px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.sheet__actions {
+    flex-direction: row;
+    align-items: center;
+    padding-top: 20px;
+    border-width: 2px 0 0 0;
+    border-color: var(--ink-rule);
+}
+
+/* The voice button and the main button share the row in fixed shares (about 1 : 2), so a long label wraps
+   between its words instead of pushing the other button off the screen ("Urmatoarea intrebare" once ran
+   past the edge) or crushing it. */
+.btn--voice {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 34%;
+    margin: 0 16px 0 0;
+}
+
+/* "1 of 2", "Question 1 of 3": a line of its own above the buttons, at the right. */
+.sheet__page {
+    margin: 0 0 12px 0;
+    padding: 0;
+    font-size: 30px;
+    color: var(--ink-soft);
+    -unity-text-align: upper-right;
+    white-space: normal;
+}
+
+.sheet__primary {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    margin: 0;
+}
+
+/* The wax seal on a secret, beside the title: a picture of the seal model (Models/Seal), the same seal the
+   player collects (ModelTools.Render, transparent). */
+.seal-mark {
+    width: 132px;
+    height: 132px;
+    flex-shrink: 0;
+    margin-left: 24px;
+    background-image: url("Images/seal.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* Quiz */
+.quiz__question {
+    margin: 0 0 32px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 52px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.quiz__answers {
+    margin-bottom: 8px;
+}
+
+/* An answer: a ruled entry with its letter. */
+.answer {
+    flex-direction: row;
+    align-items: center;
+    min-height: 120px;
+    margin: 0 0 16px 0;
+    padding: 20px 28px 20px 20px;
+    border-width: 2px;
+    border-color: var(--ink);
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0);
+    transition-property: opacity, translate, background-color;
+    transition-duration: 220ms, 300ms, 200ms;
+    transition-timing-function: linear, ease-out-cubic, linear;
+}
+
+.answer:active {
+    background-color: var(--paper-deep);
+}
+
+.answer--enter {
+    opacity: 0;
+    translate: 80px 0;
+}
+
+.answer__letter {
+    width: 64px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Poster.ttf");
+    font-size: 56px;
+    color: var(--prussian);
+    -unity-text-align: middle-center;
+}
+
+.answer__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0 0 0 16px;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 40px;
+    color: var(--ink);
+    -unity-text-align: middle-left;
+    white-space: normal;
+}
+
+.answer--right {
+    background-color: var(--verdigris);
+}
+
+.answer--wrong {
+    background-color: var(--rose);
+}
+
+.answer--dim {
+    opacity: 0.35;
+}
+
+.quiz__feedback {
+    margin: 8px 0 24px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 40px;
+    color: var(--ink);
+    white-space: normal;
+    transition-property: opacity;
+    transition-duration: 250ms;
+}
+
+.quiz__feedback--hidden {
+    opacity: 0;
+}
+
+/* The finale's year over the camera: paper figures with an ink edge. */
+.finale-year {
+    position: absolute;
+    top: 150px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Poster.ttf");
+    font-size: 300px;
+    color: var(--paper);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgb(34, 27, 22);
+    -unity-text-align: middle-center;
+    transition-property: opacity, translate;
+    transition-duration: 600ms, 600ms;
+    transition-timing-function: linear, ease-out-cubic;
+}
+
+.finale-year--enter {
+    opacity: 0;
+    translate: 0 -40px;
+}
+
+/* Map: the engraved plan of Iasi in a ruled frame. */
+.map {
+    padding: 56px 40px 24px 40px;
+}
+
+.map__head {
+    margin-bottom: 24px;
+}
+
+.map__title {
+    margin: 0 0 12px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 56px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.map__riddle {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 38px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+/* A plan's frame: a heavy outer line and a fine inner one. */
+.map__frame {
+    flex-grow: 1;
+    padding: 6px;
+    border-width: 5px;
+    border-color: var(--ink);
+}
+
+.map__view {
+    flex-grow: 1;
+    border-width: 1px;
+    border-color: var(--ink);
+    background-color: var(--paper);
+}
+
+.map__scale {
+    position: absolute;
+    left: 32px;
+    bottom: 60px;
+    margin: 0;
+    padding: 0;
+    font-size: 26px;
+    color: var(--ink);
+}
+
+/* Names on the plan (QuestMapView places them): lettered like an engraved plan, each on a patch of cleared
+   paper so it reads over the inked streets (a text outline ate Bodoni's hairlines). Streets in Garamond along
+   their street; landmarks (the quest's places among them, looking just the same) in Bodoni beside their ring.
+   The padding is added to the measured size in QuestMapView (NamePadding): keep the two the same. */
+.map__name {
+    margin: 0;
+    padding: 1px 6px;
+    white-space: nowrap;
+    color: var(--ink);
+    background-color: rgba(230, 223, 204, 0.88);
+}
+
+.map__name--street {
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 26px;
+    color: var(--ink-soft);
+}
+
+.map__name--landmark {
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 28px;
+}
+
+.map__credit {
+    margin: 8px 0 16px 0;
+    padding: 0;
+    font-size: 22px;
+    color: var(--ink-soft);
+    -unity-text-align: upper-right;
+}
+
+.map__status-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.map__status {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0 24px 0 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 38px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.map__points {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 30px;
+    color: var(--prussian);
+    -unity-font-style: bold;
+}
+
+/* Progress: a register page. */
+.progress {
+    padding: 72px 56px 24px 56px;
+}
+
+.progress__head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.progress__headings {
+    flex-shrink: 1;
+    margin-left: 40px;
+}
+
+.progress__title {
+    margin: 0 0 12px 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.progress__stat {
+    margin: 0;
+    padding: 0;
+    font-size: 32px;
+    color: var(--ink-soft);
+}
+
+.progress__stat--score {
+    margin-top: 8px;
+    color: var(--prussian);
+    -unity-font-style: bold;
+}
+
+.seal-row {
+    height: 120px;
+    margin-bottom: 24px;
+    --seal-image: url("Images/seal.png"); /* SealRow draws found seals with it */
+}
+
+.progress__list {
+    flex-grow: 1;
+    margin-bottom: 24px;
+    border-width: 5px 0 0 0;
+    border-color: var(--ink);
+}
+
+/* One ruled row per stop: its number, the place, what was done there. */
+.stop {
+    flex-direction: row;
+    align-items: center;
+    padding: 24px 8px;
+    border-width: 0 0 2px 0;
+    border-color: var(--ink-rule);
+}
+
+.stop--last {
+    border-color: var(--ink);
+}
+
+.stop--current {
+    background-color: rgba(227, 180, 170, 0.55);
+}
+
+.stop__number {
+    width: 88px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Poster.ttf");
+    font-size: 80px;
+    color: var(--ink-rule);
+    -unity-text-align: middle-center;
+}
+
+.stop--current .stop__number {
+    color: var(--ink);
+}
+
+.stop--done .stop__number {
+    color: var(--prussian);
+}
+
+.stop__body {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 24px;
+}
+
+.stop__place {
+    margin: 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/BodoniModa-Display.ttf");
+    font-size: 44px;
+    color: var(--ink);
+    white-space: normal;
+}
+
+.stop__status {
+    margin: 6px 0 0 0;
+    padding: 0;
+    -unity-font-definition: url("Fonts/EBGaramond-Variable.ttf");
+    font-size: 32px;
+    color: var(--ink-soft);
+    white-space: normal;
+}
+
+.stop__reread {
     flex-grow: 0;
     flex-basis: auto;
-    padding: 0 44px;
-}
-
-/* An on/off button that is on (e.g. "See-through"): gilt outline and text. */
-.btn--toggle-on,
-.btn--toggle-on:hover {
-    border-width: 3px;
-    border-color: rgb(201, 154, 62);
-    color: rgb(201, 154, 62);
-}
-
-/* Smaller, quieter buttons under the main actions (display options, leaving the mode). */
-.options-row {
-    flex-direction: row;
-    margin-top: 16px;
-}
-
-.btn--option {
-    flex-grow: 1;
-    height: 88px;
-    margin: 0 8px;
-    padding: 0 32px;
-    border-width: 2px;
-    border-color: rgba(236, 229, 211, 0.22);
-    background-color: rgba(0, 0, 0, 0);
-    color: rgba(236, 229, 211, 0.85);
-    font-size: 30px;
-}
-
-.btn--option:hover {
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.btn--option:active {
-    background-color: rgba(236, 229, 211, 0.10);
+    margin: 0 0 0 16px;
 }
 
 /* Developer overlay */
@@ -647,9 +1154,76 @@
     right: 16px;
     margin: 0;
     padding: 16px 20px;
-    border-radius: 16px;
+    border-radius: 8px;
     background-color: rgba(0, 0, 0, 0.55);
     color: rgb(255, 255, 255);
     font-size: 26px;
     white-space: normal;
+}
+
+/* Developer tuning panel (LightingTuner, built in AppUI.Tuning.cs): a slip at the top of the camera screens. */
+.tuner-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    flex-grow: 0;
+    flex-basis: auto;
+    width: 160px;
+    margin: 0;
+    background-color: var(--paper);
+}
+
+.debug-overlay--beside-tuner {
+    right: 192px;
+}
+
+.tuner {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    max-height: 62%;
+    padding: 24px 24px 16px 24px;
+}
+
+.tuner__status {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    color: var(--ink-soft);
+    white-space: normal;
+}
+
+.tuner__list {
+    flex-shrink: 1;
+}
+
+.tuner__row {
+    padding: 12px 0 0 0;
+    border-top-width: 1px;
+    border-color: var(--ink-rule);
+}
+
+.tuner__head {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.tuner__label {
+    font-size: 30px;
+    color: var(--ink);
+}
+
+.tuner__value {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: var(--ink);
+}
+
+.tuner__slider {
+    height: 80px;
+    margin: 0 30px 4px 30px;
+}
+
+.tuner__actions {
+    margin-top: 12px;
 }

@@ -6,15 +6,15 @@ using UnityEngine.UIElements;
 /// <summary>The app's screens. Each one is a "screen-..." element in MainUI.uxml.</summary>
 public enum AppScreen
 {
-    Mode,     // the first screen: choose how to play
-    City,     // In Iasi: the targets to pick from
-    Guide,    // In Iasi: walking to the picked target, camera off
-    CityAR,   // In Iasi: at the target, camera on (locating, then the academy or a piece)
+    Language, // the very first screen, until a language is chosen
+    Mode,     // choose how to play
+    Guide,    // In Iasi: walking to the quest's current place, camera off
+    CityAR,   // In Iasi: at the place, camera on (locating, then the academy or a piece)
     Starting, // permissions and ARCore checks
     Blocked,  // AR can't run (or a permission was revoked)
     Scan,     // scanning and placing: hint + "Place here"
     Adjust,   // the model is placed: adjust panel (move / turn / size / height), "Place again", "Done"
-    Explore,  // the model is placed: the arch pieces (spawn, aim, collect), "Edit"
+    Explore,  // the model is placed: the quest around it (collect, progress), "Edit"
 }
 
 /// <summary>Buttons of the adjust panel. The float that comes with them is noted per command.</summary>
@@ -29,29 +29,36 @@ public enum AdjustCommand
 }
 
 /// <summary>
-/// The only script that talks to the UI Toolkit layout (MainUI.uxml).
-/// Other scripts never touch UI elements; they call these methods, and listen to the button events.
+/// The only script that talks to the UI Toolkit layout (MainUI.uxml); the quest's overlays are in
+/// AppUI.Quest.cs (same class). Other scripts never touch UI elements; they call these methods, and listen
+/// to the button events.
+///
+/// Texts in the UXML that start with "#" are keys of Content/UiText.json: they are shown in the current
+/// language and updated when it changes (LanguageChanged tells the other scripts to refresh their texts).
 ///
 /// Setup: put this on the same GameObject as the UIDocument (Source Asset = MainUI.uxml).
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
-public class AppUI : MonoBehaviour
+public partial class AppUI : MonoBehaviour
 {
+    /// <summary>A language was picked: on the language screen, or on the mode screen's language line.</summary>
+    public event Action<Language> LanguageChosen;
+
+    /// <summary>The language changed: the static texts are already updated; refresh the dynamic ones.</summary>
+    public event Action LanguageChanged;
+
     /// <summary>A way to play was chosen on the mode screen.</summary>
     public event Action<GameMode> ModeChosen;
 
-    /// <summary>In Iasi, the target list: "Modes", a target picked (index in CityTargets), "Start over".</summary>
-    public event Action CityBackClicked;
-    public event Action<int> TargetPicked;
-    public event Action CityResetClicked;
-
-    /// <summary>In Iasi, the guide: "Targets" and "Open the camera".</summary>
-    public event Action GuideBackClicked;
+    /// <summary>In Iasi, the guide: "Open the camera", "Progress", "Modes".</summary>
     public event Action OpenCameraClicked;
+    public event Action GuideProgressClicked;
+    public event Action GuideModesClicked;
 
-    /// <summary>In Iasi, at the target: "Targets", "Try again" (the anchor failed), "Collect".</summary>
-    public event Action CityARBackClicked;
+    /// <summary>In Iasi, at the place: "Progress", "Try again" (anchor failed), the quest action, "Collect".</summary>
+    public event Action CityARProgressClicked;
     public event Action CityARRetryClicked;
+    public event Action CityARActionClicked;
     public event Action CityCollectClicked;
 
     /// <summary>"Try again", "Open settings", "Close app" on the blocked screen.</summary>
@@ -75,9 +82,9 @@ public class AppUI : MonoBehaviour
 
     /// <summary>Buttons of the explore screen.</summary>
     public event Action EditClicked;
-    public event Action SpawnPieceClicked;
+    public event Action ExploreProgressClicked;
+    public event Action ExploreActionClicked;
     public event Action CollectPieceClicked;
-    public event Action ResetPiecesClicked;
     public event Action OcclusionClicked;
 
     /// <summary>"Modes" (scan or explore screen): asks for confirmation first.</summary>
@@ -92,7 +99,12 @@ public class AppUI : MonoBehaviour
     VisualElement root;
     VisualElement safeArea;
     VisualElement backdrop;
+    // The overlays' backgrounds, stretched past the safe area so the camera can't show in the notch strip.
+    readonly List<VisualElement> bleeds = new List<VisualElement>();
     readonly Dictionary<AppScreen, VisualElement> screens = new Dictionary<AppScreen, VisualElement>();
+
+    // Texts given as "#key" in the UXML, re-applied when the language changes.
+    readonly List<(TextElement element, string key)> localizedTexts = new List<(TextElement, string)>();
 
     Label startingDetail;
     Label blockedTitle;
@@ -106,20 +118,18 @@ public class AppUI : MonoBehaviour
     string debugText;
 
     // Mode screen
+    Button languageEnglish;
+    Button languageRomanian;
+    VisualElement modeHead;
+    VisualElement modeEntries;
     ArchEmblem freeModeArch;
     Label freeModeCount;
     ArchEmblem cityModeArch;
     Label cityModeCount;
 
     // In Iasi
-    public const int CityTargetSlots = 5;
-    ArchEmblem cityArch;
-    Label cityCount;
-    readonly Button[] targetButtons = new Button[CityTargetSlots];
-    readonly Label[] targetNames = new Label[CityTargetSlots];
-    readonly Label[] targetStatuses = new Label[CityTargetSlots];
-    Button cityResetButton;
     Label guideName;
+    Label guideRiddle;
     Label guideStage;
     GuideDial guideDial;
     Label guideBig;
@@ -127,8 +137,9 @@ public class AppUI : MonoBehaviour
     Label guideAccuracy;
     Button openCameraButton;
     Label cityARHint;
-    Button cityARBackButton;
+    Button cityARProgressButton;
     Button cityARRetryButton;
+    Button cityARActionButton;
     Button cityCollectButton;
 
     // Adjust panel
@@ -149,10 +160,9 @@ public class AppUI : MonoBehaviour
     Label exploreHint;
     ArchEmblem exploreArch;
     Label piecesCount;
-    Button spawnPieceButton;
-    Button resetPiecesButton;
+    Button exploreActionButton;
     Button collectPieceButton;
-    Button occlusionButton;
+    Button occlusionButton, cityOcclusionButton;
     VisualElement leaveConfirm;
 
     // Every button wired in OnEnable, so OnDisable can unwire them.
@@ -175,8 +185,8 @@ public class AppUI : MonoBehaviour
 
         safeArea = Find<VisualElement>("safe-area");
         backdrop = Find<VisualElement>("backdrop");
+        screens[AppScreen.Language] = Find<VisualElement>("screen-language");
         screens[AppScreen.Mode] = Find<VisualElement>("screen-mode");
-        screens[AppScreen.City] = Find<VisualElement>("screen-city");
         screens[AppScreen.Guide] = Find<VisualElement>("screen-guide");
         screens[AppScreen.CityAR] = Find<VisualElement>("screen-city-ar");
         screens[AppScreen.Starting] = Find<VisualElement>("screen-starting");
@@ -186,11 +196,18 @@ public class AppUI : MonoBehaviour
         screens[AppScreen.Explore] = Find<VisualElement>("screen-explore");
         debugOverlay = Find<Label>("debug-overlay");
 
+        CollectLocalizedTexts();
+        ApplyLanguage();
+        Localization.Changed += OnLanguageChanged;
+
         SetUpStartScreens();
         SetUpCity();
         SetUpScan();
         SetUpAdjustPanel();
         SetUpExplore();
+        SetUpQuest();
+        BuildTuning(); // the developer tuning panel, if LightingTuner set it up (again after a rebuild)
+        AddBleeds();
         root.RegisterCallback<GeometryChangedEvent>(OnRootGeometryChanged);
 
         appliedSafeArea = default;
@@ -199,12 +216,15 @@ public class AppUI : MonoBehaviour
 
     void OnDisable()
     {
+        Localization.Changed -= OnLanguageChanged;
         foreach (var (button, handler) in wiredButtons) button.clicked -= handler;
         wiredButtons.Clear();
         foreach (var repeat in repeatButtons) repeat.SetAction(null, RepeatDelayMs, RepeatIntervalMs);
         repeatButtons.Clear();
         scaleSlider?.UnregisterValueChangedCallback(OnScaleSliderChanged);
         adjustTabs.Clear();
+        localizedTexts.Clear();
+        TearDownQuest();
         root?.UnregisterCallback<GeometryChangedEvent>(OnRootGeometryChanged);
     }
 
@@ -214,6 +234,44 @@ public class AppUI : MonoBehaviour
         if (Screen.safeArea != appliedSafeArea ||
             Screen.width != appliedScreenSize.x || Screen.height != appliedScreenSize.y)
             ApplySafeArea();
+        if (tuningAvailable) UpdateTuningVisibility(); // overlays (sheets, quiz...) open and close
+    }
+
+    // Language
+    void CollectLocalizedTexts()
+    {
+        localizedTexts.Clear();
+        root.Query<TextElement>().ForEach(element =>
+        {
+            if (element.text != null && element.text.StartsWith("#"))
+                localizedTexts.Add((element, element.text.Substring(1)));
+        });
+    }
+
+    void ApplyLanguage()
+    {
+        foreach (var (element, key) in localizedTexts) element.text = Localization.Ui(key);
+        MarkCurrentLanguage();
+    }
+
+    /// The mode screen's language line: the current language is inked in.
+    void MarkCurrentLanguage()
+    {
+        bool romanian = Localization.Current == Language.Romanian;
+        languageEnglish?.EnableInClassList("langline__option--current", !romanian);
+        languageRomanian?.EnableInClassList("langline__option--current", romanian);
+    }
+
+    void OnLanguageChanged()
+    {
+        ApplyLanguage();
+        LanguageChanged?.Invoke();
+        // Show what changed: the mode screen's texts come in again in the new language.
+        if (CurrentScreen == AppScreen.Mode)
+        {
+            PlayEnter(modeHead, "is-refreshing");
+            PlayEnter(modeEntries, "is-refreshing");
+        }
     }
 
     // Screens
@@ -221,7 +279,7 @@ public class AppUI : MonoBehaviour
     {
         CurrentScreen = screen;
         foreach (var pair in screens)
-            SetVisible(pair.Value, pair.Key == screen);
+            SetVisible(pair.Value, pair.Key == screen && !BaseCovered);
         // The menu screens hide the camera view completely (it may still be running behind them).
         SetVisible(backdrop, !IsCameraScreen(screen));
         UpdateDebugOverlay();
@@ -229,70 +287,58 @@ public class AppUI : MonoBehaviour
 
     // Start screens
     /// <summary>The free placement mode's progress on the mode screen: which pieces are collected.</summary>
-    public void SetFreeModeProgress(Func<int, bool> isCollected, int collected, int total)
+    public void SetFreeModeProgress(Func<int, bool> isCollected, string status)
     {
         SetArch(freeModeArch, isCollected);
-        if (freeModeCount != null) freeModeCount.text = $"{collected} of {total} arch pieces";
+        if (freeModeCount != null) freeModeCount.text = status ?? "";
     }
 
     /// <summary>The in-city mode's progress on the mode screen.</summary>
-    public void SetCityModeProgress(Func<int, bool> isCollected, int collected, int total)
+    public void SetCityModeProgress(Func<int, bool> isCollected, string status)
     {
         SetArch(cityModeArch, isCollected);
-        if (cityModeCount != null) cityModeCount.text = $"{collected} of {total} arch pieces";
+        if (cityModeCount != null) cityModeCount.text = status ?? "";
     }
 
     // In Iasi
     /// <summary>
-    /// The target list: the arch's progress, and per row its name, status line and whether it can be
-    /// picked (a found piece can't). "Start over" shows once every piece is found.
+    /// The guide screen. name: what is being looked for; riddle: the riddle (or what to do); big: the distance
+    /// or the warmer / colder word (trend: -1 colder, 1 warmer, 0 neither, which colours it); small: the line
+    /// under it.
     /// </summary>
-    public void SetCityTargets(Func<int, bool> isCollected, int collected, int total, string[] names,
-                               string[] statuses, bool[] canPick, bool showReset)
-    {
-        SetArch(cityArch, isCollected);
-        if (cityCount != null) cityCount.text = $"{collected} of {total} pieces found";
-        for (int i = 0; i < CityTargetSlots; i++)
-        {
-            bool used = names != null && i < names.Length;
-            SetVisible(targetButtons[i], used);
-            if (!used) continue;
-            if (targetNames[i] != null) targetNames[i].text = names[i] ?? "";
-            if (targetStatuses[i] != null) targetStatuses[i].text = statuses != null ? statuses[i] ?? "" : "";
-            targetButtons[i]?.SetEnabled(canPick == null || canPick[i]);
-        }
-        SetVisible(cityResetButton, showReset);
-    }
-
-    /// <summary>
-    /// The guide screen. big: the distance or the warmer / colder word (trend: -1 colder, 1 warmer, 0
-    /// neither, which colours it); small: the line under it.
-    /// </summary>
-    public void SetGuide(string name, string stage, string big, string small, int trend, string accuracy,
-                         GuideDial.Look look, bool pointer, float angle, bool canOpenCamera)
+    public void SetGuide(string name, string riddle, string stage, string big, string small, int trend,
+                         string accuracy, GuideDial.Look look, bool pointer, float angle, bool canOpenCamera)
     {
         if (guideName != null) guideName.text = name ?? "";
+        SetHint(guideRiddle, riddle);
         if (guideStage != null) guideStage.text = stage ?? "";
         if (guideBig != null) guideBig.text = big ?? "";
         guideBig?.EnableInClassList("dial__big--warmer", trend > 0);
         guideBig?.EnableInClassList("dial__big--colder", trend < 0);
         SetHint(guideSmall, small);
         if (guideAccuracy != null) guideAccuracy.text = accuracy ?? "";
-        var tint = trend < 0 ? new Color32(127, 163, 146, 255) : new Color32(201, 154, 62, 255);
+        var tint = trend < 0 ? Palette.Prussian : trend > 0 ? Palette.Wax : Palette.Ink;
         guideDial?.Set(look, pointer, angle, tint);
         openCameraButton?.SetEnabled(canOpenCamera);
     }
 
-    /// <summary>The in-city camera screen: the hint, and which of Collect / Try again show.</summary>
-    public void SetCityAR(string hint, bool inSight, bool showCollect, bool canCollect, bool showRetry)
+    /// <summary>
+    /// The in-city camera screen: the hint, and which of Collect / Try again / the quest action show
+    /// (action: its text, or null to hide it).
+    /// </summary>
+    public void SetCityAR(string hint, bool inSight, bool showCollect, bool canCollect, bool showRetry,
+                          string action)
     {
         SetHint(cityARHint, hint);
         cityARHint?.EnableInClassList("hint--in-sight", inSight);
         SetVisible(cityCollectButton, showCollect);
         cityCollectButton?.SetEnabled(canCollect);
         SetVisible(cityARRetryButton, showRetry);
-        // Alone (the academy, or a piece just collected), "Targets" takes the whole row.
-        cityARBackButton?.EnableInClassList("btn--narrow", showCollect || showRetry);
+        bool showAction = !string.IsNullOrEmpty(action) && !showCollect && !showRetry;
+        if (showAction && cityARActionButton != null) cityARActionButton.text = action;
+        SetVisible(cityARActionButton, showAction);
+        // Alone, "Progress" takes the whole row.
+        cityARProgressButton?.EnableInClassList("btn--narrow", showCollect || showRetry || showAction);
     }
 
     public void SetStartingDetail(string text)
@@ -361,28 +407,32 @@ public class AppUI : MonoBehaviour
 
     // Explore
     /// <summary>
-    /// The explore screen's arch pieces: which are collected, the count, the hint, and which buttons can be
-    /// used. When all are collected, "Start over" replaces "Spawn piece".
+    /// The explore screen: the arch (which pieces are collected), the count, the hint, "Collect" (shown while
+    /// an item is out) and the quest's next action (its text, or null to hide it).
     /// </summary>
-    public void SetPieces(Func<int, bool> isCollected, int collected, int total, string hint, bool inSight,
-                          bool canSpawn, bool canCollect, bool complete)
+    public void SetPieces(Func<int, bool> isCollected, string count, string hint, bool inSight,
+                          bool showCollect, bool canCollect, string action)
     {
         SetArch(exploreArch, isCollected);
-        if (piecesCount != null) piecesCount.text = $"{collected} of {total} pieces found";
+        if (piecesCount != null) piecesCount.text = count ?? "";
         SetHint(exploreHint, hint);
         exploreHint?.EnableInClassList("hint--in-sight", inSight);
-        SetVisible(spawnPieceButton, !complete);
-        SetVisible(resetPiecesButton, complete);
-        spawnPieceButton?.SetEnabled(canSpawn);
+        SetVisible(collectPieceButton, showCollect);
         collectPieceButton?.SetEnabled(canCollect);
+        bool showAction = !string.IsNullOrEmpty(action) && !showCollect;
+        if (showAction && exploreActionButton != null) exploreActionButton.text = action;
+        SetVisible(exploreActionButton, showAction);
     }
 
     /// <summary>The "Hidden by real objects" option: its text, and whether it can be used.</summary>
     public void SetOcclusionButton(string text, bool enabled)
     {
-        if (occlusionButton == null) return;
-        occlusionButton.text = text ?? "";
-        occlusionButton.SetEnabled(enabled);
+        foreach (var button in new[] { occlusionButton, cityOcclusionButton })
+        {
+            if (button == null) continue;
+            button.text = text ?? "";
+            button.SetEnabled(enabled);
+        }
     }
 
     /// <summary>Shows the "Back to the modes?" card over the current screen.</summary>
@@ -402,7 +452,8 @@ public class AppUI : MonoBehaviour
     void UpdateDebugOverlay()
     {
         if (debugOverlay == null) return;
-        bool show = IsCameraScreen(CurrentScreen) && !string.IsNullOrEmpty(debugText);
+        bool show = IsCameraScreen(CurrentScreen) && !BaseCovered && !IsTuningOpen &&
+                    !string.IsNullOrEmpty(debugText);
         if (show) debugOverlay.text = debugText;
         SetVisible(debugOverlay, show);
     }
@@ -425,6 +476,17 @@ public class AppUI : MonoBehaviour
     // Internals
     void SetUpStartScreens()
     {
+        Wire(Find<Button>("btn-lang-en"), () => LanguageChosen?.Invoke(Language.English));
+        Wire(Find<Button>("btn-lang-ro"), () => LanguageChosen?.Invoke(Language.Romanian));
+        languageEnglish = Find<Button>("btn-language-en");
+        languageRomanian = Find<Button>("btn-language-ro");
+        Wire(languageEnglish, () => LanguageChosen?.Invoke(Language.English));
+        Wire(languageRomanian, () => LanguageChosen?.Invoke(Language.Romanian));
+        MarkCurrentLanguage();
+        var modeScreen = screens[AppScreen.Mode];
+        modeHead = modeScreen?.Q<VisualElement>(className: "titlepage__head");
+        modeEntries = modeScreen?.Q<VisualElement>(className: "titlepage__entries");
+
         freeModeArch = Find<ArchEmblem>("mode-free-arch");
         freeModeCount = Find<Label>("mode-free-count");
         cityModeArch = Find<ArchEmblem>("mode-city-arch");
@@ -445,21 +507,8 @@ public class AppUI : MonoBehaviour
 
     void SetUpCity()
     {
-        cityArch = Find<ArchEmblem>("city-arch");
-        cityCount = Find<Label>("city-count");
-        for (int i = 0; i < CityTargetSlots; i++)
-        {
-            int index = i;
-            targetButtons[i] = Find<Button>("btn-target-" + i);
-            targetNames[i] = Find<Label>("target-name-" + i);
-            targetStatuses[i] = Find<Label>("target-status-" + i);
-            Wire(targetButtons[i], () => TargetPicked?.Invoke(index));
-        }
-        cityResetButton = Find<Button>("btn-city-reset");
-        Wire(cityResetButton, () => CityResetClicked?.Invoke());
-        Wire(Find<Button>("btn-city-back"), () => CityBackClicked?.Invoke());
-
         guideName = Find<Label>("guide-name");
+        guideRiddle = Find<Label>("guide-riddle");
         guideStage = Find<Label>("guide-stage");
         guideDial = Find<GuideDial>("guide-dial");
         guideBig = Find<Label>("guide-big");
@@ -467,14 +516,17 @@ public class AppUI : MonoBehaviour
         guideAccuracy = Find<Label>("guide-accuracy");
         openCameraButton = Find<Button>("btn-open-camera");
         Wire(openCameraButton, () => OpenCameraClicked?.Invoke());
-        Wire(Find<Button>("btn-guide-back"), () => GuideBackClicked?.Invoke());
+        Wire(Find<Button>("btn-guide-progress"), () => GuideProgressClicked?.Invoke());
+        Wire(Find<Button>("btn-guide-modes"), () => GuideModesClicked?.Invoke());
 
         cityARHint = Find<Label>("city-ar-hint");
+        cityARProgressButton = Find<Button>("btn-city-ar-progress");
         cityARRetryButton = Find<Button>("btn-city-ar-retry");
+        cityARActionButton = Find<Button>("btn-city-ar-action");
         cityCollectButton = Find<Button>("btn-city-collect");
-        cityARBackButton = Find<Button>("btn-city-ar-back");
-        Wire(cityARBackButton, () => CityARBackClicked?.Invoke());
+        Wire(cityARProgressButton, () => CityARProgressClicked?.Invoke());
         Wire(cityARRetryButton, () => CityARRetryClicked?.Invoke());
+        Wire(cityARActionButton, () => CityARActionClicked?.Invoke());
         Wire(cityCollectButton, () => CityCollectClicked?.Invoke());
     }
 
@@ -543,16 +595,17 @@ public class AppUI : MonoBehaviour
         exploreHint = Find<Label>("explore-hint");
         exploreArch = Find<ArchEmblem>("explore-arch");
         piecesCount = Find<Label>("pieces-count");
-        spawnPieceButton = Find<Button>("btn-spawn-piece");
-        resetPiecesButton = Find<Button>("btn-reset-pieces");
+        exploreActionButton = Find<Button>("btn-explore-action");
         collectPieceButton = Find<Button>("btn-collect-piece");
         occlusionButton = Find<Button>("btn-occlusion");
         leaveConfirm = Find<VisualElement>("confirm-leave");
         Wire(Find<Button>("btn-edit"), () => EditClicked?.Invoke());
-        Wire(spawnPieceButton, () => SpawnPieceClicked?.Invoke());
-        Wire(resetPiecesButton, () => ResetPiecesClicked?.Invoke());
+        Wire(Find<Button>("btn-explore-progress"), () => ExploreProgressClicked?.Invoke());
+        Wire(exploreActionButton, () => ExploreActionClicked?.Invoke());
         Wire(collectPieceButton, () => CollectPieceClicked?.Invoke());
         Wire(occlusionButton, () => OcclusionClicked?.Invoke());
+        cityOcclusionButton = Find<Button>("btn-city-occlusion");
+        Wire(cityOcclusionButton, () => OcclusionClicked?.Invoke());
         Wire(Find<Button>("btn-leave-from-explore"), () => LeaveModeClicked?.Invoke());
         Wire(Find<Button>("btn-leave-confirm"), () => LeaveModeAnswered?.Invoke(true));
         Wire(Find<Button>("btn-leave-cancel"), () => LeaveModeAnswered?.Invoke(false));
@@ -620,8 +673,33 @@ public class AppUI : MonoBehaviour
         safeArea.style.right = Mathf.Max(0f, panelSize.x - bottomRight.x);
         safeArea.style.bottom = Mathf.Max(0f, panelSize.y - bottomRight.y);
 
+        foreach (var bleed in bleeds)
+        {
+            bleed.style.left = -topLeft.x;
+            bleed.style.top = -topLeft.y;
+            bleed.style.right = -Mathf.Max(0f, panelSize.x - bottomRight.x);
+            bleed.style.bottom = -Mathf.Max(0f, panelSize.y - bottomRight.y);
+        }
+
         appliedSafeArea = area;
         appliedScreenSize = new Vector2Int(Screen.width, Screen.height);
+    }
+
+    /// Gives every overlay (sheets, quiz, map, progress, confirm cards) a first child that carries its background
+    /// (USS `.overlay-class > .bleed`) and reaches the screen's edges, outside the safe area.
+    void AddBleeds()
+    {
+        bleeds.Clear();
+        foreach (var className in new[] { "sheet-layer", "progress", "map", "screen--dimmed" })
+        {
+            root.Query<VisualElement>(className: className).ForEach(overlay =>
+            {
+                var bleed = new VisualElement { name = "bleed", pickingMode = PickingMode.Ignore };
+                bleed.AddToClassList("bleed");
+                overlay.Insert(0, bleed);
+                bleeds.Add(bleed);
+            });
+        }
     }
 
     static void SetVisible(VisualElement element, bool visible)

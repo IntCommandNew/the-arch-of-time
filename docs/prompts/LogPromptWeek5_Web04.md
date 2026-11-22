@@ -82,7 +82,7 @@ Note on attachments: the file names come from the conversation's upload folder; 
 - Wrote a Python (Pillow) drawing script and used it to draw ten sketch-style storyboard frames: welcome, riddle, hot/cold search, collecting a piece, knowledge and progress, a secret, rebuilding the arch, history unfolding (1890 and 1963), Then & Now with questions, and playing anywhere. Each frame was checked visually and corrected.
 - Wrote MainModules.md: a user story map for two users (Florin on site and a remote player), three Mermaid journey maps (on-site quest, remote quest, coming back after the quest), the storyboard grid with a note that the images were drawn by Claude, and the asset plan as a checklist with the legend (ins = made from scratch, mark = generated, link = online source), following the user's decisions. The Mermaid diagrams were checked by rendering them.
 - Updated the README (links to the new document, credit to Panagiotis Chontas for the scans, storyboard credit, a Week 1 line) and the State of the Art document (the Blender item and the assets item).
-- Searched the web for a Faculty of History page to link; none was found, so the Wikipedia article was added as a secondary source.
+- Searched the web for a UAIC Museum page to link; none was found, so the Wikipedia article was added as a secondary source.
 - Packed all new and changed files into a zip.
 
 **Files created or changed:** docs/MainModules.md, docs/storyboard/01.png to 10.png (drawn with the script storyboard.py), README.md (updated), docs/StateOfTheArt.md (updated), Tema5_files.zip
@@ -115,7 +115,7 @@ Note on attachments: the file names come from the conversation's upload folder; 
 - Looked up the coordinates of the candidate places and showed the proposed route on a map.
 - Proposed four stops in history order, each with a chapter and a piece of the arch: Trei Ierarhi (left column), Colegiul Național (right column), the arch replica in Parcul Expoziției (the arc), the UAIC main building (the top beam), with the start and finale at the academy's site on Strada Arcu; noted the route is about 7 km and suggested saving progress after every stop.
 - Proposed the secrets as wax seals: a clue for answering all questions correctly, a vibration within about 30 m, finding the seal on a real wall with the camera; listed five secrets and a reward for finding all of them.
-- Named two facts to confirm against the Faculty of History text.
+- Named two facts to confirm against the UAIC Museum text.
 
 **Files created or changed:** None
 

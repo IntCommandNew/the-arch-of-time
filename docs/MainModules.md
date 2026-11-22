@@ -272,13 +272,13 @@ No other buildings are modeled: the real city is the scenery, and Streetscape Ge
 - [ ] <mark>**Storyboard images** (AI generated): drawn by Claude for this document</mark>
 - [ ] Parchment and old paper textures for the cards: [Pixabay](https://pixabay.com/images/search/old%20paper/) (free license)
 - [ ] Lithograph textures for the Then & Now frame and the menus: [Pixabay](https://pixabay.com/images/search/lithograph/) (free license)
-- [ ] Period font for titles: [IM Fell English, Google Fonts](https://fonts.google.com/specimen/IM+Fell+English) (Open Font License)
+- [x] Period font for titles: [Bodoni Moda, Google Fonts](https://fonts.google.com/specimen/Bodoni+Moda) (Open Font License); IM Fell English was used until 20 November 2026
 - [ ] Readable font for longer texts: [EB Garamond, Google Fonts](https://fonts.google.com/specimen/EB+Garamond) (Open Font License)
 - [ ] Historical images of the academy, the arch and Iași, shown in the knowledge cards and secrets: [Wikimedia Commons](https://commons.wikimedia.org) (each image credited with its author and license)
 
 ### Sounds
 
-- [ ] <mark>**Narrator voice** (AI generated, text-to-speech): the guided tour pre-generated as audio files; the live answers spoken with [Android TextToSpeech](https://developer.android.com/reference/android/speech/tts/TextToSpeech)</mark>
+- [ ] <mark>**Narrator voices** (AI generated, text-to-speech): two voices, Mihail Sturdza and a narrator, designed and recorded with [ElevenLabs](https://elevenlabs.io) (Eleven v4), the guided tour pre-generated as audio files in English and Romanian; the live answers spoken with [Android TextToSpeech](https://developer.android.com/reference/android/speech/tts/TextToSpeech)</mark>
 - [ ] Period background music, calm 19th-century style, for the welcome and the finale: [Pixabay Music](https://pixabay.com/music/)
 - [ ] UI clicks and card sounds: [Freesound](https://freesound.org)
 - [ ] Piece pickup chime: [Freesound](https://freesound.org)
@@ -300,7 +300,7 @@ Each Freesound and Pixabay sound will be credited by name and author in the READ
 
 ### Other assets
 
-- [ ] Historical texts, the knowledge source of the AI narrator and of all the knowledge cards: text from the Faculty of History, Alexandru Ioan Cuza University of Iași
+- [ ] Historical texts, the knowledge source of the AI narrator and of all the knowledge cards: text from the UAIC Museum, the museum of the Alexandru Ioan Cuza University of Iași
 - [ ] Secondary source for checking facts: [Academia Mihăileană, Wikipedia](https://en.wikipedia.org/wiki/Academia_Mih%C4%83ilean%C4%83)
 - [ ] 3D scans of the replica maquette, by Panagiotis Chontas
 - [ ] <ins>**Riddles, hints, questions and narration scripts** (created by us)</ins>, written from the historical texts, including the seal clues and Sturdza's letter
@@ -308,4 +308,4 @@ Each Freesound and Pixabay sound will be credited by name and author in the READ
 - [ ] Link 1: [AR Foundation](https://docs.unity3d.com/6000.0/Documentation/Manual/com.unity.xr.arfoundation.html) (Unity package)
 - [ ] Link 2: [ARCore Extensions and Geospatial Creator for Unity](https://developers.google.com/ar/geospatialcreator/unity/quickstart) (Google package)
 - [ ] Link 3: [Unity Localization](https://docs.unity3d.com/Packages/com.unity.localization@1.5/manual/index.html) (Unity package)
-- [ ] Link 4: AI tools used for the models, images, shaders and voice: [Claude](https://claude.ai) by Anthropic (Claude web for the 3D models and the storyboard images, [Claude Code](https://claude.com/claude-code) for the code, the shaders and part of the Unity Editor work; see [AI usage](AIUsage.md)); _other tools to be added as we use them_
+- [ ] Link 4: AI tools used for the models, images, shaders and voice: [Claude](https://claude.ai) by Anthropic (Claude web for the 3D models and the storyboard images, [Claude Code](https://claude.com/claude-code) for the code, the shaders and part of the Unity Editor work; see [AI usage](AIUsage.md)), [ElevenLabs](https://elevenlabs.io) for the narrator voices; _other tools to be added as we use them_

@@ -1182,10 +1182,10 @@ Note on attachments: the file names come from the conversation's upload folder; 
 
 **Prompt:**
 
-> before that, read this text given by the prof's of the faculty of history about the academy:
+> before that, read this text given by the UAIC museum about the academy:
 >
 >
-> [pasted: text in Romanian from the Faculty of History about the Academia Mihăileană (founding in 1834 to 1835, the Cazimir and Voinescu houses, the arch built 1841 to 1847, the demolitions of 1890 and 1963), with short sections on the first fire brigade of 1835, the arch replica in Parcul Expoziției and Strada Arcu, and Kogălniceanu's 1843 speech, about 20 lines]
+> [pasted: text in Romanian from the UAIC Museum about the Academia Mihăileană (founding in 1834 to 1835, the Cazimir and Voinescu houses, the arch built 1841 to 1847, the demolitions of 1890 and 1963), with short sections on the first fire brigade of 1835, the arch replica in Parcul Expoziției and Strada Arcu, and Kogălniceanu's 1843 speech, about 20 lines]
 
 **Attachments:** None
 

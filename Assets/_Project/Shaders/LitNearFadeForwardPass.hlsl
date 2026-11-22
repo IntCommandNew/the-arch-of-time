@@ -2,6 +2,9 @@
 // _ModelSeeThrough (0 = solid, 0.5 = half the pixels dropped, in a 4x4 pattern) makes the whole model look
 // semi-transparent while adjusting. The surface stays opaque (no sorting or transparency issues); on a
 // phone screen the dither reads as transparency. NearFade.cs sets it (an unset global is 0 = solid).
+// _PieceFade does the same for one object (set per renderer with a MaterialPropertyBlock, ArchModel.cs):
+// 0 = solid, 1 = gone; a missing arch piece stays half gone ("ghost"), and pieces and the academy dissolve
+// in and out with it in the animations. The larger of the two wins.
 // The near-camera fade that gave the shader its name was removed on 8 Nov 2026 (the user wants to inspect
 // the model up close); the name stays because the academy's materials use it.
 #ifndef THE_ARCH_OF_TIME_LIT_NEAR_FADE_FORWARD_PASS_INCLUDED
@@ -9,12 +12,13 @@
 
 #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
 
-// Global (not per material), so they stay outside the material CBUFFER (SRP Batcher compatible).
+// Global or per renderer (not per material), so they stay outside the material CBUFFER (SRP Batcher compatible).
 float _ModelSeeThrough;
+float _PieceFade;
 
 void SeeThroughClip(float2 pixel)
 {
-    float visible = 1.0 - saturate(_ModelSeeThrough);
+    float visible = 1.0 - saturate(max(_ModelSeeThrough, _PieceFade));
     if (visible >= 1.0) return;
 
     // 4x4 Bayer matrix: each pixel of a 4x4 block disappears at a different level.

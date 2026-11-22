@@ -1,0 +1,8 @@
+<!-- Keeps engine classes the build would strip. ArchPieces makes the seal placeholder with
+     GameObject.CreatePrimitive(Cylinder), which adds a CapsuleCollider; nothing else uses that class, so a
+     build stripped it ("Can't add component because class 'CapsuleCollider' doesn't exist", phone log 20 Nov 2026). -->
+<linker>
+    <assembly fullname="UnityEngine.PhysicsModule">
+        <type fullname="UnityEngine.CapsuleCollider" preserve="all" />
+    </assembly>
+</linker>

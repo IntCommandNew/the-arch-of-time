@@ -1,0 +1,1026 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1897ac05bccb8e64180e49aee40d0c29, type: 3}
+  m_Name: NarrationLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::NarrationLibrary
+  modelId: eleven_v4
+  narratorVoiceId: qUwKKsEYPewoILlxCIx6
+  sturdzaVoiceId: wsy3f26m7s6wq8zKCtJK
+  recordings:
+  - role: 1
+    language: 0
+    text: "Welcome to the Academia Mih\u0103ilean\u0103! It is the year 1835, and
+      today our academy opens its doors here, in the houses of Petrache Cazimir,
+      next to the T\u0103lp\u0103lari Church. One day the academy will grow across
+      the street, and an arch of carved stone will join its two houses. The four
+      pieces of that arch are hidden in the places of our story, all over Ia\u0219i.
+      Find them, learn what each place remembers, and help me raise the arch."
+    clip: {fileID: 8300000, guid: caf0c33288316c142bc82b58cc95237c, type: 3}
+  - role: 1
+    language: 0
+    text: The academy's seals
+    clip: {fileID: 8300000, guid: 65c01d6818470f54e90579c8cba3edcb, type: 3}
+  - role: 1
+    language: 0
+    text: 'The academy keeps its secrets under wax seals. Answer every question at
+      a stop correctly, and a seal appears near you. Your first one appears when
+      you go on: look around and collect it.'
+    clip: {fileID: 8300000, guid: 8bd3bc0a753455440be61e8604e0f250, type: 3}
+  - role: 0
+    language: 0
+    text: The academy's chapel
+    clip: {fileID: 8300000, guid: 9c1eb7d8eb5f8604886898a3faceac79, type: 3}
+  - role: 0
+    language: 0
+    text: "The T\u0103lp\u0103lari Church, right next to the Cazimir houses, was
+      the academy's chapel. A liturgy was held there for the academy's opening, and
+      the students reached it through a passage in the church wall."
+    clip: {fileID: 8300000, guid: c393596fb322e984da09c6dee670707b, type: 3}
+  - role: 0
+    language: 0
+    text: The left column
+    clip: {fileID: 8300000, guid: 51b7b1e764ebd114092c2b7e191fa23c, type: 3}
+  - role: 0
+    language: 0
+    text: A prince raised me in 1639 and dressed my walls in stone carved like lace,
+      from the ground to the roof. In my courtyard, Moldova's scholars studied long
+      before the academy had a home of its own. Where am I?
+    clip: {fileID: 8300000, guid: 9d24731155781444bb580c5e91ae9ef4, type: 3}
+  - role: 0
+    language: 0
+    text: Trei Ierarhi Monastery
+    clip: {fileID: 8300000, guid: f76c318464139e244afcdf63bf285346, type: 3}
+  - role: 0
+    language: 0
+    text: The academy was born at the Trei Ierarhi Monastery. After Mihail Sturdza
+      became prince in August 1834, the school authority, with Metropolitan Veniamin
+      and Gheorghe Asachi, found that the monastery's buildings were too small for
+      a real academy. Even so, the first course of the Faculty of Philosophy opened
+      here, on 20 November 1834.
+    clip: {fileID: 8300000, guid: 663e6de02182c1b479179e6472c81b86, type: 3}
+  - role: 0
+    language: 0
+    text: "For its new home, the academy got the houses of the late Petrache Cazimir,
+      in the city centre, next to the T\u0103lp\u0103lari Church. They were bought
+      in October 1834, and architect Gustav Freiwald was hired to fit them out. On
+      16 June 1835 the academy's own building was inaugurated, with classrooms, study
+      rooms, dormitories, a dining hall and an infirmary, after European models."
+    clip: {fileID: 8300000, guid: ff98ceb5176a8514a83572142f47c620, type: 3}
+  - role: 0
+    language: 0
+    text: Where did the first course of the Faculty of Philosophy open, in November
+      1834?
+    clip: {fileID: 8300000, guid: b94cd8c0fa528aa4eb067c351d65f4f3, type: 3}
+  - role: 0
+    language: 0
+    text: At the Trei Ierarhi Monastery
+    clip: {fileID: 8300000, guid: 76e1e431f755b1d458b450ae3b10db89, type: 3}
+  - role: 0
+    language: 0
+    text: In the Cazimir houses
+    clip: {fileID: 8300000, guid: 93c8dd888e228cd4ea7434a68548d101, type: 3}
+  - role: 0
+    language: 0
+    text: In the Calimachi Palace
+    clip: {fileID: 8300000, guid: 68507e33fd3a1f045ae92456654fe2fd, type: 3}
+  - role: 0
+    language: 0
+    text: The course opened at Trei Ierarhi on 20 November 1834, while the academy's
+      new home was being prepared.
+    clip: {fileID: 8300000, guid: d21d3fdab2e22bb4587d178037f9f863, type: 3}
+  - role: 0
+    language: 0
+    text: Whose houses became the academy's first home?
+    clip: {fileID: 8300000, guid: a2e4b23985ccf934d88c1389ffbc0d3d, type: 3}
+  - role: 0
+    language: 0
+    text: Petrache Cazimir's
+    clip: {fileID: 8300000, guid: 61c22f39bfab8784eaa6ef01ead833a3, type: 3}
+  - role: 0
+    language: 0
+    text: Gheorghe Asachi's
+    clip: {fileID: 8300000, guid: 9c75dd0044ebd68438563bd1c1635bef, type: 3}
+  - role: 0
+    language: 0
+    text: Mihail Sturdza's
+    clip: {fileID: 8300000, guid: 43271e8d14a8b3a4ea6351e8536a00fa, type: 3}
+  - role: 0
+    language: 0
+    text: "The houses of the late Petrache Cazimir, next to the T\u0103lp\u0103lari
+      Church, were bought in October 1834."
+    clip: {fileID: 8300000, guid: 7500e5517e209c547b5c9106c322e85d, type: 3}
+  - role: 0
+    language: 0
+    text: In which year was the academy's own building inaugurated?
+    clip: {fileID: 8300000, guid: 10609e25c6d5e4e4d9ea6f008eafbe77, type: 3}
+  - role: 0
+    language: 0
+    text: 1835
+    clip: {fileID: 8300000, guid: 96f78f1a0cd53504285002fbc1f912c3, type: 3}
+  - role: 0
+    language: 0
+    text: 1845
+    clip: {fileID: 8300000, guid: daaea7411c04fff44a3999a9490baf4a, type: 3}
+  - role: 0
+    language: 0
+    text: 1860
+    clip: {fileID: 8300000, guid: afe936806218ea641802c0fe770cf56f, type: 3}
+  - role: 0
+    language: 0
+    text: It was inaugurated on 16 June 1835, although some works went on afterwards.
+    clip: {fileID: 8300000, guid: cd4074b95247b6046b1dda4028e5b5b4, type: 3}
+  - role: 0
+    language: 0
+    text: The prince's firemen
+    clip: {fileID: 8300000, guid: fb843b140aee5bc4eb8fe99c107c79de, type: 3}
+  - role: 0
+    language: 0
+    text: "In the same busy year, on 15 May 1835, Prince Mihail Sturdza approved
+      the first military fire brigade of Ia\u0219i. Its first company of firemen,
+      with a captain, two lieutenants and soldiers, marked the start of modern public
+      safety services in Moldavia."
+    clip: {fileID: 8300000, guid: ee05c5b3715a10146aa6156181ea2c4a, type: 3}
+  - role: 0
+    language: 0
+    text: The right column
+    clip: {fileID: 8300000, guid: c0e2e8a92d3954f4cb073009699f5e6e, type: 3}
+  - role: 0
+    language: 0
+    text: Just across the street from the academy, a second house joined it in 1837.
+      The house is gone, but the school built on its place in the 1890s still counts
+      the academy among its ancestors. Where am I?
+    clip: {fileID: 8300000, guid: f9c86a9fa1619de469fea01a2e21e407, type: 3}
+  - role: 0
+    language: 0
+    text: "Colegiul Na\u021Bional"
+    clip: {fileID: 8300000, guid: 84bbdd41d0727f044beeaf7657330ac9, type: 3}
+  - role: 0
+    language: 0
+    text: "The academy soon outgrew the Cazimir houses. In June 1837 it bought the
+      building across the street, the Voinescu houses, which stood where Colegiul
+      Na\u021Bional stands today. In 1838 the boarding school, the stores, the kitchen
+      and the administration moved there, while the courses, the library and the
+      cabinets of physics, mathematics and natural history stayed in the Cazimir
+      houses."
+    clip: {fileID: 8300000, guid: 4c34752de0d9c5f4084b7f7d573f2016, type: 3}
+  - role: 0
+    language: 0
+    text: "In 1845 and 1846 the rooms were shared out again: the gymnasium classes
+      and the faculties moved into the Voinescu houses, and 120 boarding students
+      lived in the Cazimir houses. Today's Colegiul Na\u021Bional, built between
+      1890 and 1894, sees itself as the descendant of the Vasilian Gymnasium and
+      of the Academia Mih\u0103ilean\u0103."
+    clip: {fileID: 8300000, guid: 9938eaf91fcd8414ca28e6b34140dda8, type: 3}
+  - role: 0
+    language: 0
+    text: Which houses did the academy buy across the street in 1837?
+    clip: {fileID: 8300000, guid: cc142861baabc7b4caa3bda3c6f3b2b5, type: 3}
+  - role: 0
+    language: 0
+    text: The Voinescu houses
+    clip: {fileID: 8300000, guid: 0ce6821493a0df543b80a3861d9641cf, type: 3}
+  - role: 0
+    language: 0
+    text: The Cazimir houses
+    clip: {fileID: 8300000, guid: 35f21c7819631b648bf7251818cc8195, type: 3}
+  - role: 0
+    language: 0
+    text: The Calimachi houses
+    clip: {fileID: 8300000, guid: 5a6f927353d2814499986ab26373d2bd, type: 3}
+  - role: 0
+    language: 0
+    text: "The Voinescu houses were bought in June 1837, on the site of today's Colegiul
+      Na\u021Bional."
+    clip: {fileID: 8300000, guid: 02eef7bc3a6a870469527f5ea22bf748, type: 3}
+  - role: 0
+    language: 0
+    text: What moved into the new building in 1838?
+    clip: {fileID: 8300000, guid: 9499593ce862fcf47aae3878136e7ba7, type: 3}
+  - role: 0
+    language: 0
+    text: The boarding school, the kitchen and the administration
+    clip: {fileID: 8300000, guid: ce6bdf59948f1c546b47ee16e8be479b, type: 3}
+  - role: 0
+    language: 0
+    text: The library and the physics cabinet
+    clip: {fileID: 8300000, guid: 5c91918163b2410448060ddcd11d263b, type: 3}
+  - role: 0
+    language: 0
+    text: The boarding school, the stores, the kitchen and the administration moved;
+      the courses and the library stayed in the Cazimir houses.
+    clip: {fileID: 8300000, guid: 8b3e46f498d04a24ea057ff58fb0d8f2, type: 3}
+  - role: 0
+    language: 0
+    text: Which school stands today where the Voinescu houses stood?
+    clip: {fileID: 8300000, guid: 38afc1d2e1589eb4886444183535a2bb, type: 3}
+  - role: 0
+    language: 0
+    text: The Gheorghe Asachi Technical University
+    clip: {fileID: 8300000, guid: e8b3c1dd87e942c46a8b091255f79d02, type: 3}
+  - role: 0
+    language: 0
+    text: The Vasilian Gymnasium
+    clip: {fileID: 8300000, guid: c7d8fb61b94c755488cef0c727cece98, type: 3}
+  - role: 0
+    language: 0
+    text: "Colegiul Na\u021Bional was built there between 1890 and 1894, and it counts
+      the academy among its ancestors."
+    clip: {fileID: 8300000, guid: f912503bcdf9811489d18f27862d8c58, type: 3}
+  - role: 0
+    language: 0
+    text: The street of the arch
+    clip: {fileID: 8300000, guid: a24898ae250705345a96f51705bbba8c, type: 3}
+  - role: 0
+    language: 0
+    text: "The street between the academy's two houses was once called Uli\u021Ba
+      Academiei, the Academy's Lane. The arch that crossed it gave it the name it
+      still has today: Strada Arcu, the Street of the Arch."
+    clip: {fileID: 8300000, guid: ece3c54888fe442408f6a6160665f477, type: 3}
+  - role: 0
+    language: 0
+    text: The arc
+    clip: {fileID: 8300000, guid: 2228b42b84ea5d544baab8d7ff62ad4e, type: 3}
+  - role: 0
+    language: 0
+    text: Where the city once held its great exhibitions, among the trees on Copou
+      hill, a smaller twin of the lost passage has stood since 1936. Find the copy
+      of what you are rebuilding. Where am I?
+    clip: {fileID: 8300000, guid: e42f719a4503369429df9d3516f36577, type: 3}
+  - role: 0
+    language: 0
+    text: "The arch replica in Parcul Expozi\u021Biei"
+    clip: {fileID: 8300000, guid: 3943c5dd083a9b0429d6c0396c56e6e9, type: 3}
+  - role: 0
+    language: 0
+    text: To join the academy's two buildings across the street, Gheorghe Asachi
+      proposed an arch. Its plan and cost estimate were made by the architecture
+      professor A. Costinescu, together with the students of the engineering class.
+      The foundation stone was laid on 19 October 1841.
+    clip: {fileID: 8300000, guid: ab77b8085da568a40afec7befe388e56, type: 3}
+  - role: 0
+    language: 0
+    text: "Built of carved stone, the arch was finished in September 1845. It was
+      more than an ornament: it gave the academy a passage over the street between
+      its two houses. In 1936 a smaller replica of the arch was built for an exhibition
+      here, in Parcul Expozi\u021Biei, and it still stands."
+    clip: {fileID: 8300000, guid: 401a6031c0a03a246a201cb345876fbd, type: 3}
+  - role: 0
+    language: 0
+    text: Who proposed building the arch?
+    clip: {fileID: 8300000, guid: 8a475ce61c1b7a147a79f9ced2f9401d, type: 3}
+  - role: 0
+    language: 0
+    text: Gheorghe Asachi
+    clip: {fileID: 8300000, guid: be3c546eb6ffd8841a9ba9a1f286b001, type: 3}
+  - role: 0
+    language: 0
+    text: "Mihail Kog\u0103lniceanu"
+    clip: {fileID: 8300000, guid: 753d1332732ad404d95d7d65079dee22, type: 3}
+  - role: 0
+    language: 0
+    text: Alexandru Ioan Cuza
+    clip: {fileID: 8300000, guid: b7a9ee47e7d4751469099cefedbdcc80, type: 3}
+  - role: 0
+    language: 0
+    text: Gheorghe Asachi proposed the arch to join the academy's two buildings.
+    clip: {fileID: 8300000, guid: 048a009afebfe404bb0fe9d877600847, type: 3}
+  - role: 0
+    language: 0
+    text: Who drew the arch's plan, with the engineering students?
+    clip: {fileID: 8300000, guid: 8571ebc17823a2d49b6878a166621265, type: 3}
+  - role: 0
+    language: 0
+    text: Professor A. Costinescu
+    clip: {fileID: 8300000, guid: eb0c6e807bf069f46be13283e9554635, type: 3}
+  - role: 0
+    language: 0
+    text: Architect Gustav Freiwald
+    clip: {fileID: 8300000, guid: f3000cf31b3c5e54bab4026ce463998e, type: 3}
+  - role: 0
+    language: 0
+    text: Architect Louis Blanc
+    clip: {fileID: 8300000, guid: 52680a8d17924384f85c9b33f182d9b7, type: 3}
+  - role: 0
+    language: 0
+    text: The architecture professor A. Costinescu made the plan and the estimate,
+      with the engineering class.
+    clip: {fileID: 8300000, guid: 24013cb3934e5e24d8e12659a7b07cf7, type: 3}
+  - role: 0
+    language: 0
+    text: In which year was the arch finished?
+    clip: {fileID: 8300000, guid: 47f150f9d6263d9418ce5660fe487397, type: 3}
+  - role: 0
+    language: 0
+    text: 1890
+    clip: {fileID: 8300000, guid: c239ffa317b738a488643d021b0104f4, type: 3}
+  - role: 0
+    language: 0
+    text: The arch was finished in September 1845, four years after its foundation
+      stone was laid.
+    clip: {fileID: 8300000, guid: 286c14890be268e4f8ec3282d219984f, type: 3}
+  - role: 0
+    language: 0
+    text: The missing inscriptions
+    clip: {fileID: 8300000, guid: 633bd038a27e3f8479168c3a86f78c3c, type: 3}
+  - role: 0
+    language: 0
+    text: 'The arch was officially handed over on 26 October 1847, but it was never
+      quite finished: the inscriptions and bas-reliefs drawn in its plan were never
+      carved.'
+    clip: {fileID: 8300000, guid: b23c0d4d8b93fbf4e80d3d1b5927257c, type: 3}
+  - role: 0
+    language: 0
+    text: The top beam
+    clip: {fileID: 8300000, guid: 78eef3bbf9da26941b357b457088f9cc, type: 3}
+  - role: 0
+    language: 0
+    text: On the boulevard that climbs Copou hill stands a palace of learning, opened
+      in 1897 where a theatre once burned. Its Hall of Lost Steps remembers every
+      student who has walked it. Where am I?
+    clip: {fileID: 8300000, guid: 5eb7c1cfbbf631f4b84d2a4aaf750f12, type: 3}
+  - role: 0
+    language: 0
+    text: The UAIC main building
+    clip: {fileID: 8300000, guid: ffd5e0cfbcdb62149ba5804d3a427e13, type: 3}
+  - role: 0
+    language: 0
+    text: "The academy did not vanish: it grew up. In 1860, Prince Alexandru Ioan
+      Cuza turned its higher courses into the University of Ia\u0219i, inaugurated
+      on 26 October 1860. Its lower classes became the national college across from
+      its old home. Today the Alexandru Ioan Cuza University still sees the Academia
+      Mih\u0103ilean\u0103 as its direct ancestor."
+    clip: {fileID: 8300000, guid: 2fc5381d75401584785e059384b9444f, type: 3}
+  - role: 0
+    language: 0
+    text: "The university's main building, the University Palace, was built between
+      1893 and 1897 to plans by the architect Louis Blanc, on the site of the old
+      National Theatre. It was inaugurated in 1897 in the presence of King Carol
+      I, and its great Hall of Lost Steps is one of the most famous rooms in Ia\u0219i."
+    clip: {fileID: 8300000, guid: b284d9d1ae15f224da778e5d03c5ca5a, type: 3}
+  - role: 0
+    language: 0
+    text: "In which year did the academy's courses become the University of Ia\u0219i?"
+    clip: {fileID: 8300000, guid: c06ff8adaf2cf2a4594b2967f2c9d3fd, type: 3}
+  - role: 0
+    language: 0
+    text: 1897
+    clip: {fileID: 8300000, guid: 1e9c145608851c34b857b67ccb04201a, type: 3}
+  - role: 0
+    language: 0
+    text: "The University of Ia\u0219i was inaugurated on 26 October 1860."
+    clip: {fileID: 8300000, guid: cbbddef5093d8154f8662aa9ee6b7bf2, type: 3}
+  - role: 0
+    language: 0
+    text: Which prince turned the academy into a university?
+    clip: {fileID: 8300000, guid: a57898e1f96dce244b697d1a3650b7a5, type: 3}
+  - role: 0
+    language: 0
+    text: Mihail Sturdza
+    clip: {fileID: 8300000, guid: 8a24b2bb765d1814b93276c4b8882932, type: 3}
+  - role: 0
+    language: 0
+    text: Vasile Lupu
+    clip: {fileID: 8300000, guid: aa2775d3696bf4341871e64818480958, type: 3}
+  - role: 0
+    language: 0
+    text: Prince Alexandru Ioan Cuza founded the university in 1860; it has carried
+      his name since 1942.
+    clip: {fileID: 8300000, guid: 36748fcbd16279c40839c7afcfe70acc, type: 3}
+  - role: 0
+    language: 0
+    text: Who designed the University Palace, opened in 1897?
+    clip: {fileID: 8300000, guid: b1ee656ea7277ce4ea7306f47168703b, type: 3}
+  - role: 0
+    language: 0
+    text: Louis Blanc
+    clip: {fileID: 8300000, guid: d53d64a90e87445468cb3121650d7a0a, type: 3}
+  - role: 0
+    language: 0
+    text: A. Costinescu
+    clip: {fileID: 8300000, guid: e8a9c9356afac374986d0da92253d230, type: 3}
+  - role: 0
+    language: 0
+    text: Gustav Freiwald
+    clip: {fileID: 8300000, guid: a8b5b660560fdaa4ea5b115ca3d117ca, type: 3}
+  - role: 0
+    language: 0
+    text: The architect Louis Blanc drew the plans; the palace was built between
+      1893 and 1897.
+    clip: {fileID: 8300000, guid: 686fa9a5dd417434d98dcfebe9e27038, type: 3}
+  - role: 0
+    language: 0
+    text: A lecture that made history
+    clip: {fileID: 8300000, guid: b3836445fcc001a4e86118cb52013589, type: 3}
+  - role: 0
+    language: 0
+    text: "On 24 November 1843, at the academy, Mihail Kog\u0103lniceanu gave the
+      opening lecture of the first course of national history. It became a milestone
+      of Romanian national awareness: \"...my country is every place on Earth where
+      Romanian is spoken, and national history is the history of all of Moldavia,
+      of Wallachia, and of our brothers in Transylvania.\""
+    clip: {fileID: 8300000, guid: 38e17711dfd19304b8346fb98f6308b2, type: 3}
+  - role: 0
+    language: 0
+    text: Right.
+    clip: {fileID: 8300000, guid: e79864a34ba38c2458c594163bedf5d5, type: 3}
+  - role: 0
+    language: 0
+    text: Not quite.
+    clip: {fileID: 8300000, guid: 53c34c3663884c64c900d368b7a9c5bf, type: 3}
+  - role: 0
+    language: 0
+    text: 0 of 3 right
+    clip: {fileID: 8300000, guid: 953ddbb6cc737bb4c844a21537f7dabd, type: 3}
+  - role: 0
+    language: 0
+    text: 1 of 3 right
+    clip: {fileID: 8300000, guid: 9da8bb627bc09de438bdbbfbfbcc71bb, type: 3}
+  - role: 0
+    language: 0
+    text: 2 of 3 right
+    clip: {fileID: 8300000, guid: 7ccd016663858144881fce5db67f9d01, type: 3}
+  - role: 0
+    language: 0
+    text: 3 of 3 right
+    clip: {fileID: 8300000, guid: c1d8609d99788e64e98ddc9120964605, type: 3}
+  - role: 0
+    language: 0
+    text: 'Every answer was right. When you go on, a seal will appear near you: find
+      it to open one of the academy''s secrets.'
+    clip: {fileID: 8300000, guid: 799c1fcdf28c64746a1971a403055e13, type: 3}
+  - role: 0
+    language: 0
+    text: 'The seal of this place stays hidden this time: it only appears when every
+      answer is right.'
+    clip: {fileID: 8300000, guid: 758eb056b3e29154dab54167aff61bda, type: 3}
+  - role: 0
+    language: 0
+    text: The arch rises again
+    clip: {fileID: 8300000, guid: cdc7a740e2f35864f8c7e41f8869135b, type: 3}
+  - role: 0
+    language: 0
+    text: You have found all four pieces. Back where the academy stood, the arch
+      can rise again. Watch the years pass.
+    clip: {fileID: 8300000, guid: 67d24c137bcb1344ca0167ae1705acd5, type: 3}
+  - role: 0
+    language: 0
+    text: The arch is finished. Carved stone now joins the academy's two houses above
+      the street, and students cross from one building to the other.
+    clip: {fileID: 8300000, guid: a8381d0cb0290a74a867441f779dabe8, type: 3}
+  - role: 0
+    language: 0
+    text: To build the new National High School and to widen the street, the boarding
+      house and the arch are torn down. Only the street's name, Arcu, remembers it.
+    clip: {fileID: 8300000, guid: c0a908c8c67e9c64191966955b2dd238, type: 3}
+  - role: 0
+    language: 0
+    text: In July 1963, the academy's main building, with its dome, is demolished
+      for public utility. Where it stood, there is now a street and an apartment
+      block.
+    clip: {fileID: 8300000, guid: e15dd45144e8f694ab89e3c8419ffeec, type: 3}
+  - role: 0
+    language: 0
+    text: The academy lives on
+    clip: {fileID: 8300000, guid: b2a2d15fd5d36854fa64f29ecb7dbf05, type: 3}
+  - role: 0
+    language: 0
+    text: "The academy is gone, but it lives on. Its higher courses became the University
+      of Ia\u0219i, its lower classes the Colegiul Na\u021Bional. Every student in
+      Ia\u0219i walks in its footsteps. Thank you for rebuilding its story."
+    clip: {fileID: 8300000, guid: 9e75d989cf2d1c34bb8fe90764b981e6, type: 3}
+  - role: 1
+    language: 0
+    text: A letter from the prince
+    clip: {fileID: 8300000, guid: 5e0ba510bdae4ae4fb806e1ec3815570, type: 3}
+  - role: 1
+    language: 0
+    text: My dear student, you have found every seal and every secret of our academy.
+      Few know its story as well as you do now. The stones are gone, but what was
+      learned here was never demolished. Carry it further. Your prince, Mihail Sturdza.
+    clip: {fileID: 8300000, guid: 8c2c28fd50859614faa0480e96f56074, type: 3}
+  - role: 1
+    language: 1
+    text: "Bine ai venit la Academia Mih\u0103ilean\u0103! Suntem \xEEn anul 1835,
+      iar ast\u0103zi academia noastr\u0103 \xEE\u0219i deschide por\u021Bile aici,
+      \xEEn casele lui Petrache Cazimir, l\xE2ng\u0103 Biserica T\u0103lp\u0103lari.
+      \xCEntr-o zi, academia va cre\u0219te peste drum, iar un arc din piatr\u0103
+      cioplit\u0103 \xEEi va uni cele dou\u0103 case. Cele patru piese ale acestui
+      arc sunt ascunse \xEEn locurile pove\u0219tii noastre, prin tot Ia\u0219ul.
+      G\u0103se\u0219te-le, afl\u0103 ce \xEE\u0219i aminte\u0219te fiecare loc \u0219i
+      ajut\u0103-m\u0103 s\u0103 \xEEnal\u021B arcul."
+    clip: {fileID: 8300000, guid: 502e37a558dd5744bb682d73d1c8c26a, type: 3}
+  - role: 1
+    language: 1
+    text: Sigiliile academiei
+    clip: {fileID: 8300000, guid: 80e41787fad6cf14f9562700e8f84d98, type: 3}
+  - role: 1
+    language: 1
+    text: "Academia \xEE\u0219i p\u0103streaz\u0103 secretele sub sigilii de cear\u0103.
+      R\u0103spunde corect la toate \xEEntreb\u0103rile de la o oprire \u0219i un
+      sigiliu va ap\u0103rea l\xE2ng\u0103 tine. Primul apare c\xE2nd mergi mai departe:
+      prive\u0219te \xEEn jur \u0219i colecteaz\u0103-l."
+    clip: {fileID: 8300000, guid: ac89d840eab7d1e428b88df395cfcf73, type: 3}
+  - role: 0
+    language: 1
+    text: Paraclisul academiei
+    clip: {fileID: 8300000, guid: c9285811f1985b2498a31c2b69620c82, type: 3}
+  - role: 0
+    language: 1
+    text: "Biserica T\u0103lp\u0103lari, chiar l\xE2ng\u0103 casele Cazimir, a fost
+      paraclisul academiei. Acolo s-a \u021Binut o slujb\u0103 pentru deschiderea
+      academiei, iar elevii ajungeau la ea printr-un pasaj din zidul bisericii."
+    clip: {fileID: 8300000, guid: 09ea2dde7191bc9499a0e0edcbd37b73, type: 3}
+  - role: 0
+    language: 1
+    text: "Coloana st\xE2ng\u0103"
+    clip: {fileID: 8300000, guid: 77199f3d873f733418fb47fc06ef8115, type: 3}
+  - role: 0
+    language: 1
+    text: "Un domn m-a \xEEn\u0103l\u021Bat \xEEn 1639 \u0219i mi-a \xEEmbr\u0103cat
+      zidurile \xEEn piatr\u0103 sculptat\u0103 ca o dantel\u0103, de la p\u0103m\xE2nt
+      p\xE2n\u0103 la acoperi\u0219. \xCEn curtea mea au \xEEnv\u0103\u021Bat c\u0103rturarii
+      Moldovei cu mult \xEEnainte ca academia s\u0103 aib\u0103 o cas\u0103 a ei.
+      Unde sunt?"
+    clip: {fileID: 8300000, guid: 0f2e61f2068b54044941dddedbe0eb28, type: 3}
+  - role: 0
+    language: 1
+    text: "M\u0103n\u0103stirea Trei Ierarhi"
+    clip: {fileID: 8300000, guid: 77a72e61e9ab02d4a8c69e17fd3df960, type: 3}
+  - role: 0
+    language: 1
+    text: "Academia s-a n\u0103scut la M\u0103n\u0103stirea Trei Ierarhi. Dup\u0103
+      ce Mihail Sturdza a devenit domn, \xEEn august 1834, Epitropia \xCEnv\u0103\u021B\u0103turilor
+      Publice, din care f\u0103ceau parte mitropolitul Veniamin \u0219i Gheorghe
+      Asachi, a constatat c\u0103 cl\u0103dirile m\u0103n\u0103stirii erau prea mici
+      pentru o adev\u0103rat\u0103 academie. Cu toate acestea, primul curs al Facult\u0103\u021Bii
+      de Filozofie s-a deschis chiar aici, la 20 noiembrie 1834."
+    clip: {fileID: 8300000, guid: 1be1536a03d80fc4bb46d63cb21346d7, type: 3}
+  - role: 0
+    language: 1
+    text: "Pentru noua sa cas\u0103, academia a primit casele r\u0103posatului Petrache
+      Cazimir, din centrul ora\u0219ului, l\xE2ng\u0103 Biserica T\u0103lp\u0103lari.
+      Ele au fost cump\u0103rate \xEEn octombrie 1834, iar arhitectul Gustav Freiwald
+      a fost angajat s\u0103 le amenajeze. La 16 iunie 1835 a fost inaugurat localul
+      propriu al academiei, cu s\u0103li de clas\u0103, s\u0103li de studiu, dormitoare,
+      trapez\u0103rie \u0219i o sal\u0103 a s\u0103n\u0103t\u0103\u021Bii, dup\u0103
+      modele europene."
+    clip: {fileID: 8300000, guid: ebcdb8f980fa74a4082fceed0f83235d, type: 3}
+  - role: 0
+    language: 1
+    text: "Unde s-a deschis primul curs al Facult\u0103\u021Bii de Filozofie, \xEEn
+      noiembrie 1834?"
+    clip: {fileID: 8300000, guid: 5bc4363ca9d3c7e4c96422f89f2524e2, type: 3}
+  - role: 0
+    language: 1
+    text: "La M\u0103n\u0103stirea Trei Ierarhi"
+    clip: {fileID: 8300000, guid: 7d0e8bb1892b9ee42a49cf1cf28765a0, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn casele Cazimir"
+    clip: {fileID: 8300000, guid: 5bf5de931a6a45346a908c68d586aeec, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn Palatul Calimachi"
+    clip: {fileID: 8300000, guid: 43590b9ae2f7a6f428e874e916536817, type: 3}
+  - role: 0
+    language: 1
+    text: "Cursul s-a deschis la Trei Ierarhi pe 20 noiembrie 1834, \xEEn timp ce
+      noua cas\u0103 a academiei era preg\u0103tit\u0103."
+    clip: {fileID: 8300000, guid: 9941e380c023f9d4ebca3e3b3825a47e, type: 3}
+  - role: 0
+    language: 1
+    text: "Ale cui case au devenit prima cas\u0103 a academiei?"
+    clip: {fileID: 8300000, guid: dfff6d38704708c4a929ba0de84a993f, type: 3}
+  - role: 0
+    language: 1
+    text: Ale lui Petrache Cazimir
+    clip: {fileID: 8300000, guid: 06a0c5968f90f7148920cb08b294db56, type: 3}
+  - role: 0
+    language: 1
+    text: Ale lui Gheorghe Asachi
+    clip: {fileID: 8300000, guid: e96eb23e31db7834a93826c9d4006bfe, type: 3}
+  - role: 0
+    language: 1
+    text: Ale lui Mihail Sturdza
+    clip: {fileID: 8300000, guid: 8a0f25d3cc4ded34a8d41fc1c3b9d40d, type: 3}
+  - role: 0
+    language: 1
+    text: "Casele r\u0103posatului Petrache Cazimir, l\xE2ng\u0103 Biserica T\u0103lp\u0103lari,
+      au fost cump\u0103rate \xEEn octombrie 1834."
+    clip: {fileID: 8300000, guid: cc3282dc6258bb741b43644d496786e7, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn ce an a fost inaugurat localul propriu al academiei?"
+    clip: {fileID: 8300000, guid: 5197a568b2f480b488f79846504f30f1, type: 3}
+  - role: 0
+    language: 1
+    text: 1835
+    clip: {fileID: 8300000, guid: 3263b590122f2b24eb42d4a40b5e9af5, type: 3}
+  - role: 0
+    language: 1
+    text: 1845
+    clip: {fileID: 8300000, guid: b7c3663164dc2984481a6c81d081d972, type: 3}
+  - role: 0
+    language: 1
+    text: 1860
+    clip: {fileID: 8300000, guid: 507f2b67ca93e80428f483928fe95b05, type: 3}
+  - role: 0
+    language: 1
+    text: "A fost inaugurat la 16 iunie 1835, de\u0219i unele lucr\u0103ri au continuat
+      \u0219i dup\u0103 aceea."
+    clip: {fileID: 8300000, guid: 5cc1a15203d4bcb448485c94ae02c7d9, type: 3}
+  - role: 0
+    language: 1
+    text: Pompierii domnului
+    clip: {fileID: 8300000, guid: 7d5269a859837ce4aaf514840c7793d2, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn acela\u0219i an plin, la 15 mai 1835, domnitorul Mihail Sturdza
+      a aprobat \xEEnfiin\u021Barea primei unit\u0103\u021Bi militare de pompieri
+      din Ia\u0219i. Prima \u201Eroat\u0103 de pojarnici\u201D, cu un c\u0103pitan,
+      doi locotenen\u021Bi \u0219i solda\u021Bi, a marcat \xEEnceputul serviciilor
+      publice moderne de siguran\u021B\u0103 \xEEn Moldova."
+    clip: {fileID: 8300000, guid: 15c4210276f0d6749a4a392166675f52, type: 3}
+  - role: 0
+    language: 1
+    text: "Coloana dreapt\u0103"
+    clip: {fileID: 8300000, guid: 80e954bef5a8baa478d103aef74c6431, type: 3}
+  - role: 0
+    language: 1
+    text: "Chiar peste drum de academie, o a doua cas\u0103 i s-a al\u0103turat \xEEn
+      1837. Casa nu mai exist\u0103, dar \u0219coala ridicat\u0103 \xEEn locul ei
+      \xEEn anii 1890 \xEEnc\u0103 num\u0103r\u0103 academia printre str\u0103mo\u0219ii
+      s\u0103i. Unde sunt?"
+    clip: {fileID: 8300000, guid: 3ec81c1760f48384d9f00697f24792bd, type: 3}
+  - role: 0
+    language: 1
+    text: "Colegiul Na\u021Bional"
+    clip: {fileID: 8300000, guid: 3166eea28485b2b48bcfdfe0dbd68230, type: 3}
+  - role: 0
+    language: 1
+    text: "Academia a devenit cur\xE2nd prea mare pentru casele Cazimir. \xCEn iunie
+      1837 a cump\u0103rat cl\u0103direa de peste drum, casele Voinescu, aflate pe
+      locul actualului Colegiu Na\u021Bional. \xCEn 1838, internatul, economatul,
+      buc\u0103t\u0103ria \u0219i administra\u021Bia s-au mutat acolo, \xEEn timp
+      ce cursurile, biblioteca \u0219i cabinetele de fizic\u0103, matematic\u0103
+      \u0219i istorie natural\u0103 au r\u0103mas \xEEn casele Cazimir."
+    clip: {fileID: 8300000, guid: 91fb710dcb7ccfa4da1fb241ae40d8c4, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn 1845 \u0219i 1846, \xEEnc\u0103perile au fost \xEEmp\u0103r\u021Bite
+      din nou: clasele gimnaziale \u0219i facult\u0103\u021Bile s-au mutat \xEEn
+      casele Voinescu, iar \xEEn casele Cazimir au fost caza\u021Bi 120 de elevi
+      interni. Actualul Colegiu Na\u021Bional, construit \xEEntre 1890 \u0219i 1894,
+      se consider\u0103 urma\u0219ul Gimnaziului Vasilian \u0219i al Academiei Mih\u0103ilene."
+    clip: {fileID: 8300000, guid: a7d9f38cb7af6304098578e095edbf77, type: 3}
+  - role: 0
+    language: 1
+    text: "Ce case a cump\u0103rat academia peste drum, \xEEn 1837?"
+    clip: {fileID: 8300000, guid: 3bd39a3032185654494230b54def64aa, type: 3}
+  - role: 0
+    language: 1
+    text: Casele Voinescu
+    clip: {fileID: 8300000, guid: f51857d08a59c864e834b21278d172db, type: 3}
+  - role: 0
+    language: 1
+    text: Casele Cazimir
+    clip: {fileID: 8300000, guid: 09b144f93eaa3be4985bdf0f9e0e7020, type: 3}
+  - role: 0
+    language: 1
+    text: Casele Calimachi
+    clip: {fileID: 8300000, guid: 4428b1639d8724c40a27ad0abbb82b0f, type: 3}
+  - role: 0
+    language: 1
+    text: "Casele Voinescu au fost cump\u0103rate \xEEn iunie 1837, pe locul actualului
+      Colegiu Na\u021Bional."
+    clip: {fileID: 8300000, guid: c4a8ec34a95e30d4a8d643c61fb9051a, type: 3}
+  - role: 0
+    language: 1
+    text: "Ce s-a mutat \xEEn noua cl\u0103dire \xEEn 1838?"
+    clip: {fileID: 8300000, guid: 3b781426dc78f2446ac1c5296b792b9d, type: 3}
+  - role: 0
+    language: 1
+    text: "Internatul, buc\u0103t\u0103ria \u0219i administra\u021Bia"
+    clip: {fileID: 8300000, guid: d85ec36abb6e9c847b5036752361d249, type: 3}
+  - role: 0
+    language: 1
+    text: "Biblioteca \u0219i cabinetul de fizic\u0103"
+    clip: {fileID: 8300000, guid: e75846de254f6b641bc89e71d8d029ad, type: 3}
+  - role: 0
+    language: 1
+    text: "S-au mutat internatul, economatul, buc\u0103t\u0103ria \u0219i administra\u021Bia;
+      cursurile \u0219i biblioteca au r\u0103mas \xEEn casele Cazimir."
+    clip: {fileID: 8300000, guid: deeed043934442b45ae15ab1711dbf13, type: 3}
+  - role: 0
+    language: 1
+    text: "Ce \u0219coal\u0103 se afl\u0103 ast\u0103zi pe locul caselor Voinescu?"
+    clip: {fileID: 8300000, guid: d52e9791dfb8ab843b10b676426c0912, type: 3}
+  - role: 0
+    language: 1
+    text: "Universitatea Tehnic\u0103 \u201EGheorghe Asachi\u201D"
+    clip: {fileID: 8300000, guid: 4aa13622d10c0444cbe12ea965de2ae5, type: 3}
+  - role: 0
+    language: 1
+    text: Gimnaziul Vasilian
+    clip: {fileID: 8300000, guid: 1b9ac532f3860c846abffd4de9a78bce, type: 3}
+  - role: 0
+    language: 1
+    text: "Colegiul Na\u021Bional a fost construit acolo \xEEntre 1890 \u0219i 1894
+      \u0219i num\u0103r\u0103 academia printre str\u0103mo\u0219ii s\u0103i."
+    clip: {fileID: 8300000, guid: c8c8be309c6961c45aeeed393425d650, type: 3}
+  - role: 0
+    language: 1
+    text: Strada arcului
+    clip: {fileID: 8300000, guid: 878e5f51cc3b84f408848922cbbae644, type: 3}
+  - role: 0
+    language: 1
+    text: "Strada dintre cele dou\u0103 case ale academiei se numea odinioar\u0103
+      Uli\u021Ba Academiei. Arcul care o traversa i-a dat numele pe care \xEEl poart\u0103
+      \u0219i ast\u0103zi: Strada Arcu."
+    clip: {fileID: 8300000, guid: 6eae46dc81aa41a42bf53c2b4f885eb3, type: 3}
+  - role: 0
+    language: 1
+    text: Bolta
+    clip: {fileID: 8300000, guid: de788d753f5ca5f4a830e43e0285f02f, type: 3}
+  - role: 0
+    language: 1
+    text: "Acolo unde ora\u0219ul \xEE\u0219i \u021Binea odinioar\u0103 marile expozi\u021Bii,
+      printre copacii de pe dealul Copoului, un geam\u0103n mai mic al pasajului
+      pierdut st\u0103 \xEEn picioare din 1936. G\u0103se\u0219te copia a ceea ce
+      reconstruie\u0219ti. Unde sunt?"
+    clip: {fileID: 8300000, guid: 4ab56cbcbc17d3f4f959ac15ce7d4b1b, type: 3}
+  - role: 0
+    language: 1
+    text: "Replica arcului din Parcul Expozi\u021Biei"
+    clip: {fileID: 8300000, guid: 381a6bed505b98c4b92a402711b4e9cc, type: 3}
+  - role: 0
+    language: 1
+    text: "Pentru a lega cele dou\u0103 cl\u0103diri ale academiei, de o parte \u0219i
+      de alta a str\u0103zii, Gheorghe Asachi a propus construirea unui arc. Planul
+      \u0219i devizul au fost realizate de profesorul de arhitectur\u0103 A. Costinescu,
+      \xEEmpreun\u0103 cu elevii clasei de ingineri. Piatra de temelie a fost pus\u0103
+      la 19 octombrie 1841."
+    clip: {fileID: 8300000, guid: 7de6387a65c5f3240aa45009831933ef, type: 3}
+  - role: 0
+    language: 1
+    text: "Construit din piatr\u0103 cioplit\u0103, arcul a fost terminat \xEEn septembrie
+      1845. Nu era doar un ornament: \xEEi oferea academiei un pasaj peste strad\u0103,
+      \xEEntre cele dou\u0103 case ale sale. \xCEn 1936, aici, \xEEn Parcul Expozi\u021Biei,
+      a fost ridicat\u0103 pentru o expozi\u021Bie o replic\u0103 la scar\u0103 redus\u0103
+      a arcului, care exist\u0103 \u0219i ast\u0103zi."
+    clip: {fileID: 8300000, guid: 325996019c271ce4d8f9053f629dbd6e, type: 3}
+  - role: 0
+    language: 1
+    text: Cine a propus construirea arcului?
+    clip: {fileID: 8300000, guid: b50577cd510d6e94c84d59b20efc83c0, type: 3}
+  - role: 0
+    language: 1
+    text: Gheorghe Asachi
+    clip: {fileID: 8300000, guid: 3d2eacf74058c31478e4e6446ac62a59, type: 3}
+  - role: 0
+    language: 1
+    text: "Mihail Kog\u0103lniceanu"
+    clip: {fileID: 8300000, guid: 5bff226347547084f9af0e84a9db83e9, type: 3}
+  - role: 0
+    language: 1
+    text: Alexandru Ioan Cuza
+    clip: {fileID: 8300000, guid: 3f1d17114aac5cf41baf38e35d60bbad, type: 3}
+  - role: 0
+    language: 1
+    text: "Gheorghe Asachi a propus arcul pentru a lega cele dou\u0103 cl\u0103diri
+      ale academiei."
+    clip: {fileID: 8300000, guid: 3df7609545661f24d9bb660919c372f8, type: 3}
+  - role: 0
+    language: 1
+    text: "Cine a realizat planul arcului, \xEEmpreun\u0103 cu elevii ingineri?"
+    clip: {fileID: 8300000, guid: feec5362219b9454caafeea6ee8b5d87, type: 3}
+  - role: 0
+    language: 1
+    text: Profesorul A. Costinescu
+    clip: {fileID: 8300000, guid: 27ba0b5d8ac68b74d8b7a82b1821c99e, type: 3}
+  - role: 0
+    language: 1
+    text: Arhitectul Gustav Freiwald
+    clip: {fileID: 8300000, guid: bdfa0b1966430eb4197ec37a3004b7bb, type: 3}
+  - role: 0
+    language: 1
+    text: Arhitectul Louis Blanc
+    clip: {fileID: 8300000, guid: a3f94ea473a74844e811427182ba5f8f, type: 3}
+  - role: 0
+    language: 1
+    text: "Profesorul de arhitectur\u0103 A. Costinescu a realizat planul \u0219i
+      devizul, \xEEmpreun\u0103 cu clasa de ingineri."
+    clip: {fileID: 8300000, guid: 3ffecb3b25fb5b846bcd02ffc417c725, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn ce an a fost terminat arcul?"
+    clip: {fileID: 8300000, guid: 9784857c152c7294587a92d39c86acc9, type: 3}
+  - role: 0
+    language: 1
+    text: 1890
+    clip: {fileID: 8300000, guid: b5e627eb6cec0a343bc08d6e1e17ec10, type: 3}
+  - role: 0
+    language: 1
+    text: "Arcul a fost terminat \xEEn septembrie 1845, la patru ani dup\u0103 punerea
+      pietrei de temelie."
+    clip: {fileID: 8300000, guid: b7cf2bad1cc7a4f478f77fd94c75be71, type: 3}
+  - role: 0
+    language: 1
+    text: "Inscrip\u021Biile care lipsesc"
+    clip: {fileID: 8300000, guid: 365eb015a6992234abc47d5c8c2ea9e9, type: 3}
+  - role: 0
+    language: 1
+    text: "Arcul a fost recep\u021Bionat oficial la 26 octombrie 1847, dar nu a fost
+      niciodat\u0103 terminat pe deplin: inscrip\u021Biile \u0219i basoreliefurile
+      prev\u0103zute \xEEn proiect nu au mai fost sculptate."
+    clip: {fileID: 8300000, guid: 6b4e8e3f74e466749941155b854df10f, type: 3}
+  - role: 0
+    language: 1
+    text: Grinda de sus
+    clip: {fileID: 8300000, guid: e128c95c60144894e95614ea4fc44155, type: 3}
+  - role: 0
+    language: 1
+    text: "Pe bulevardul care urc\u0103 spre dealul Copoului se \xEEnal\u021B\u0103
+      un palat al \xEEnv\u0103\u021B\u0103turii, deschis \xEEn 1897 acolo unde a
+      ars c\xE2ndva un teatru. Sala Pa\u0219ilor Pierdu\u021Bi \xEE\u0219i aminte\u0219te
+      de fiecare student care a p\u0103\u0219it prin ea. Unde sunt?"
+    clip: {fileID: 8300000, guid: 0a4b4e1a65a74a944b867f0e6528a4e1, type: 3}
+  - role: 0
+    language: 1
+    text: "Cl\u0103direa principal\u0103 a UAIC"
+    clip: {fileID: 8300000, guid: 370ea49f5007e6f40a5c16256ee74818, type: 3}
+  - role: 0
+    language: 1
+    text: "Academia nu a disp\u0103rut: a crescut. \xCEn 1860, domnitorul Alexandru
+      Ioan Cuza a transformat cursurile ei superioare \xEEn Universitatea din Ia\u0219i,
+      inaugurat\u0103 la 26 octombrie 1860. Clasele ei inferioare au devenit colegiul
+      na\u021Bional de peste drum de vechea ei cas\u0103. Ast\u0103zi, Universitatea
+      \u201EAlexandru Ioan Cuza\u201D consider\u0103 Academia Mih\u0103ilean\u0103
+      str\u0103mo\u0219ul s\u0103u direct."
+    clip: {fileID: 8300000, guid: 0a5569c263417524bbe32c317d05b1c6, type: 3}
+  - role: 0
+    language: 1
+    text: "Cl\u0103direa principal\u0103 a universit\u0103\u021Bii, Palatul Universit\u0103\u021Bii,
+      a fost construit\u0103 \xEEntre 1893 \u0219i 1897 dup\u0103 planurile arhitectului
+      Louis Blanc, pe locul vechiului Teatru Na\u021Bional. A fost inaugurat\u0103
+      \xEEn 1897 \xEEn prezen\u021Ba regelui Carol I, iar Sala Pa\u0219ilor Pierdu\u021Bi
+      este una dintre cele mai cunoscute \xEEnc\u0103peri din Ia\u0219i."
+    clip: {fileID: 8300000, guid: 6130af9b70c75ff439889fb445371bdc, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn ce an au devenit cursurile academiei Universitatea din Ia\u0219i?"
+    clip: {fileID: 8300000, guid: c2c2efebf9a2f0340b9cae95b8aeb98d, type: 3}
+  - role: 0
+    language: 1
+    text: 1897
+    clip: {fileID: 8300000, guid: a25c766a2a5f8d149b41482a58d0a22f, type: 3}
+  - role: 0
+    language: 1
+    text: "Universitatea din Ia\u0219i a fost inaugurat\u0103 la 26 octombrie 1860."
+    clip: {fileID: 8300000, guid: f27fec28af7e1a047a82591ba751a158, type: 3}
+  - role: 0
+    language: 1
+    text: "Ce domnitor a transformat academia \xEEn universitate?"
+    clip: {fileID: 8300000, guid: ac080c4f6f2b9974a83bfe117f5f32c2, type: 3}
+  - role: 0
+    language: 1
+    text: Mihail Sturdza
+    clip: {fileID: 8300000, guid: 0c5aa31e3eabd1c44a84b8a3a8073af2, type: 3}
+  - role: 0
+    language: 1
+    text: Vasile Lupu
+    clip: {fileID: 8300000, guid: d4a4665af78ca964f93122311817192c, type: 3}
+  - role: 0
+    language: 1
+    text: "Domnitorul Alexandru Ioan Cuza a \xEEnfiin\u021Bat universitatea \xEEn
+      1860; aceasta \xEEi poart\u0103 numele din 1942."
+    clip: {fileID: 8300000, guid: 95b3eff9133277f46a03f3b018d3fd11, type: 3}
+  - role: 0
+    language: 1
+    text: "Cine a proiectat Palatul Universit\u0103\u021Bii, deschis \xEEn 1897?"
+    clip: {fileID: 8300000, guid: e189fd74eafef1f499a42f6cb173f482, type: 3}
+  - role: 0
+    language: 1
+    text: Louis Blanc
+    clip: {fileID: 8300000, guid: e14f91e0ee77ceb4ea11fc6620cc9903, type: 3}
+  - role: 0
+    language: 1
+    text: A. Costinescu
+    clip: {fileID: 8300000, guid: d90e82ccf496a02469b3d51dacc1ad2b, type: 3}
+  - role: 0
+    language: 1
+    text: Gustav Freiwald
+    clip: {fileID: 8300000, guid: 5e163be7f6afe144293caacee6a742b8, type: 3}
+  - role: 0
+    language: 1
+    text: "Arhitectul Louis Blanc a realizat planurile; palatul a fost construit
+      \xEEntre 1893 \u0219i 1897."
+    clip: {fileID: 8300000, guid: f47b90ea3dd9a5644915a6ce632fd685, type: 3}
+  - role: 0
+    language: 1
+    text: "O prelegere care a f\u0103cut istorie"
+    clip: {fileID: 8300000, guid: 55dd986c854847d41b5a25c5a1328e9c, type: 3}
+  - role: 0
+    language: 1
+    text: "La 24 noiembrie 1843, la academie, Mihail Kog\u0103lniceanu a rostit \u201ECuv\xE2nt
+      de deschidere al celui dint\xE2i curs de istorie na\u021Bional\u0103\u201D,
+      un moment important \xEEn dezvoltarea con\u0219tiin\u021Bei na\u021Bionale
+      rom\xE2ne\u0219ti: \u201E\u2026\u021Bara mea este orice loc de pe P\u0103m\xE2nt
+      unde se vorbe\u0219te rom\xE2ne\u0219te, \u0219i istoria na\u021Bional\u0103
+      este istoria \xEEntregii Moldove \u0219i \u021A\u0103rii Rom\xE2ne\u0219ti,
+      \u0219i cea a fra\u021Bilor din Ardeal.\u201D"
+    clip: {fileID: 8300000, guid: d94684ff848dae94d983db7d78bfba15, type: 3}
+  - role: 0
+    language: 1
+    text: Corect.
+    clip: {fileID: 8300000, guid: 8de7d1fda2155ae4dac3baf3cc1874cd, type: 3}
+  - role: 0
+    language: 1
+    text: Nu chiar.
+    clip: {fileID: 8300000, guid: e966fcdfc41f04c4bbfab8886231ed50, type: 3}
+  - role: 0
+    language: 1
+    text: 0 din 3 corecte
+    clip: {fileID: 8300000, guid: 43cb37b82c2da9b44852d176f3e6e8d3, type: 3}
+  - role: 0
+    language: 1
+    text: 1 din 3 corecte
+    clip: {fileID: 8300000, guid: 0fd1db70a652cf74c9c4a94a47c36be0, type: 3}
+  - role: 0
+    language: 1
+    text: 2 din 3 corecte
+    clip: {fileID: 8300000, guid: 0a5bf9ee3d6256945bd153d8fd1d1a56, type: 3}
+  - role: 0
+    language: 1
+    text: 3 din 3 corecte
+    clip: {fileID: 8300000, guid: 952eca8a8a8b17849aba24bf7d9130c4, type: 3}
+  - role: 0
+    language: 1
+    text: "Toate r\u0103spunsurile au fost corecte. C\xE2nd mergi mai departe, un
+      sigiliu va ap\u0103rea l\xE2ng\u0103 tine: g\u0103se\u0219te-l ca s\u0103 deschizi
+      unul dintre secretele academiei."
+    clip: {fileID: 8300000, guid: 27b625bda29303144a613ca448df0353, type: 3}
+  - role: 0
+    language: 1
+    text: "Sigiliul acestui loc r\u0103m\xE2ne ascuns de data aceasta: apare doar
+      c\xE2nd toate r\u0103spunsurile sunt corecte."
+    clip: {fileID: 8300000, guid: 4c84668aaeb014a49b4c908257256ccc, type: 3}
+  - role: 0
+    language: 1
+    text: "Arcul se \xEEnal\u021B\u0103 din nou"
+    clip: {fileID: 8300000, guid: 856d37c20f084194cba1fc253438523c, type: 3}
+  - role: 0
+    language: 1
+    text: "Ai g\u0103sit toate cele patru piese. \xCEnapoi acolo unde a stat academia,
+      arcul se poate \xEEn\u0103l\u021Ba din nou. Prive\u0219te cum trec anii."
+    clip: {fileID: 8300000, guid: 7af99a8767d3e9d4995b626b51ccee5f, type: 3}
+  - role: 0
+    language: 1
+    text: "Arcul este gata. Piatra cioplit\u0103 une\u0219te acum, peste strad\u0103,
+      cele dou\u0103 case ale academiei, iar elevii trec dintr-o cl\u0103dire \xEEn
+      alta."
+    clip: {fileID: 8300000, guid: 20b986622d2459447a1517256a1a8f40, type: 3}
+  - role: 0
+    language: 1
+    text: "Pentru a construi noul Liceu Na\u021Bional \u0219i pentru a l\u0103rgi
+      strada, internatul \u0219i arcul sunt demolate. Doar numele str\u0103zii, Arcu,
+      \xEE\u0219i mai aminte\u0219te de el."
+    clip: {fileID: 8300000, guid: 93cb1d84fd4188a449c5bd8ed477d645, type: 3}
+  - role: 0
+    language: 1
+    text: "\xCEn iulie 1963, cl\u0103direa principal\u0103 a academiei, cu cupola
+      sa, este demolat\u0103 din motive de utilitate public\u0103. Acolo unde st\u0103tea
+      se afl\u0103 acum o strad\u0103 \u0219i un bloc de locuin\u021Be."
+    clip: {fileID: 8300000, guid: 64cb7369ed81d7b45829f22aa4fc5c83, type: 3}
+  - role: 0
+    language: 1
+    text: "Academia tr\u0103ie\u0219te mai departe"
+    clip: {fileID: 8300000, guid: 700f78c148355064bb1da4570e546e95, type: 3}
+  - role: 0
+    language: 1
+    text: "Academia nu mai exist\u0103, dar tr\u0103ie\u0219te mai departe. Cursurile
+      ei superioare au devenit Universitatea din Ia\u0219i, iar clasele inferioare,
+      Colegiul Na\u021Bional. Fiecare student din Ia\u0219i p\u0103\u0219e\u0219te
+      pe urmele ei. \xCE\u021Bi mul\u021Bumim c\u0103 i-ai reconstruit povestea."
+    clip: {fileID: 8300000, guid: 6038225c46b1d38489732343725f6448, type: 3}
+  - role: 1
+    language: 1
+    text: O scrisoare de la domn
+    clip: {fileID: 8300000, guid: fe0ff780a61c74a4c844478156240aaf, type: 3}
+  - role: 1
+    language: 1
+    text: "Dragul meu student, ai g\u0103sit fiecare sigiliu \u0219i fiecare secret
+      al academiei noastre. Pu\u021Bini \xEEi cunosc povestea at\xE2t de bine cum
+      o cuno\u0219ti tu acum. Pietrele s-au dus, dar ceea ce s-a \xEEnv\u0103\u021Bat
+      aici nu a fost demolat niciodat\u0103. Du-l mai departe. Al t\u0103u domn,
+      Mihail Sturdza."
+    clip: {fileID: 8300000, guid: 2b5cf2f50a3727741b8158da9cc5f606, type: 3}

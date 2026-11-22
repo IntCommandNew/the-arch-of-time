@@ -1,8 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="MainUI.uss" />
 
-    <!-- Solid background behind the menu screens (mode choice, starting, blocked). It covers the whole
-         screen, notch strip included, so the camera view never shows around them. -->
+    <!-- The design (palette, type, layouts, rules) is described in docs/Design.md. Texts starting with "#" are
+         keys in Content/UiText.json: AppUI replaces them with the text in the current language (and again when
+         the language changes). -->
+
+    <!-- Paper behind the menu pages (language, modes, guide, starting, blocked). It covers the whole screen,
+         notch strip included, so the camera view never shows around them. -->
     <ui:VisualElement name="backdrop" class="backdrop is-hidden" picking-mode="Ignore" />
 
     <!-- Everything else sits inside "safe-area", which AppUI keeps clear of the notch / camera cut-out. -->
@@ -10,86 +14,81 @@
 
         <!-- One element per app screen. AppUI shows exactly one at a time. -->
 
-        <!-- Mode: the first screen. Two ways to play, each with its own progress. -->
-        <ui:VisualElement name="screen-mode" class="screen">
-            <ui:VisualElement class="mode__head">
-                <ui:Label text="The Arch of Time" class="mode__title" />
-                <ui:Label text="Academia Mih&#x103;ilean&#x103;, Ia&#x219;i" class="mode__subtitle" />
+        <!-- Language: the very first page (until a language is chosen). Set like an 1835 title page. -->
+        <ui:VisualElement name="screen-language" class="screen titlepage is-hidden">
+            <ui:VisualElement class="titlepage__head">
+                <ui:Label text="#app.title" class="titlepage__title" />
+                <ui:VisualElement class="rule rule--centred"><ui:VisualElement class="rule__thick" /><ui:VisualElement class="rule__thin" /></ui:VisualElement>
+                <ui:Label text="#app.subtitle" class="titlepage__subtitle" />
             </ui:VisualElement>
-            <ui:VisualElement class="mode__choices">
-                <ui:Button name="btn-mode-city" class="choice">
-                    <ui:Label text="In Ia&#x219;i" class="choice__name" />
-                    <ui:Label text="Walk to the real places where the academy's story happened." class="choice__text" />
-                    <ui:VisualElement class="choice__progress">
-                        <ArchEmblem name="mode-city-arch" class="arch" />
-                        <ui:Label name="mode-city-count" text="0 of 4 arch pieces" class="choice__status" />
-                    </ui:VisualElement>
+            <!-- The arch not yet built: every piece hatched. -->
+            <ArchEmblem name="language-arch" class="arch arch--title" />
+            <ui:VisualElement class="titlepage__entries">
+                <ui:Button name="btn-lang-en" class="entry">
+                    <ui:Label text="#language.english" class="entry__name" />
+                    <ui:Label text="#language.englishText" class="entry__text" />
                 </ui:Button>
-                <ui:Button name="btn-mode-free" class="choice">
-                    <ui:Label text="Anywhere" class="choice__name" />
-                    <ui:Label text="Place the academy on a table, in a room or in a park, then find the pieces of its arch around you." class="choice__text" />
-                    <ui:VisualElement class="choice__progress">
-                        <ArchEmblem name="mode-free-arch" class="arch" />
-                        <ui:Label name="mode-free-count" text="0 of 4 arch pieces" class="choice__status" />
-                    </ui:VisualElement>
+                <ui:Button name="btn-lang-ro" class="entry">
+                    <ui:Label text="#language.romanian" class="entry__name" />
+                    <ui:Label text="#language.romanianText" class="entry__text" />
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- In Iasi, the targets: the academy and the four pieces. A found piece can't be picked
-             (slate rule) until all four are found and the arch is started over. -->
-        <ui:VisualElement name="screen-city" class="screen is-hidden">
-            <ui:VisualElement class="city__head">
-                <ui:Label text="In Ia&#x219;i" class="city__title" />
-                <ui:VisualElement class="choice__progress">
-                    <ArchEmblem name="city-arch" class="arch" />
-                    <ui:Label name="city-count" text="0 of 4 pieces found" class="choice__status" />
+        <!-- Modes: two ways to play, each with its own progress (its own arch). -->
+        <ui:VisualElement name="screen-mode" class="screen titlepage">
+            <ui:VisualElement class="titlepage__head">
+                <ui:Label text="#app.title" class="titlepage__title" />
+                <ui:VisualElement class="rule rule--centred"><ui:VisualElement class="rule__thick" /><ui:VisualElement class="rule__thin" /></ui:VisualElement>
+                <ui:Label text="#app.subtitle" class="titlepage__subtitle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="titlepage__entries">
+                <ui:Button name="btn-mode-city" class="entry entry--with-arch">
+                    <ui:VisualElement class="entry__body">
+                        <ui:Label text="#mode.city.name" class="entry__name" />
+                        <ui:Label text="#mode.city.text" class="entry__text" />
+                        <ui:Label name="mode-city-count" text="" class="entry__status" />
+                    </ui:VisualElement>
+                    <ArchEmblem name="mode-city-arch" class="arch arch--entry" />
+                </ui:Button>
+                <ui:Button name="btn-mode-free" class="entry entry--with-arch">
+                    <ui:VisualElement class="entry__body">
+                        <ui:Label text="#mode.free.name" class="entry__name" />
+                        <ui:Label text="#mode.free.text" class="entry__text" />
+                        <ui:Label name="mode-free-count" text="" class="entry__status" />
+                    </ui:VisualElement>
+                    <ArchEmblem name="mode-free-arch" class="arch arch--entry" />
+                </ui:Button>
+            </ui:VisualElement>
+            <!-- The language: both names in their own language, the current one inked in. -->
+            <ui:VisualElement class="langline">
+                <ui:Label text="#language.label" class="langline__label" />
+                <ui:VisualElement class="langline__options">
+                    <ui:Button name="btn-language-en" text="#language.english" class="langline__option langline__option--first" />
+                    <ui:Button name="btn-language-ro" text="#language.romanian" class="langline__option langline__option--last" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:ScrollView class="city__list" mode="Vertical">
-                <ui:Button name="btn-target-0" class="target">
-                    <ui:Label name="target-name-0" text="The academy" class="target__name" />
-                    <ui:Label name="target-status-0" text="Where it stood" class="target__status" />
-                </ui:Button>
-                <ui:Button name="btn-target-1" class="target">
-                    <ui:Label name="target-name-1" text="Left column" class="target__name" />
-                    <ui:Label name="target-status-1" text="" class="target__status" />
-                </ui:Button>
-                <ui:Button name="btn-target-2" class="target">
-                    <ui:Label name="target-name-2" text="Right column" class="target__name" />
-                    <ui:Label name="target-status-2" text="" class="target__status" />
-                </ui:Button>
-                <ui:Button name="btn-target-3" class="target">
-                    <ui:Label name="target-name-3" text="Arc" class="target__name" />
-                    <ui:Label name="target-status-3" text="" class="target__status" />
-                </ui:Button>
-                <ui:Button name="btn-target-4" class="target">
-                    <ui:Label name="target-name-4" text="Top beam" class="target__name" />
-                    <ui:Label name="target-status-4" text="" class="target__status" />
-                </ui:Button>
-            </ui:ScrollView>
-            <ui:VisualElement class="options-row">
-                <ui:Button name="btn-city-reset" text="Start over" class="btn btn--option is-hidden" />
-                <ui:Button name="btn-city-back" text="Modes" class="btn btn--option" />
-            </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Guide: walking to the picked target with the camera off. Far: distance and compass direction.
-             Near: the dial points at it, warmer / colder. Arrived: the camera can be opened. -->
-        <ui:VisualElement name="screen-guide" class="screen is-hidden">
+        <!-- Guide: walking to the quest's current place with the camera off. Far: distance and compass
+             direction. Near: the needle points at it, warmer / colder. Arrived: the camera can be opened. -->
+        <ui:VisualElement name="screen-guide" class="screen guide is-hidden">
             <ui:VisualElement class="guide__head">
-                <ui:Label name="guide-name" text="Left column" class="guide__name" />
-                <ui:Label name="guide-stage" text="Find it in the city" class="guide__stage" />
+                <ui:Label name="guide-name" text="" class="guide__name" />
+                <ui:VisualElement class="rule"><ui:VisualElement class="rule__thick" /><ui:VisualElement class="rule__thin" /></ui:VisualElement>
+                <ui:Label name="guide-riddle" text="" class="guide__riddle" />
+                <ui:Label name="guide-stage" text="" class="guide__stage" />
             </ui:VisualElement>
             <GuideDial name="guide-dial" class="dial">
-                <ui:Label name="guide-big" text="1.2 km" class="dial__big" />
-                <ui:Label name="guide-small" text="to the north-east" class="dial__small" />
+                <ui:Label name="guide-big" text="" class="dial__big" />
+                <ui:Label name="guide-small" text="" class="dial__small" />
             </GuideDial>
             <ui:VisualElement class="guide__foot">
-                <ui:Label name="guide-accuracy" text="Finding your position..." class="guide__accuracy" />
-                <ui:Button name="btn-open-camera" text="Open the camera" class="btn btn--primary" />
-                <ui:VisualElement class="options-row">
-                    <ui:Button name="btn-guide-back" text="Targets" class="btn btn--option" />
+                <ui:Label name="guide-accuracy" text="" class="guide__accuracy" />
+                <ui:Button name="btn-open-camera" text="#guide.openCamera" class="btn btn--primary" />
+                <ui:VisualElement class="quiet-row">
+                    <ui:Button name="btn-guide-progress" text="#common.progress" class="btn btn--quiet" />
+                    <ui:Button name="btn-guide-modes" text="#common.modes" class="btn btn--quiet" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
@@ -97,8 +96,8 @@
         <!-- Starting: shown while permissions are asked and ARCore is checked. -->
         <ui:VisualElement name="screen-starting" class="screen screen--centered is-hidden">
             <ui:VisualElement class="card">
-                <ui:Label text="Starting the camera" class="card__title" />
-                <ui:Label name="starting-detail" text="Preparing the camera" class="card__text card__text--last" />
+                <ui:Label name="starting-title" text="#starting.title" class="card__title" />
+                <ui:Label name="starting-detail" text="" class="card__text card__text--last" />
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -106,52 +105,57 @@
              or the session ended because a permission was revoked (only "Close app"). -->
         <ui:VisualElement name="screen-blocked" class="screen screen--centered is-hidden">
             <ui:VisualElement class="card">
-                <ui:Label name="blocked-title" text="Permissions needed" class="card__title" />
-                <ui:Label name="blocked-message" text="This app needs the camera and precise location to work." class="card__text" />
+                <ui:Label name="blocked-title" text="" class="card__title" />
+                <ui:Label name="blocked-message" text="" class="card__text" />
                 <ui:VisualElement class="card__actions">
-                    <ui:Button name="btn-retry" text="Try again" class="btn btn--primary" />
-                    <ui:Button name="btn-settings" text="Open settings" class="btn" />
-                    <ui:Button name="btn-close" text="Close app" class="btn btn--primary is-hidden" />
+                    <ui:Button name="btn-retry" text="#blocked.retry" class="btn btn--primary" />
+                    <ui:Button name="btn-settings" text="#blocked.settings" class="btn" />
+                    <ui:Button name="btn-close" text="#blocked.close" class="btn btn--primary is-hidden" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Scan / Place: the hint says what to do; "Place here" is enabled once the reticle is on the ground. -->
+        <!-- The camera screens: one paper slip at the bottom. Its first line says what to do now, one main
+             button fills its width, smaller actions sit in one row under it. -->
+
+        <!-- Scan / Place: "Place here" is enabled once the reticle is on the ground. -->
         <ui:VisualElement name="screen-scan" class="screen screen--bottom is-hidden" picking-mode="Ignore">
-            <ui:Label name="scan-hint" text="Move your phone slowly over the ground" class="hint" picking-mode="Ignore" />
-            <ui:VisualElement class="actions-row actions-row--on-camera" picking-mode="Ignore">
-                <ui:Button name="btn-leave-from-scan" text="Modes" class="btn btn--on-camera btn--narrow" />
-                <ui:Button name="btn-place" text="Place here" class="btn btn--primary" />
+            <ui:VisualElement class="slip">
+                <ui:Label name="scan-hint" text="" class="hint" picking-mode="Ignore" />
+                <ui:Button name="btn-place" text="#scan.place" class="btn btn--primary" />
+                <ui:VisualElement class="quiet-row">
+                    <ui:Button name="btn-leave-from-scan" text="#common.modes" class="btn btn--quiet" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Adjust: the model is placed. Drag / twist on the camera view; the panel has a tab per
-             kind of change (only the selected tab's tools are shown). The panel blocks touches,
-             so gestures that start on it don't move the model. -->
-        <ui:VisualElement name="screen-adjust" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
-            <ui:Label name="adjust-hint" text="Drag to move. Two fingers: twist to turn, pinch to resize" class="hint" picking-mode="Ignore" />
-            <ui:VisualElement class="panel">
+        <!-- Adjust: the model is placed. Drag / twist on the camera view; the slip has a tab per kind of change
+             (only the selected tab's tools are shown). The slip blocks touches, so gestures that start on it
+             don't move the model. -->
+        <ui:VisualElement name="screen-adjust" class="screen screen--bottom is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="slip">
+                <ui:Label name="adjust-hint" text="" class="hint" picking-mode="Ignore" />
                 <!-- Live values: size, front bearing, height. -->
                 <ui:VisualElement class="readout">
                     <ui:VisualElement class="readout__item">
                         <ui:Label name="readout-size" text="&#xD7;1" class="readout__value" />
-                        <ui:Label text="Size" class="readout__label" />
+                        <ui:Label text="#adjust.size" class="readout__label" />
                     </ui:VisualElement>
-                    <ui:VisualElement class="readout__item">
+                    <ui:VisualElement class="readout__item readout__item--wide">
                         <ui:Label name="readout-front" text="-" class="readout__value" />
-                        <ui:Label text="Front faces" class="readout__label" />
+                        <ui:Label text="#adjust.front" class="readout__label" />
                     </ui:VisualElement>
                     <ui:VisualElement class="readout__item">
                         <ui:Label name="readout-height" text="0.00 m" class="readout__value" />
-                        <ui:Label text="Height" class="readout__label" />
+                        <ui:Label text="#adjust.height" class="readout__label" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
                 <ui:VisualElement class="tabs">
-                    <ui:Button name="tab-move" text="Move" class="tab" />
-                    <ui:Button name="tab-rotate" text="Turn" class="tab" />
-                    <ui:Button name="tab-size" text="Size" class="tab" />
-                    <ui:Button name="tab-height" text="Height" class="tab" />
+                    <ui:Button name="tab-move" text="#adjust.tab.move" class="tab" />
+                    <ui:Button name="tab-rotate" text="#adjust.tab.turn" class="tab" />
+                    <ui:Button name="tab-size" text="#adjust.tab.size" class="tab" />
+                    <ui:Button name="tab-height" text="#adjust.tab.height" class="tab" />
                 </ui:VisualElement>
 
                 <!-- Move: one step per tap (hold to repeat), relative to where the camera looks. -->
@@ -171,7 +175,7 @@
                         <ui:Button name="btn-rotate-right-10" text="&#x21BB; 10&#xB0;" class="btn btn--tool" />
                     </ui:VisualElement>
                     <ui:VisualElement class="tool__row">
-                        <ui:Button name="btn-face-south" text="Face south" class="btn btn--tool" />
+                        <ui:Button name="btn-face-south" text="#adjust.faceSouth" class="btn btn--tool" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -179,9 +183,9 @@
                 <ui:VisualElement name="tool-size" class="tool tool--column is-hidden">
                     <ui:Slider name="scale-slider" low-value="-0.6" high-value="0.7" class="scale-slider" />
                     <ui:VisualElement class="tool__row">
-                        <ui:Button name="btn-default-size" text="Default size" class="btn btn--tool" />
-                        <ui:Button name="btn-max-size" text="Max size" class="btn btn--tool" />
-                        <ui:Button name="btn-platform" text="Hide base" class="btn btn--tool" />
+                        <ui:Button name="btn-default-size" text="#adjust.defaultSize" class="btn btn--tool" />
+                        <ui:Button name="btn-max-size" text="#adjust.maxSize" class="btn btn--tool" />
+                        <ui:Button name="btn-platform" text="#adjust.hideBase" class="btn btn--tool" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -189,64 +193,177 @@
                 <ui:VisualElement name="tool-height" class="tool is-hidden">
                     <ui:RepeatButton name="btn-lower" text="&#x2193;" class="btn btn--tool btn--symbol" />
                     <ui:RepeatButton name="btn-raise" text="&#x2191;" class="btn btn--tool btn--symbol" />
-                    <ui:Button name="btn-street-level" text="Street" class="btn btn--tool" />
-                    <ui:Button name="btn-base-on-ground" text="Base" class="btn btn--tool" />
+                    <ui:Button name="btn-street-level" text="#adjust.street" class="btn btn--tool" />
+                    <ui:Button name="btn-base-on-ground" text="#adjust.base" class="btn btn--tool" />
                 </ui:VisualElement>
 
                 <ui:VisualElement class="actions-row">
-                    <ui:Button name="btn-place-again" text="Place again" class="btn" />
+                    <ui:Button name="btn-place-again" text="#adjust.placeAgain" class="btn" />
                     <!-- Instead of "Place again" when adjusting after Edit: undo the edit, back to Explore. -->
-                    <ui:Button name="btn-cancel-edit" text="Cancel" class="btn is-hidden" />
-                    <!-- Display option: the building looks semi-transparent while adjusting (gold when on). -->
-                    <ui:Button name="btn-see-through" text="See-through" class="btn" />
-                    <ui:Button name="btn-done" text="Done" class="btn btn--primary" />
+                    <ui:Button name="btn-cancel-edit" text="#common.cancel" class="btn is-hidden" />
+                    <!-- Display option: the building looks semi-transparent while adjusting (inked when on). -->
+                    <ui:Button name="btn-see-through" text="#adjust.seeThrough" class="btn" />
+                    <ui:Button name="btn-done" text="#adjust.done" class="btn btn--primary" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Explore: the academy is placed; pieces of the arch appear around the user to be collected. -->
-        <ui:VisualElement name="screen-explore" class="screen screen--bottom screen--panel is-hidden" picking-mode="Ignore">
-            <ui:Label name="explore-hint" text="Tap &quot;Spawn piece&quot;, then find it around you" class="hint" picking-mode="Ignore" />
-            <ui:VisualElement class="panel">
+        <!-- Explore: the academy is placed; the quest goes on around it (pieces and seals appear nearby). -->
+        <ui:VisualElement name="screen-explore" class="screen screen--bottom is-hidden" picking-mode="Ignore">
+            <ui:VisualElement class="slip">
                 <ui:VisualElement class="pieces">
-                    <ArchEmblem name="explore-arch" class="arch" />
+                    <ArchEmblem name="explore-arch" class="arch arch--slip" />
                     <ui:VisualElement class="pieces__text">
-                        <ui:Label text="The arch" class="pieces__title" />
-                        <ui:Label name="pieces-count" text="0 of 4 pieces found" class="pieces__count" />
+                        <ui:Label text="#explore.title" class="pieces__title" />
+                        <ui:Label name="pieces-count" text="" class="pieces__count" />
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="actions-row">
-                    <ui:Button name="btn-edit" text="Edit" class="btn" />
-                    <ui:Button name="btn-spawn-piece" text="Spawn piece" class="btn" />
-                    <ui:Button name="btn-reset-pieces" text="Start over" class="btn is-hidden" />
-                    <ui:Button name="btn-collect-piece" text="Collect" class="btn btn--primary" />
+                <ui:Label name="explore-hint" text="" class="hint" picking-mode="Ignore" />
+                <!-- The quest's next step when there is no item to collect (e.g. "Open the map"), or Collect. -->
+                <ui:Button name="btn-explore-action" text="" class="btn btn--primary is-hidden" />
+                <ui:Button name="btn-collect-piece" text="#common.collect" class="btn btn--primary" />
+                <ui:VisualElement class="quiet-row">
+                    <ui:Button name="btn-edit" text="#explore.edit" class="btn btn--quiet" />
+                    <ui:Button name="btn-explore-progress" text="#common.progress" class="btn btn--quiet" />
+                    <ui:Button name="btn-leave-from-explore" text="#common.modes" class="btn btn--quiet" />
                 </ui:VisualElement>
-                <ui:VisualElement class="options-row">
-                    <!-- Display option: real things in front of the building can hide it (depth occlusion). -->
-                    <ui:Button name="btn-occlusion" text="Hidden by real objects: Off" class="btn btn--option" />
-                    <ui:Button name="btn-leave-from-explore" text="Modes" class="btn btn--option btn--narrow" />
-                </ui:VisualElement>
+                <!-- Display option: real things in front of the building can hide it (depth occlusion). -->
+                <ui:Button name="btn-occlusion" text="" class="btn btn--quiet btn--switch" />
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- In Iasi, at the spot: the camera looks for the target's place, then shows it. -->
+        <!-- In Iasi, at the spot: the camera looks for the place, then shows the academy or the piece. -->
         <ui:VisualElement name="screen-city-ar" class="screen screen--bottom is-hidden" picking-mode="Ignore">
-            <ui:Label name="city-ar-hint" text="Point the camera at the buildings around you" class="hint" picking-mode="Ignore" />
-            <ui:VisualElement class="actions-row actions-row--on-camera" picking-mode="Ignore">
-                <ui:Button name="btn-city-ar-back" text="Targets" class="btn btn--on-camera btn--narrow" />
-                <ui:Button name="btn-city-ar-retry" text="Try again" class="btn btn--primary is-hidden" />
-                <ui:Button name="btn-city-collect" text="Collect" class="btn btn--primary" />
+            <ui:VisualElement class="slip">
+                <ui:Label name="city-ar-hint" text="" class="hint" picking-mode="Ignore" />
+                <ui:Button name="btn-city-ar-retry" text="#cityar.retry" class="btn btn--primary is-hidden" />
+                <!-- The quest's next step when there is no item to collect (e.g. "Start walking"). -->
+                <ui:Button name="btn-city-ar-action" text="" class="btn btn--primary is-hidden" />
+                <ui:Button name="btn-city-collect" text="#common.collect" class="btn btn--primary" />
+                <ui:VisualElement class="quiet-row">
+                    <ui:Button name="btn-city-ar-progress" text="#common.progress" class="btn btn--quiet" />
+                </ui:VisualElement>
+                <!-- Display option: real buildings in front hide the academy, the arch and the pieces (Streetscape). -->
+                <ui:Button name="btn-city-occlusion" text="" class="btn btn--quiet btn--switch" />
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Confirmation before leaving the mode: the placed academy goes away (progress stays). -->
+        <!-- Quest overlays: shown over any screen (the camera stays visible above a sheet). -->
+
+        <!-- The finale's year, large, over the camera view while the arch's story plays. -->
+        <ui:Label name="finale-year" text="1845" class="finale-year is-hidden" picking-mode="Ignore" />
+
+        <!-- Story sheet: the greeting, a riddle, a knowledge card, a secret, a finale step. The kicker is the
+             line under the title: who speaks, or what kind of card it is. -->
+        <ui:VisualElement name="quest-sheet" class="screen sheet-layer is-hidden">
+            <ui:VisualElement name="sheet" class="sheet">
+                <ui:VisualElement class="rule"><ui:VisualElement class="rule__thick" /><ui:VisualElement class="rule__thin" /></ui:VisualElement>
+                <ui:VisualElement class="sheet__head">
+                    <ui:VisualElement class="sheet__headings">
+                        <ui:Label name="sheet-title" text="" class="sheet__title" />
+                        <ui:Label name="sheet-kicker" text="" class="sheet__byline" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="sheet-seal" class="seal-mark is-hidden" />
+                </ui:VisualElement>
+                <ui:ScrollView name="sheet-scroll" class="sheet__scroll" mode="Vertical">
+                    <ui:Label name="sheet-body" text="" class="sheet__body" />
+                </ui:ScrollView>
+                <!-- "1 of 2": its own line, so the two buttons below keep the whole width. -->
+                <ui:Label name="sheet-page" text="" class="sheet__page" />
+                <ui:VisualElement class="sheet__actions">
+                    <ui:Button name="btn-sheet-voice" text="" class="btn btn--quiet btn--voice" />
+                    <ui:Button name="btn-sheet-primary" text="#common.continue" class="btn btn--primary sheet__primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Quiz: one question at a time; the answers (lettered entries) come in one by one, the chosen one shows
+             right / wrong. -->
+        <ui:VisualElement name="quest-quiz" class="screen sheet-layer is-hidden">
+            <ui:VisualElement class="sheet">
+                <ui:VisualElement class="rule"><ui:VisualElement class="rule__thick" /><ui:VisualElement class="rule__thin" /></ui:VisualElement>
+                <ui:Label name="quiz-question" text="" class="quiz__question" />
+                <ui:VisualElement class="quiz__answers">
+                    <ui:Button name="quiz-answer-0" class="answer"><ui:Label text="a" class="answer__letter" /><ui:Label name="quiz-answer-text-0" text="" class="answer__text" /></ui:Button>
+                    <ui:Button name="quiz-answer-1" class="answer"><ui:Label text="b" class="answer__letter" /><ui:Label name="quiz-answer-text-1" text="" class="answer__text" /></ui:Button>
+                    <ui:Button name="quiz-answer-2" class="answer"><ui:Label text="c" class="answer__letter" /><ui:Label name="quiz-answer-text-2" text="" class="answer__text" /></ui:Button>
+                </ui:VisualElement>
+                <ui:Label name="quiz-feedback" text="" class="quiz__feedback" />
+                <ui:Label name="quiz-counter" text="" class="sheet__page" />
+                <ui:VisualElement class="sheet__actions">
+                    <ui:Button name="btn-quiz-voice" text="" class="btn btn--quiet btn--voice" />
+                    <ui:Button name="btn-quiz-next" text="" class="btn btn--primary sheet__primary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Map (Anywhere): the riddle, the engraved plan of Iasi in a ruled frame (drag, pinch, tap to guess),
+             the status and the points. -->
+        <ui:VisualElement name="quest-map" class="screen map is-hidden">
+            <ui:VisualElement class="map__head">
+                <ui:Label name="map-title" text="" class="map__title" />
+                <ui:Label name="map-riddle" text="" class="map__riddle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="map__frame">
+                <QuestMapView name="map-view" class="map__view" />
+            </ui:VisualElement>
+            <ui:Label text="#map.credit" class="map__credit" />
+            <ui:VisualElement class="map__foot">
+                <ui:VisualElement class="map__status-row">
+                    <ui:Label name="map-status" text="" class="map__status" />
+                    <ui:Label name="map-points" text="" class="map__points" />
+                </ui:VisualElement>
+                <ui:Button name="btn-map-check" text="" class="btn btn--primary" />
+                <ui:VisualElement class="quiet-row">
+                    <ui:Button name="btn-map-back" text="#common.back" class="btn btn--quiet" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Progress: a register page. The arch, the five seals, the score (Anywhere), and one ruled row per
+             stop in route order. -->
+        <ui:VisualElement name="quest-progress" class="screen progress is-hidden">
+            <ui:VisualElement class="progress__head">
+                <ArchEmblem name="progress-arch" class="arch arch--large" />
+                <ui:VisualElement class="progress__headings">
+                    <ui:Label text="#progress.title" class="progress__title" />
+                    <ui:Label name="progress-pieces" text="" class="progress__stat" />
+                    <ui:Label name="progress-seals" text="" class="progress__stat" />
+                    <ui:Label name="progress-score" text="" class="progress__stat progress__stat--score" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <SealRow name="progress-seal-row" class="seal-row" />
+            <ui:ScrollView class="progress__list" mode="Vertical">
+                <ui:VisualElement name="progress-stop-0" class="stop"><ui:Label name="progress-stop-label-0" class="stop__number" /><ui:VisualElement class="stop__body"><ui:Label name="progress-stop-place-0" class="stop__place" /><ui:Label name="progress-stop-status-0" class="stop__status" /></ui:VisualElement><ui:Button name="btn-progress-reread-0" text="#progress.reread" class="btn btn--quiet stop__reread" /></ui:VisualElement>
+                <ui:VisualElement name="progress-stop-1" class="stop"><ui:Label name="progress-stop-label-1" class="stop__number" /><ui:VisualElement class="stop__body"><ui:Label name="progress-stop-place-1" class="stop__place" /><ui:Label name="progress-stop-status-1" class="stop__status" /></ui:VisualElement><ui:Button name="btn-progress-reread-1" text="#progress.reread" class="btn btn--quiet stop__reread" /></ui:VisualElement>
+                <ui:VisualElement name="progress-stop-2" class="stop"><ui:Label name="progress-stop-label-2" class="stop__number" /><ui:VisualElement class="stop__body"><ui:Label name="progress-stop-place-2" class="stop__place" /><ui:Label name="progress-stop-status-2" class="stop__status" /></ui:VisualElement><ui:Button name="btn-progress-reread-2" text="#progress.reread" class="btn btn--quiet stop__reread" /></ui:VisualElement>
+                <ui:VisualElement name="progress-stop-3" class="stop stop--last"><ui:Label name="progress-stop-label-3" class="stop__number" /><ui:VisualElement class="stop__body"><ui:Label name="progress-stop-place-3" class="stop__place" /><ui:Label name="progress-stop-status-3" class="stop__status" /></ui:VisualElement><ui:Button name="btn-progress-reread-3" text="#progress.reread" class="btn btn--quiet stop__reread" /></ui:VisualElement>
+            </ui:ScrollView>
+            <ui:Button name="btn-progress-back" text="#common.back" class="btn btn--primary" />
+            <ui:VisualElement class="quiet-row">
+                <ui:Button name="btn-progress-start-over" text="#progress.startOver" class="btn btn--quiet" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Confirmations (over the current screen). -->
         <ui:VisualElement name="confirm-leave" class="screen screen--centered screen--dimmed is-hidden">
             <ui:VisualElement class="card">
-                <ui:Label text="Back to the modes?" class="card__title" />
-                <ui:Label text="The academy is removed from here. The pieces you found stay found." class="card__text" />
+                <ui:Label text="#leave.title" class="card__title" />
+                <ui:Label text="#leave.text" class="card__text" />
                 <ui:VisualElement class="card__actions">
-                    <ui:Button name="btn-leave-confirm" text="Back to the modes" class="btn btn--primary" />
-                    <ui:Button name="btn-leave-cancel" text="Stay" class="btn" />
+                    <ui:Button name="btn-leave-confirm" text="#leave.confirm" class="btn btn--primary" />
+                    <ui:Button name="btn-leave-cancel" text="#leave.stay" class="btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="confirm-start-over" class="screen screen--centered screen--dimmed is-hidden">
+            <ui:VisualElement class="card">
+                <ui:Label text="#progress.startOverTitle" class="card__title" />
+                <ui:Label text="#progress.startOverText" class="card__text" />
+                <ui:VisualElement class="card__actions">
+                    <ui:Button name="btn-start-over-confirm" text="#progress.startOver" class="btn btn--primary" />
+                    <ui:Button name="btn-start-over-cancel" text="#common.cancel" class="btn" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

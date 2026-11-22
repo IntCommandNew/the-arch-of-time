@@ -774,6 +774,14 @@ GameObject:
   - component: {fileID: 513184580}
   - component: {fileID: 513184582}
   - component: {fileID: 513184581}
+  - component: {fileID: 513184584}
+  - component: {fileID: 513184583}
+  - component: {fileID: 513184586}
+  - component: {fileID: 513184585}
+  - component: {fileID: 513184587}
+  - component: {fileID: 513184588}
+  - component: {fileID: 513184589}
+  - component: {fileID: 513184590}
   m_Layer: 0
   m_Name: App
   m_TagString: Untagged
@@ -803,7 +811,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 513184567}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 039b5b5a5e6db974b917519781b51a06, type: 3}
   m_Name: 
@@ -828,23 +836,15 @@ MonoBehaviour:
   adjust: {fileID: 513184574}
   occlusion: {fileID: 513184578}
   footprint: {fileID: 513184579}
+  archModel: {fileID: 513184587}
   modelFade: {fileID: 513184577}
   pieces: {fileID: 513184580}
   ui: {fileID: 466582595}
+  quest: {fileID: 513184586}
   cityTargets: {fileID: 11400000, guid: a3a9795b599597340a6ab4078de8d19f, type: 2}
   guide: {fileID: 513184582}
   cityContent: {fileID: 513184581}
   seeThroughWhileAdjusting: 1
-  scanHint: Move your phone slowly over the ground
-  aimHint: Aim the ring at the spot, then tap "Place here"
-  placeFailedHint: Couldn't place it there. Aim at the ground and try again
-  adjustHint: 'Drag to move. Two fingers: twist to turn, pinch to resize'
-  editCancelledHint: Changes discarded
-  occlusionOffText: 'Hidden by real objects: Off'
-  occlusionOnText: 'Hidden by real objects: On'
-  occlusionUnsupportedText: 'Hidden by real objects: not on this phone'
-  hideBaseText: Hide base
-  showBaseText: Show base
 --- !u!114 &513184571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -900,21 +900,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneLighting
   placement: {fileID: 513184572}
   arCamera: {fileID: 301144159}
-  ambientColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   cameraManager: {fileID: 301144157}
   mainLight: {fileID: 410087040}
   useLightEstimation: 1
-  mainLightIntensityScale: 1
+  tuning:
+    keyLow: 0.8
+    keyHigh: 1
+    fill: 0.1
+    sky: 0.4
+    tint: 0.3
+    reflections: 0.25
+    shadowStrength: 0.75
+    contactStrength: 1
+    contactWidth: 0.1
+  levelRange: {x: 0.35, y: 3}
+  levelSeconds: 5
   smoothingSeconds: 1.5
   warmUpSeconds: 3
-  startBrightness: 1.15
-  rememberLightLevel: 1
-  rememberEverySeconds: 5
-  rememberAverageSeconds: 30
-  minSecondsBeforeRemembering: 10
-  rememberedLightRange: {x: 0.6, y: 2.5}
-  rememberedAmbientRange: {x: 0.5, y: 3}
-  ambientIntensityScale: 1
+  startLevel: 0.5
+  elevationRange: {x: 25, y: 70}
+  tintClamp: {x: 0.8, y: 1.2}
+  tintTrustRange: {x: 0.05, y: 0.2}
+  fillElevation: 30
+  groundBounce: 0.35
+  groundColor: {r: 1, g: 0.92, b: 0.82, a: 1}
+  reflectionSize: 32
   logEverySeconds: 5
   idleShadowDistance: 3
   marginRadii: 1
@@ -991,6 +1001,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DepthOcclusion
   occlusionManager: {fileID: 301144160}
   onMode: 3
+  buildings: {fileID: 513184590}
 --- !u!114 &513184579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1023,16 +1034,22 @@ MonoBehaviour:
   anchorManager: {fileID: 1873267315}
   planeManager: {fileID: 1873267317}
   arCamera: {fileID: 301144159}
+  archPieceModels: {fileID: 919132149155446097, guid: 2e3f16bd43fe68f4aa30547715736100, type: 3}
+  pieceLength: 0.3
   pieceMaterial: {fileID: 2100000, guid: 35ac5875ee3c4af47a1051312a1354cd, type: 2}
-  pieceSize: {x: 0.3, y: 0.2, z: 0.15}
-  aimedTint: {r: 2.2, g: 1.7, b: 0.7, a: 1}
+  aimedTint: {r: 1.5, g: 1.42, b: 1.22, a: 1}
+  aimedPulsesPerSecond: 1.5
   turnDegreesPerSecond: 30
   bobHeight: 0.05
-  minDistance: 1.5
-  maxDistance: 4
+  sealModel: {fileID: 919132149155446097, guid: 2c5553164af0f1f44bfd3449986b2b4f, type: 3}
+  sealSwayDegrees: 20
+  sealSize: {x: 0.36, y: 0.06}
+  sealColor: {r: 0.55, g: 0.07, b: 0.06, a: 1}
+  minDistance: 0.9
+  maxDistance: 2.2
   heightAboveFloor: 1
   fallbackFloorBelowCamera: 1.4
-  cityPieceSize: {x: 1.2, y: 0.8, z: 0.6}
+  cityPieceLength: 1.2
   cityCollectDistance: 40
   cityAimTolerance: 0.9
   collectDistance: 6
@@ -1084,6 +1101,154 @@ MonoBehaviour:
   editorLatitude: 47.165
   editorLongitude: 27.579
   editorHeading: 0
+--- !u!114 &513184583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8f1b5b59eab6340b09fd0660b9dae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Narrator
+  library: {fileID: 11400000, guid: 1032f88217857894ca24e5d3c243d53d, type: 2}
+  pauseBetweenLines: 0.35
+  speechRate: 0.95
+  editorWordsPerSecond: 2.6
+--- !u!114 &513184584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea64223b19b1be2409d1b0f5a96ad5b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestBook
+  questContent: {fileID: 4900000, guid: bf31aa55039b1e3418698efff150241b, type: 3}
+  uiText: {fileID: 4900000, guid: 82f9090ed7c42fc4c9bb981cb8ee3c2e, type: 3}
+--- !u!114 &513184585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c923795257bde804c8919ce338de5a36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestMap
+  ui: {fileID: 466582595}
+  mapData: {fileID: 4900000, guid: 4466c683dc1befa469164108c69ff75c, type: 3}
+  acceptedMetres: 150
+  bigCircleMetres: 600
+  smallCircleMetres: 250
+  circleOffsetShare: 0.7
+--- !u!114 &513184586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cce7ac85bc7fe994aa9444681efc1eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestFlow
+  ui: {fileID: 466582595}
+  narrator: {fileID: 513184583}
+  pieces: {fileID: 513184580}
+  placement: {fileID: 513184572}
+  map: {fileID: 513184585}
+  archModel: {fileID: 513184587}
+--- !u!114 &513184587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca0007e7064ebb44285072e5de7af5ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArchModel
+  placement: {fileID: 513184572}
+  pieces: {fileID: 513184580}
+  archPrefab: {fileID: 919132149155446097, guid: 2e3f16bd43fe68f4aa30547715736100, type: 3}
+  outlineMesh: {fileID: 4300000, guid: 59e1f44f2768c2d4da0b44f9df8e2a8a, type: 2}
+  outlineMaterial: {fileID: 2100000, guid: d05e4eff0ecf77a4ca253616aa1cc8e7, type: 2}
+  position: {x: -0.395, y: 0, z: -0.19}
+  yaw: 0
+  streetLevel: 0.0147
+  ghostFade: 0.72
+  buildSeconds: 1.4
+  buildDrop: 0.06
+  fallSeconds: 1.2
+  fallSink: 0.035
+  stagger: 0.45
+  academySeconds: 2.4
+--- !u!114 &513184588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6b569968eea0ad4db2ae98154e7bef4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightingTuner
+  lighting: {fileID: 513184573}
+  ui: {fileID: 466582595}
+  showPanel: 0
+  statusSeconds: 0.5
+--- !u!114 &513184589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1906161dafc987a46a1fb49392bfc3b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ContactShadow
+  placement: {fileID: 513184572}
+  archModel: {fileID: 513184587}
+  material: {fileID: 2100000, guid: ed6038d4a0f332e4e86b820b60e8e98f, type: 2}
+  slab: {fileID: 11400000, guid: 5a8e2679aaf5181428c8b30775ce87de, type: 2}
+  footprint: {fileID: 11400000, guid: 4e62515f7c7bed84babd0aa854da3d19, type: 2}
+  leftPier: {fileID: 11400000, guid: 86ec04f9c0b56fd42be0ffcc9173a0a7, type: 2}
+  rightPier: {fileID: 11400000, guid: ce59708330965554b829ce61db546661, type: 2}
+  streetLevel: 0.0147
+  lift: 0.0008
+  liftFade: 0.03
+--- !u!114 &513184590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513184567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59451e1d0a8f7b41bc6a42bbccec1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StreetscapeOcclusion
+  manager: {fileID: 598177552}
+  origin: {fileID: 1873267318}
+  occluderMaterial: {fileID: 2100000, guid: 9f3ae9b82e6e67f4bb7a60d606c62230, type: 2}
+  refreshSeconds: 0.5
+  logSeconds: 10
 --- !u!1 &598177549
 GameObject:
   m_ObjectHideFlags: 0
@@ -1094,6 +1259,7 @@ GameObject:
   m_Component:
   - component: {fileID: 598177551}
   - component: {fileID: 598177550}
+  - component: {fileID: 598177552}
   m_Layer: 0
   m_Name: ARCore Extensions
   m_TagString: Untagged
@@ -1133,6 +1299,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &598177552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 598177549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8327b807ca7a4c87b3b7afa5a2cb0b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Google.XR.ARCoreExtensions::Google.XR.ARCoreExtensions.ARStreetscapeGeometryManager
+  AnchorPrefab: {fileID: 0}
 --- !u!1 &905481662
 GameObject:
   m_ObjectHideFlags: 0

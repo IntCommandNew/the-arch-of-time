@@ -1,0 +1,301 @@
+{
+  "notes": "Quest content in English (en) and Romanian (ro). Sources: docs/sources/AcademiaMihaileana.md (the author's text) and docs/sources/ResearchNotes.md. In every quiz question the FIRST answer is the right one; the app shuffles them.",
+  "academySite": { "latitude": 47.166042, "longitude": 27.578239 },
+  "greeting": {
+    "speaker": { "en": "Mihail Sturdza, Prince of Moldavia", "ro": "Mihail Sturdza, domnul Moldovei" },
+    "title": { "en": "Welcome, new student", "ro": "Bine ai venit, student nou" },
+    "text": {
+      "en": "Welcome to the Academia Mihăileană! It is the year 1835, and today our academy opens its doors here, in the houses of Petrache Cazimir, next to the Tălpălari Church. One day the academy will grow across the street, and an arch of carved stone will join its two houses. The four pieces of that arch are hidden in the places of our story, all over Iași. Find them, learn what each place remembers, and help me raise the arch.",
+      "ro": "Bine ai venit la Academia Mihăileană! Suntem în anul 1835, iar astăzi academia noastră își deschide porțile aici, în casele lui Petrache Cazimir, lângă Biserica Tălpălari. Într-o zi, academia va crește peste drum, iar un arc din piatră cioplită îi va uni cele două case. Cele patru piese ale acestui arc sunt ascunse în locurile poveștii noastre, prin tot Iașul. Găsește-le, află ce își amintește fiecare loc și ajută-mă să înalț arcul."
+    }
+  },
+  "tutorialSeal": {
+    "intro": {
+      "en": "The academy keeps its secrets under wax seals. Answer every question at a stop correctly, and a seal appears near you. Your first one appears when you go on: look around and collect it.",
+      "ro": "Academia își păstrează secretele sub sigilii de ceară. Răspunde corect la toate întrebările de la o oprire și un sigiliu va apărea lângă tine. Primul apare când mergi mai departe: privește în jur și colectează-l."
+    },
+    "title": { "en": "The academy's chapel", "ro": "Paraclisul academiei" },
+    "text": {
+      "en": "The Tălpălari Church, right next to the Cazimir houses, was the academy's chapel. A liturgy was held there for the academy's opening, and the students reached it through a passage in the church wall.",
+      "ro": "Biserica Tălpălari, chiar lângă casele Cazimir, a fost paraclisul academiei. Acolo s-a ținut o slujbă pentru deschiderea academiei, iar elevii ajungeau la ea printr-un pasaj din zidul bisericii."
+    }
+  },
+  "stops": [
+    {
+      "id": "trei-ierarhi",
+      "piece": 0,
+      "place": { "en": "Trei Ierarhi Monastery", "ro": "Mănăstirea Trei Ierarhi" },
+      "latitude": 47.159692,
+      "longitude": 27.584540,
+      "chapter": { "en": "The beginnings", "ro": "Începuturile" },
+      "pieceName": { "en": "The left column", "ro": "Coloana stângă" },
+      "riddle": {
+        "en": "A prince raised me in 1639 and dressed my walls in stone carved like lace, from the ground to the roof. In my courtyard, Moldova's scholars studied long before the academy had a home of its own. Where am I?",
+        "ro": "Un domn m-a înălțat în 1639 și mi-a îmbrăcat zidurile în piatră sculptată ca o dantelă, de la pământ până la acoperiș. În curtea mea au învățat cărturarii Moldovei cu mult înainte ca academia să aibă o casă a ei. Unde sunt?"
+      },
+      "knowledge": [
+        {
+          "en": "The academy was born at the Trei Ierarhi Monastery. After Mihail Sturdza became prince in August 1834, the school authority, with Metropolitan Veniamin and Gheorghe Asachi, found that the monastery's buildings were too small for a real academy. Even so, the first course of the Faculty of Philosophy opened here, on 20 November 1834.",
+          "ro": "Academia s-a născut la Mănăstirea Trei Ierarhi. După ce Mihail Sturdza a devenit domn, în august 1834, Epitropia Învățăturilor Publice, din care făceau parte mitropolitul Veniamin și Gheorghe Asachi, a constatat că clădirile mănăstirii erau prea mici pentru o adevărată academie. Cu toate acestea, primul curs al Facultății de Filozofie s-a deschis chiar aici, la 20 noiembrie 1834."
+        },
+        {
+          "en": "For its new home, the academy got the houses of the late Petrache Cazimir, in the city centre, next to the Tălpălari Church. They were bought in October 1834, and architect Gustav Freiwald was hired to fit them out. On 16 June 1835 the academy's own building was inaugurated, with classrooms, study rooms, dormitories, a dining hall and an infirmary, after European models.",
+          "ro": "Pentru noua sa casă, academia a primit casele răposatului Petrache Cazimir, din centrul orașului, lângă Biserica Tălpălari. Ele au fost cumpărate în octombrie 1834, iar arhitectul Gustav Freiwald a fost angajat să le amenajeze. La 16 iunie 1835 a fost inaugurat localul propriu al academiei, cu săli de clasă, săli de studiu, dormitoare, trapezărie și o sală a sănătății, după modele europene."
+        }
+      ],
+      "quiz": [
+        {
+          "question": { "en": "Where did the first course of the Faculty of Philosophy open, in November 1834?", "ro": "Unde s-a deschis primul curs al Facultății de Filozofie, în noiembrie 1834?" },
+          "answers": [
+            { "en": "At the Trei Ierarhi Monastery", "ro": "La Mănăstirea Trei Ierarhi" },
+            { "en": "In the Cazimir houses", "ro": "În casele Cazimir" },
+            { "en": "In the Calimachi Palace", "ro": "În Palatul Calimachi" }
+          ],
+          "explanation": { "en": "The course opened at Trei Ierarhi on 20 November 1834, while the academy's new home was being prepared.", "ro": "Cursul s-a deschis la Trei Ierarhi pe 20 noiembrie 1834, în timp ce noua casă a academiei era pregătită." }
+        },
+        {
+          "question": { "en": "Whose houses became the academy's first home?", "ro": "Ale cui case au devenit prima casă a academiei?" },
+          "answers": [
+            { "en": "Petrache Cazimir's", "ro": "Ale lui Petrache Cazimir" },
+            { "en": "Gheorghe Asachi's", "ro": "Ale lui Gheorghe Asachi" },
+            { "en": "Mihail Sturdza's", "ro": "Ale lui Mihail Sturdza" }
+          ],
+          "explanation": { "en": "The houses of the late Petrache Cazimir, next to the Tălpălari Church, were bought in October 1834.", "ro": "Casele răposatului Petrache Cazimir, lângă Biserica Tălpălari, au fost cumpărate în octombrie 1834." }
+        },
+        {
+          "question": { "en": "In which year was the academy's own building inaugurated?", "ro": "În ce an a fost inaugurat localul propriu al academiei?" },
+          "answers": [
+            { "en": "1835", "ro": "1835" },
+            { "en": "1845", "ro": "1845" },
+            { "en": "1860", "ro": "1860" }
+          ],
+          "explanation": { "en": "It was inaugurated on 16 June 1835, although some works went on afterwards.", "ro": "A fost inaugurat la 16 iunie 1835, deși unele lucrări au continuat și după aceea." }
+        }
+      ],
+      "secret": {
+        "title": { "en": "The prince's firemen", "ro": "Pompierii domnului" },
+        "text": {
+          "en": "In the same busy year, on 15 May 1835, Prince Mihail Sturdza approved the first military fire brigade of Iași. Its first company of firemen, with a captain, two lieutenants and soldiers, marked the start of modern public safety services in Moldavia.",
+          "ro": "În același an plin, la 15 mai 1835, domnitorul Mihail Sturdza a aprobat înființarea primei unități militare de pompieri din Iași. Prima „roată de pojarnici”, cu un căpitan, doi locotenenți și soldați, a marcat începutul serviciilor publice moderne de siguranță în Moldova."
+        }
+      }
+    },
+    {
+      "id": "colegiul-national",
+      "piece": 1,
+      "place": { "en": "Colegiul Național", "ro": "Colegiul Național" },
+      "latitude": 47.166530,
+      "longitude": 27.577912,
+      "chapter": { "en": "Two buildings, one academy", "ro": "Două clădiri, o singură academie" },
+      "pieceName": { "en": "The right column", "ro": "Coloana dreaptă" },
+      "riddle": {
+        "en": "Just across the street from the academy, a second house joined it in 1837. The house is gone, but the school built on its place in the 1890s still counts the academy among its ancestors. Where am I?",
+        "ro": "Chiar peste drum de academie, o a doua casă i s-a alăturat în 1837. Casa nu mai există, dar școala ridicată în locul ei în anii 1890 încă numără academia printre strămoșii săi. Unde sunt?"
+      },
+      "knowledge": [
+        {
+          "en": "The academy soon outgrew the Cazimir houses. In June 1837 it bought the building across the street, the Voinescu houses, which stood where Colegiul Național stands today. In 1838 the boarding school, the stores, the kitchen and the administration moved there, while the courses, the library and the cabinets of physics, mathematics and natural history stayed in the Cazimir houses.",
+          "ro": "Academia a devenit curând prea mare pentru casele Cazimir. În iunie 1837 a cumpărat clădirea de peste drum, casele Voinescu, aflate pe locul actualului Colegiu Național. În 1838, internatul, economatul, bucătăria și administrația s-au mutat acolo, în timp ce cursurile, biblioteca și cabinetele de fizică, matematică și istorie naturală au rămas în casele Cazimir."
+        },
+        {
+          "en": "In 1845 and 1846 the rooms were shared out again: the gymnasium classes and the faculties moved into the Voinescu houses, and 120 boarding students lived in the Cazimir houses. Today's Colegiul Național, built between 1890 and 1894, sees itself as the descendant of the Vasilian Gymnasium and of the Academia Mihăileană.",
+          "ro": "În 1845 și 1846, încăperile au fost împărțite din nou: clasele gimnaziale și facultățile s-au mutat în casele Voinescu, iar în casele Cazimir au fost cazați 120 de elevi interni. Actualul Colegiu Național, construit între 1890 și 1894, se consideră urmașul Gimnaziului Vasilian și al Academiei Mihăilene."
+        }
+      ],
+      "quiz": [
+        {
+          "question": { "en": "Which houses did the academy buy across the street in 1837?", "ro": "Ce case a cumpărat academia peste drum, în 1837?" },
+          "answers": [
+            { "en": "The Voinescu houses", "ro": "Casele Voinescu" },
+            { "en": "The Cazimir houses", "ro": "Casele Cazimir" },
+            { "en": "The Calimachi houses", "ro": "Casele Calimachi" }
+          ],
+          "explanation": { "en": "The Voinescu houses were bought in June 1837, on the site of today's Colegiul Național.", "ro": "Casele Voinescu au fost cumpărate în iunie 1837, pe locul actualului Colegiu Național." }
+        },
+        {
+          "question": { "en": "What moved into the new building in 1838?", "ro": "Ce s-a mutat în noua clădire în 1838?" },
+          "answers": [
+            { "en": "The boarding school, the kitchen and the administration", "ro": "Internatul, bucătăria și administrația" },
+            { "en": "The library and the physics cabinet", "ro": "Biblioteca și cabinetul de fizică" },
+            { "en": "The academy's chapel", "ro": "Paraclisul academiei" }
+          ],
+          "explanation": { "en": "The boarding school, the stores, the kitchen and the administration moved; the courses and the library stayed in the Cazimir houses.", "ro": "S-au mutat internatul, economatul, bucătăria și administrația; cursurile și biblioteca au rămas în casele Cazimir." }
+        },
+        {
+          "question": { "en": "Which school stands today where the Voinescu houses stood?", "ro": "Ce școală se află astăzi pe locul caselor Voinescu?" },
+          "answers": [
+            { "en": "Colegiul Național", "ro": "Colegiul Național" },
+            { "en": "The Gheorghe Asachi Technical University", "ro": "Universitatea Tehnică „Gheorghe Asachi”" },
+            { "en": "The Vasilian Gymnasium", "ro": "Gimnaziul Vasilian" }
+          ],
+          "explanation": { "en": "Colegiul Național was built there between 1890 and 1894, and it counts the academy among its ancestors.", "ro": "Colegiul Național a fost construit acolo între 1890 și 1894 și numără academia printre strămoșii săi." }
+        }
+      ],
+      "secret": {
+        "title": { "en": "The street of the arch", "ro": "Strada arcului" },
+        "text": {
+          "en": "The street between the academy's two houses was once called Ulița Academiei, the Academy's Lane. The arch that crossed it gave it the name it still has today: Strada Arcu, the Street of the Arch.",
+          "ro": "Strada dintre cele două case ale academiei se numea odinioară Ulița Academiei. Arcul care o traversa i-a dat numele pe care îl poartă și astăzi: Strada Arcu."
+        }
+      }
+    },
+    {
+      "id": "arch-replica",
+      "piece": 2,
+      "place": { "en": "The arch replica in Parcul Expoziției", "ro": "Replica arcului din Parcul Expoziției" },
+      "latitude": 47.185663,
+      "longitude": 27.561295,
+      "chapter": { "en": "Building the arch", "ro": "Construirea arcului" },
+      "pieceName": { "en": "The arc", "ro": "Bolta" },
+      "riddle": {
+        "en": "Where the city once held its great exhibitions, among the trees on Copou hill, a smaller twin of the lost passage has stood since 1936. Find the copy of what you are rebuilding. Where am I?",
+        "ro": "Acolo unde orașul își ținea odinioară marile expoziții, printre copacii de pe dealul Copoului, un geamăn mai mic al pasajului pierdut stă în picioare din 1936. Găsește copia a ceea ce reconstruiești. Unde sunt?"
+      },
+      "knowledge": [
+        {
+          "en": "To join the academy's two buildings across the street, Gheorghe Asachi proposed an arch. Its plan and cost estimate were made by the architecture professor A. Costinescu, together with the students of the engineering class. The foundation stone was laid on 19 October 1841.",
+          "ro": "Pentru a lega cele două clădiri ale academiei, de o parte și de alta a străzii, Gheorghe Asachi a propus construirea unui arc. Planul și devizul au fost realizate de profesorul de arhitectură A. Costinescu, împreună cu elevii clasei de ingineri. Piatra de temelie a fost pusă la 19 octombrie 1841."
+        },
+        {
+          "en": "Built of carved stone, the arch was finished in September 1845. It was more than an ornament: it gave the academy a passage over the street between its two houses. In 1936 a smaller replica of the arch was built for an exhibition here, in Parcul Expoziției, and it still stands.",
+          "ro": "Construit din piatră cioplită, arcul a fost terminat în septembrie 1845. Nu era doar un ornament: îi oferea academiei un pasaj peste stradă, între cele două case ale sale. În 1936, aici, în Parcul Expoziției, a fost ridicată pentru o expoziție o replică la scară redusă a arcului, care există și astăzi."
+        }
+      ],
+      "quiz": [
+        {
+          "question": { "en": "Who proposed building the arch?", "ro": "Cine a propus construirea arcului?" },
+          "answers": [
+            { "en": "Gheorghe Asachi", "ro": "Gheorghe Asachi" },
+            { "en": "Mihail Kogălniceanu", "ro": "Mihail Kogălniceanu" },
+            { "en": "Alexandru Ioan Cuza", "ro": "Alexandru Ioan Cuza" }
+          ],
+          "explanation": { "en": "Gheorghe Asachi proposed the arch to join the academy's two buildings.", "ro": "Gheorghe Asachi a propus arcul pentru a lega cele două clădiri ale academiei." }
+        },
+        {
+          "question": { "en": "Who drew the arch's plan, with the engineering students?", "ro": "Cine a realizat planul arcului, împreună cu elevii ingineri?" },
+          "answers": [
+            { "en": "Professor A. Costinescu", "ro": "Profesorul A. Costinescu" },
+            { "en": "Architect Gustav Freiwald", "ro": "Arhitectul Gustav Freiwald" },
+            { "en": "Architect Louis Blanc", "ro": "Arhitectul Louis Blanc" }
+          ],
+          "explanation": { "en": "The architecture professor A. Costinescu made the plan and the estimate, with the engineering class.", "ro": "Profesorul de arhitectură A. Costinescu a realizat planul și devizul, împreună cu clasa de ingineri." }
+        },
+        {
+          "question": { "en": "In which year was the arch finished?", "ro": "În ce an a fost terminat arcul?" },
+          "answers": [
+            { "en": "1845", "ro": "1845" },
+            { "en": "1835", "ro": "1835" },
+            { "en": "1890", "ro": "1890" }
+          ],
+          "explanation": { "en": "The arch was finished in September 1845, four years after its foundation stone was laid.", "ro": "Arcul a fost terminat în septembrie 1845, la patru ani după punerea pietrei de temelie." }
+        }
+      ],
+      "secret": {
+        "title": { "en": "The missing inscriptions", "ro": "Inscripțiile care lipsesc" },
+        "text": {
+          "en": "The arch was officially handed over on 26 October 1847, but it was never quite finished: the inscriptions and bas-reliefs drawn in its plan were never carved.",
+          "ro": "Arcul a fost recepționat oficial la 26 octombrie 1847, dar nu a fost niciodată terminat pe deplin: inscripțiile și basoreliefurile prevăzute în proiect nu au mai fost sculptate."
+        }
+      }
+    },
+    {
+      "id": "uaic",
+      "piece": 3,
+      "place": { "en": "The UAIC main building", "ro": "Clădirea principală a UAIC" },
+      "latitude": 47.174251,
+      "longitude": 27.571137,
+      "chapter": { "en": "From academy to university", "ro": "De la academie la universitate" },
+      "pieceName": { "en": "The top beam", "ro": "Grinda de sus" },
+      "riddle": {
+        "en": "On the boulevard that climbs Copou hill stands a palace of learning, opened in 1897 where a theatre once burned. Its Hall of Lost Steps remembers every student who has walked it. Where am I?",
+        "ro": "Pe bulevardul care urcă spre dealul Copoului se înalță un palat al învățăturii, deschis în 1897 acolo unde a ars cândva un teatru. Sala Pașilor Pierduți își amintește de fiecare student care a pășit prin ea. Unde sunt?"
+      },
+      "knowledge": [
+        {
+          "en": "The academy did not vanish: it grew up. In 1860, Prince Alexandru Ioan Cuza turned its higher courses into the University of Iași, inaugurated on 26 October 1860. Its lower classes became the national college across from its old home. Today the Alexandru Ioan Cuza University still sees the Academia Mihăileană as its direct ancestor.",
+          "ro": "Academia nu a dispărut: a crescut. În 1860, domnitorul Alexandru Ioan Cuza a transformat cursurile ei superioare în Universitatea din Iași, inaugurată la 26 octombrie 1860. Clasele ei inferioare au devenit colegiul național de peste drum de vechea ei casă. Astăzi, Universitatea „Alexandru Ioan Cuza” consideră Academia Mihăileană strămoșul său direct."
+        },
+        {
+          "en": "The university's main building, the University Palace, was built between 1893 and 1897 to plans by the architect Louis Blanc, on the site of the old National Theatre. It was inaugurated in 1897 in the presence of King Carol I, and its great Hall of Lost Steps is one of the most famous rooms in Iași.",
+          "ro": "Clădirea principală a universității, Palatul Universității, a fost construită între 1893 și 1897 după planurile arhitectului Louis Blanc, pe locul vechiului Teatru Național. A fost inaugurată în 1897 în prezența regelui Carol I, iar Sala Pașilor Pierduți este una dintre cele mai cunoscute încăperi din Iași."
+        }
+      ],
+      "quiz": [
+        {
+          "question": { "en": "In which year did the academy's courses become the University of Iași?", "ro": "În ce an au devenit cursurile academiei Universitatea din Iași?" },
+          "answers": [
+            { "en": "1860", "ro": "1860" },
+            { "en": "1835", "ro": "1835" },
+            { "en": "1897", "ro": "1897" }
+          ],
+          "explanation": { "en": "The University of Iași was inaugurated on 26 October 1860.", "ro": "Universitatea din Iași a fost inaugurată la 26 octombrie 1860." }
+        },
+        {
+          "question": { "en": "Which prince turned the academy into a university?", "ro": "Ce domnitor a transformat academia în universitate?" },
+          "answers": [
+            { "en": "Alexandru Ioan Cuza", "ro": "Alexandru Ioan Cuza" },
+            { "en": "Mihail Sturdza", "ro": "Mihail Sturdza" },
+            { "en": "Vasile Lupu", "ro": "Vasile Lupu" }
+          ],
+          "explanation": { "en": "Prince Alexandru Ioan Cuza founded the university in 1860; it has carried his name since 1942.", "ro": "Domnitorul Alexandru Ioan Cuza a înființat universitatea în 1860; aceasta îi poartă numele din 1942." }
+        },
+        {
+          "question": { "en": "Who designed the University Palace, opened in 1897?", "ro": "Cine a proiectat Palatul Universității, deschis în 1897?" },
+          "answers": [
+            { "en": "Louis Blanc", "ro": "Louis Blanc" },
+            { "en": "A. Costinescu", "ro": "A. Costinescu" },
+            { "en": "Gustav Freiwald", "ro": "Gustav Freiwald" }
+          ],
+          "explanation": { "en": "The architect Louis Blanc drew the plans; the palace was built between 1893 and 1897.", "ro": "Arhitectul Louis Blanc a realizat planurile; palatul a fost construit între 1893 și 1897." }
+        }
+      ],
+      "secret": {
+        "title": { "en": "A lecture that made history", "ro": "O prelegere care a făcut istorie" },
+        "text": {
+          "en": "On 24 November 1843, at the academy, Mihail Kogălniceanu gave the opening lecture of the first course of national history. It became a milestone of Romanian national awareness: \"...my country is every place on Earth where Romanian is spoken, and national history is the history of all of Moldavia, of Wallachia, and of our brothers in Transylvania.\"",
+          "ro": "La 24 noiembrie 1843, la academie, Mihail Kogălniceanu a rostit „Cuvânt de deschidere al celui dintâi curs de istorie națională”, un moment important în dezvoltarea conștiinței naționale românești: „…țara mea este orice loc de pe Pământ unde se vorbește românește, și istoria națională este istoria întregii Moldove și Țării Românești, și cea a fraților din Ardeal.”"
+        }
+      }
+    }
+  ],
+  "finale": {
+    "intro": {
+      "en": "You have found all four pieces. Back where the academy stood, the arch can rise again. Watch the years pass.",
+      "ro": "Ai găsit toate cele patru piese. Înapoi acolo unde a stat academia, arcul se poate înălța din nou. Privește cum trec anii."
+    },
+    "steps": [
+      {
+        "year": "1845",
+        "text": {
+          "en": "The arch is finished. Carved stone now joins the academy's two houses above the street, and students cross from one building to the other.",
+          "ro": "Arcul este gata. Piatra cioplită unește acum, peste stradă, cele două case ale academiei, iar elevii trec dintr-o clădire în alta."
+        }
+      },
+      {
+        "year": "1890",
+        "text": {
+          "en": "To build the new National High School and to widen the street, the boarding house and the arch are torn down. Only the street's name, Arcu, remembers it.",
+          "ro": "Pentru a construi noul Liceu Național și pentru a lărgi strada, internatul și arcul sunt demolate. Doar numele străzii, Arcu, își mai amintește de el."
+        }
+      },
+      {
+        "year": "1963",
+        "text": {
+          "en": "In July 1963, the academy's main building, with its dome, is demolished for public utility. Where it stood, there is now a street and an apartment block.",
+          "ro": "În iulie 1963, clădirea principală a academiei, cu cupola sa, este demolată din motive de utilitate publică. Acolo unde stătea se află acum o stradă și un bloc de locuințe."
+        }
+      }
+    ],
+    "legacy": {
+      "en": "The academy is gone, but it lives on. Its higher courses became the University of Iași, its lower classes the Colegiul Național. Every student in Iași walks in its footsteps. Thank you for rebuilding its story.",
+      "ro": "Academia nu mai există, dar trăiește mai departe. Cursurile ei superioare au devenit Universitatea din Iași, iar clasele inferioare, Colegiul Național. Fiecare student din Iași pășește pe urmele ei. Îți mulțumim că i-ai reconstruit povestea."
+    },
+    "letter": {
+      "title": { "en": "A letter from the prince", "ro": "O scrisoare de la domn" },
+      "text": {
+        "en": "My dear student, you have found every seal and every secret of our academy. Few know its story as well as you do now. The stones are gone, but what was learned here was never demolished. Carry it further. Your prince, Mihail Sturdza.",
+        "ro": "Dragul meu student, ai găsit fiecare sigiliu și fiecare secret al academiei noastre. Puțini îi cunosc povestea atât de bine cum o cunoști tu acum. Pietrele s-au dus, dar ceea ce s-a învățat aici nu a fost demolat niciodată. Du-l mai departe. Al tău domn, Mihail Sturdza."
+      }
+    }
+  }
+}

@@ -4,36 +4,39 @@ using UnityEngine;
 /// <summary>
 /// The app's state machine: decides which state the app is in and keeps the UI in sync.
 /// Scripts report to it (startup gate, placement, adjusting, arch pieces), and it tells AppUI
-/// what to show. AppUI and the AR scripts never talk to each other directly.
+/// what to show. AppUI and the AR scripts never talk to each other directly. The quest's story (greeting,
+/// riddles, knowledge, quiz, seals, finale) is QuestFlow's: it runs while the user is in a "play area"
+/// (Exploring; In Iasi the camera at the quest's place, its content shown).
 ///
-/// States: ChoosingMode -> "In Iasi" -> Starting (location only) -> (Blocked) -> CityList;
-///         CityList -> (a target) Guiding (camera off) -> ("Open the camera" at the spot) -> Starting
-///         (camera) -> (Blocked) -> CityCamera; "Targets" (Guiding, CityCamera) -> CityList;
-///         "Modes" (CityList) -> ChoosingMode. The AR session is paused while the in-city screens
-///         with the camera off are shown.
+/// States: ChoosingLanguage (first launch only) -> ChoosingMode;
+///         ChoosingMode -> "In Iasi" -> Starting (location only) -> (Blocked) -> Guiding (camera off, to the
+///         quest's current place: the academy, a stop's piece, the academy again for the finale) ->
+///         ("Open the camera" at the place) -> Starting (camera) -> (Blocked) -> CityCamera -> (QuestFlow:
+///         "Start walking") Guiding ...; "Modes" (Guiding) -> ChoosingMode. The AR session is paused while
+///         the guide (camera off) is shown.
 ///         ChoosingMode -> "Anywhere" -> Starting -> (Blocked) -> Scanning;
 ///         Scanning <-> Placing -> Adjusting -> ("Done") Exploring <-> ("Edit") Adjusting;
 ///         "Place again" (Adjusting) -> Scanning; "Modes" (Scanning, Placing, Exploring) -> ChoosingMode;
 ///         SessionEnded (final) if a permission is revoked.
-/// Nothing about the placement is saved: the academy is placed again each time. Only the progress
-/// (the arch pieces collected) is saved, separately for each mode (GameProgress). In Iasi the academy
-/// and the pieces are at fixed places (CityTargets, authored with Geospatial Creator).
+/// Nothing about the placement is saved: the academy is placed again each time. Only the quest's progress is
+/// saved, separately for each mode (GameProgress). In Iasi the academy and the pieces are at fixed places
+/// (CityTargets, authored with Geospatial Creator).
 /// </summary>
 public class AppController : MonoBehaviour
 {
     public enum State
     {
-        ChoosingMode,  // the first screen
-        CityList,      // In Iasi: pick a target (the academy or a piece not found yet)
-        Guiding,       // In Iasi: walking to the target, camera off
-        CityCamera,    // In Iasi: at the target, camera on: locating, then the academy or a piece
-        Starting,      // permissions / ARCore checks
-        Blocked,       // AR can't run yet; the user must act
-        Scanning,      // AR running, no ground under the reticle yet
-        Placing,       // ground under the reticle: "Place here" is enabled
-        Adjusting,     // the model is placed: move / turn / size / height
-        Exploring,     // placement confirmed: arch pieces; Edit
-        SessionEnded,  // a permission was revoked: AR stopped, only "Close app" is left
+        ChoosingLanguage, // the first launch: choose the language
+        ChoosingMode,     // choose how to play
+        Guiding,          // In Iasi: walking to the quest's current place, camera off
+        CityCamera,       // In Iasi: at the place, camera on: locating, then the academy or a piece
+        Starting,         // permissions / ARCore checks
+        Blocked,          // AR can't run yet; the user must act
+        Scanning,         // AR running, no ground under the reticle yet
+        Placing,          // ground under the reticle: "Place here" is enabled
+        Adjusting,        // the model is placed: move / turn / size / height
+        Exploring,        // placement confirmed: the quest goes on around it; Edit
+        SessionEnded,     // a permission was revoked: AR stopped, only "Close app" is left
     }
 
     [SerializeField] ARStartupGate startupGate;
@@ -41,9 +44,12 @@ public class AppController : MonoBehaviour
     [SerializeField] AdjustController adjust;
     [SerializeField] DepthOcclusion occlusion;
     [SerializeField] FootprintOutline footprint;
+    [Tooltip("The arch by the academy (its state follows the mode's progress; its outline shows while adjusting).")]
+    [SerializeField] ArchModel archModel;
     [SerializeField] NearFade modelFade;
     [SerializeField] ArchPieces pieces;
     [SerializeField] AppUI ui;
+    [SerializeField] QuestFlow quest;
 
     [Header("In Iasi")]
     [SerializeField] CityTargets cityTargets;
@@ -53,28 +59,15 @@ public class AppController : MonoBehaviour
     [Tooltip("See-through while adjusting, until the user switches it off (remembered for the session).")]
     [SerializeField] bool seeThroughWhileAdjusting = true;
 
-    [Header("Texts")]
-    [SerializeField] string scanHint = "Move your phone slowly over the ground";
-    [SerializeField] string aimHint = "Aim the ring at the spot, then tap \"Place here\"";
-    [SerializeField] string placeFailedHint = "Couldn't place it there. Aim at the ground and try again";
-    [SerializeField] string adjustHint = "Drag to move. Two fingers: twist to turn, pinch to resize";
-    [SerializeField] string editCancelledHint = "Changes discarded";
-    [SerializeField] string occlusionOffText = "Hidden by real objects: Off";
-    [SerializeField] string occlusionOnText = "Hidden by real objects: On";
-    [SerializeField] string occlusionUnsupportedText = "Hidden by real objects: not on this phone";
-    [SerializeField] string hideBaseText = "Hide base";
-    [SerializeField] string showBaseText = "Show base";
-
     string pendingExploreHint;   // shown once on the explore screen (e.g. "Changes discarded")
     float pendingHintUntil;
     bool editing;                // Adjusting came from "Edit" (not from a new placement): "Cancel" can undo it
+    bool questInCamera;          // In Iasi: QuestFlow was started for this camera visit
 
     const float PendingHintSeconds = 2.5f;
 
-    int pickedTarget = -1;       // In Iasi: index in cityTargets.targets
+    int cityTarget = -1;         // In Iasi: index in cityTargets.targets of the quest's current place
     bool cityCameraWanted;       // In Iasi: the startup gate was asked for the camera (not only location)
-    float nextListRefresh;
-    const float ListRefreshSeconds = 2f;
 #pragma warning disable 0414 // read only on the phone (no walking away in the Editor)
     float farSince = -1f;        // In Iasi, camera on: when the user went beyond the leave radius
 #pragma warning restore 0414
@@ -106,24 +99,27 @@ public class AppController : MonoBehaviour
         }
         if (adjust != null) adjust.Changed += RefreshAdjustPanel;
         if (occlusion != null) occlusion.Changed += RefreshOcclusionButton;
-        if (pieces != null)
-        {
-            pieces.Changed += RefreshPiecesPanel;
-            pieces.Changed += RefreshCityCamera;
-        }
+        if (pieces != null) pieces.Changed += RefreshPlayPanels;
         if (guide != null) guide.Changed += RefreshGuide;
-        if (cityContent != null) cityContent.Changed += RefreshCityCamera;
+        if (cityContent != null) cityContent.Changed += OnCityContentChanged;
+        if (quest != null)
+        {
+            quest.Changed += RefreshPlayPanels;
+            quest.WalkRequested += OnWalkRequested;
+            quest.StartedOver += OnQuestStartedOver;
+        }
         if (ui != null)
         {
+            ui.LanguageChosen += OnLanguageChosen;
+            ui.LanguageChanged += OnLanguageChanged;
             ui.ModeChosen += OnModeChosen;
-            ui.CityBackClicked += OnCityBackClicked;
-            ui.TargetPicked += OnTargetPicked;
-            ui.CityResetClicked += OnCityResetClicked;
-            ui.GuideBackClicked += OnBackToTargets;
             ui.OpenCameraClicked += OnOpenCameraClicked;
-            ui.CityARBackClicked += OnBackToTargets;
+            ui.GuideProgressClicked += OnProgressClicked;
+            ui.GuideModesClicked += OnGuideModesClicked;
+            ui.CityARProgressClicked += OnProgressClicked;
             ui.CityARRetryClicked += OnCityARRetryClicked;
-            ui.CityCollectClicked += OnCityCollectClicked;
+            ui.CityARActionClicked += OnQuestActionClicked;
+            ui.CityCollectClicked += OnCollectClicked;
             ui.RetryClicked += OnRetryClicked;
             ui.OpenSettingsClicked += OnOpenSettingsClicked;
             ui.CloseClicked += OnCloseClicked;
@@ -134,9 +130,9 @@ public class AppController : MonoBehaviour
             ui.SeeThroughClicked += OnSeeThroughClicked;
             ui.CancelEditClicked += OnCancelEditClicked;
             ui.EditClicked += OnEditClicked;
-            ui.SpawnPieceClicked += OnSpawnPieceClicked;
-            ui.CollectPieceClicked += OnCollectPieceClicked;
-            ui.ResetPiecesClicked += OnResetPiecesClicked;
+            ui.ExploreProgressClicked += OnProgressClicked;
+            ui.ExploreActionClicked += OnQuestActionClicked;
+            ui.CollectPieceClicked += OnCollectClicked;
             ui.OcclusionClicked += OnOcclusionClicked;
             ui.LeaveModeClicked += OnLeaveModeClicked;
             ui.LeaveModeAnswered += OnLeaveModeAnswered;
@@ -158,24 +154,27 @@ public class AppController : MonoBehaviour
         }
         if (adjust != null) adjust.Changed -= RefreshAdjustPanel;
         if (occlusion != null) occlusion.Changed -= RefreshOcclusionButton;
-        if (pieces != null)
-        {
-            pieces.Changed -= RefreshPiecesPanel;
-            pieces.Changed -= RefreshCityCamera;
-        }
+        if (pieces != null) pieces.Changed -= RefreshPlayPanels;
         if (guide != null) guide.Changed -= RefreshGuide;
-        if (cityContent != null) cityContent.Changed -= RefreshCityCamera;
+        if (cityContent != null) cityContent.Changed -= OnCityContentChanged;
+        if (quest != null)
+        {
+            quest.Changed -= RefreshPlayPanels;
+            quest.WalkRequested -= OnWalkRequested;
+            quest.StartedOver -= OnQuestStartedOver;
+        }
         if (ui != null)
         {
+            ui.LanguageChosen -= OnLanguageChosen;
+            ui.LanguageChanged -= OnLanguageChanged;
             ui.ModeChosen -= OnModeChosen;
-            ui.CityBackClicked -= OnCityBackClicked;
-            ui.TargetPicked -= OnTargetPicked;
-            ui.CityResetClicked -= OnCityResetClicked;
-            ui.GuideBackClicked -= OnBackToTargets;
             ui.OpenCameraClicked -= OnOpenCameraClicked;
-            ui.CityARBackClicked -= OnBackToTargets;
+            ui.GuideProgressClicked -= OnProgressClicked;
+            ui.GuideModesClicked -= OnGuideModesClicked;
+            ui.CityARProgressClicked -= OnProgressClicked;
             ui.CityARRetryClicked -= OnCityARRetryClicked;
-            ui.CityCollectClicked -= OnCityCollectClicked;
+            ui.CityARActionClicked -= OnQuestActionClicked;
+            ui.CityCollectClicked -= OnCollectClicked;
             ui.RetryClicked -= OnRetryClicked;
             ui.OpenSettingsClicked -= OnOpenSettingsClicked;
             ui.CloseClicked -= OnCloseClicked;
@@ -186,9 +185,9 @@ public class AppController : MonoBehaviour
             ui.SeeThroughClicked -= OnSeeThroughClicked;
             ui.CancelEditClicked -= OnCancelEditClicked;
             ui.EditClicked -= OnEditClicked;
-            ui.SpawnPieceClicked -= OnSpawnPieceClicked;
-            ui.CollectPieceClicked -= OnCollectPieceClicked;
-            ui.ResetPiecesClicked -= OnResetPiecesClicked;
+            ui.ExploreProgressClicked -= OnProgressClicked;
+            ui.ExploreActionClicked -= OnQuestActionClicked;
+            ui.CollectPieceClicked -= OnCollectClicked;
             ui.OcclusionClicked -= OnOcclusionClicked;
             ui.LeaveModeClicked -= OnLeaveModeClicked;
             ui.LeaveModeAnswered -= OnLeaveModeAnswered;
@@ -198,27 +197,56 @@ public class AppController : MonoBehaviour
     void Start()
     {
         if (startupGate == null || placement == null || adjust == null || occlusion == null || pieces == null ||
-            ui == null || cityTargets == null || guide == null || cityContent == null)
+            ui == null || quest == null || cityTargets == null || guide == null || cityContent == null)
         {
             Debug.LogError("[AppController] Assign the ARStartupGate, PlacementController, AdjustController, " +
-                           "DepthOcclusion, ArchPieces, AppUI, CityTargets, CityGuide and CityContent.", this);
+                           "DepthOcclusion, ArchPieces, AppUI, QuestFlow, CityTargets, CityGuide and CityContent.",
+                           this);
             enabled = false;
             return;
         }
         ui.SetScaleRange(adjust.MinScale, adjust.MaxScale);
-        EnterState(State.ChoosingMode);
+        EnterState(Localization.HasChosen ? State.ChoosingMode : State.ChoosingLanguage);
     }
 
     void Update()
     {
-        // A one-off explore hint ("Changes discarded") gives way to the pieces hint after a moment.
+        // A one-off explore hint ("Changes discarded") gives way to the quest's hint after a moment.
         if (pendingExploreHint != null && Time.unscaledTime >= pendingHintUntil)
         {
             pendingExploreHint = null;
-            RefreshPiecesPanel();
+            RefreshPlayPanels();
         }
-        // The distances in the target list follow the user.
-        if (Current == State.CityList && Time.unscaledTime >= nextListRefresh) RefreshCityList();
+    }
+
+    // Language
+    /// The language screen (first launch) or the language line on the mode screen.
+    void OnLanguageChosen(Language language)
+    {
+        if (Current != State.ChoosingLanguage && Current != State.ChoosingMode) return;
+        Localization.Set(language);
+        if (Current == State.ChoosingLanguage) EnterState(State.ChoosingMode);
+    }
+
+    /// The static texts changed by themselves; the ones made here are made again.
+    void OnLanguageChanged()
+    {
+        switch (Current)
+        {
+            case State.ChoosingMode: RefreshModeScreen(); break;
+            case State.Guiding: RefreshGuide(); break;
+            case State.Scanning: ui.SetScanHint(Localization.Ui("scan.hint")); break;
+            case State.Placing: ui.SetScanHint(Localization.Ui("scan.aim")); break;
+            case State.Adjusting:
+                ui.SetAdjustHint(Localization.Ui("adjust.hint"));
+                RefreshAdjustPanel();
+                break;
+            case State.Exploring:
+            case State.CityCamera:
+                RefreshOcclusionButton();
+                RefreshPlayPanels();
+                break;
+        }
     }
 
     // Modes
@@ -226,12 +254,15 @@ public class AppController : MonoBehaviour
     {
         if (Current != State.ChoosingMode) return;
         Mode = mode;
+        quest.NewVisit();
+        if (archModel != null) archModel.SetMode(mode);
+        occlusion.SetCityMode(mode == GameMode.InCity); // In Iasi: hidden by buildings (Streetscape)
         if (mode == GameMode.InCity)
         {
             cityCameraWanted = false;
             if (startupGate.ARStarted || startupGate.CurrentStatus == ARStartupGate.Status.LocationReady)
             {
-                EnterState(State.CityList);
+                EnterState(State.Guiding);
                 return;
             }
             EnterState(State.Starting);
@@ -250,32 +281,55 @@ public class AppController : MonoBehaviour
         startupGate.Begin(); // reports through OnGateStatusChanged
     }
 
-    // In Iasi
-    void OnCityBackClicked()
+    void RefreshModeScreen()
     {
-        if (Current != State.CityList) return;
+        ui.SetFreeModeProgress(i => GameProgress.IsCollected(GameMode.Free, i), ModeStatus(GameMode.Free));
+        ui.SetCityModeProgress(i => GameProgress.IsCollected(GameMode.InCity, i), ModeStatus(GameMode.InCity));
+    }
+
+    static string ModeStatus(GameMode mode) =>
+        GameProgress.Phase(mode) == QuestPhase.Done
+            ? Localization.Ui("mode.complete")
+            : Localization.Ui("mode.pieces", GameProgress.CollectedCount(mode), GameProgress.PieceCount);
+
+    // Quest
+    void OnProgressClicked()
+    {
+        if (Current == State.Guiding || Current == State.CityCamera || Current == State.Exploring)
+            quest.OpenProgress(Mode);
+    }
+
+    void OnQuestActionClicked()
+    {
+        if (Current == State.Exploring || Current == State.CityCamera) quest.DoAction();
+    }
+
+    void OnCollectClicked()
+    {
+        if (Current == State.Exploring || Current == State.CityCamera) pieces.Collect();
+    }
+
+    /// In Iasi: the quest asks to walk to its next place.
+    void OnWalkRequested()
+    {
+        if (Current == State.CityCamera) EnterState(State.Guiding);
+    }
+
+    void OnQuestStartedOver()
+    {
+        // In Iasi the quest starts again at the academy: back to the guide, which now leads there.
+        if (Mode == GameMode.InCity && (Current == State.CityCamera || Current == State.Guiding))
+            EnterState(State.Guiding);
+        else
+            RefreshPlayPanels();
+    }
+
+    // In Iasi
+    void OnGuideModesClicked()
+    {
+        if (Current != State.Guiding) return;
         guide.StopLocation();
         EnterState(State.ChoosingMode);
-    }
-
-    void OnTargetPicked(int index)
-    {
-        if (Current != State.CityList || index < 0 || index >= cityTargets.targets.Length) return;
-        if (cityTargets.targets[index].IsCollected) return;
-        pickedTarget = index;
-        EnterState(State.Guiding);
-    }
-
-    void OnCityResetClicked()
-    {
-        if (Current != State.CityList) return;
-        GameProgress.ResetPieces(GameMode.InCity);
-        RefreshCityList();
-    }
-
-    void OnBackToTargets()
-    {
-        if (Current == State.Guiding || Current == State.CityCamera) EnterState(State.CityList);
     }
 
     void OnOpenCameraClicked()
@@ -291,7 +345,7 @@ public class AppController : MonoBehaviour
         startupGate.Begin(); // asks for the camera, then starts AR: OnGateStatusChanged
     }
 
-    /// At the spot. In the Editor always, so the flow can be tried without walking.
+    /// At the place. In the Editor always, so the flow can be tried without walking.
     bool CanOpenCamera()
     {
 #if UNITY_EDITOR
@@ -306,44 +360,11 @@ public class AppController : MonoBehaviour
         if (Current == State.CityCamera) cityContent.Retry();
     }
 
-    void OnCityCollectClicked()
-    {
-        if (Current == State.CityCamera) pieces.Collect();
-    }
-
-    CityTarget PickedTarget =>
-        pickedTarget >= 0 && pickedTarget < cityTargets.targets.Length ? cityTargets.targets[pickedTarget] : null;
-
-    /// The target list: the arch's progress, each target's status (found, or how far it is).
-    void RefreshCityList()
-    {
-        nextListRefresh = Time.unscaledTime + ListRefreshSeconds;
-        var targets = cityTargets.targets;
-        int count = Mathf.Min(targets.Length, AppUI.CityTargetSlots);
-        var names = new string[count];
-        var statuses = new string[count];
-        var canPick = new bool[count];
-        for (int i = 0; i < count; i++)
-        {
-            var target = targets[i];
-            names[i] = target.DisplayName;
-            canPick[i] = !target.IsCollected;
-            if (target.IsCollected)
-            {
-                statuses[i] = "Found";
-                continue;
-            }
-            double distance = guide.DistanceTo(target);
-            string what = target.kind == CityTargetKind.Academy ? "Where it stood" : "A piece of the arch";
-            statuses[i] = double.IsNaN(distance) ? what : $"{what}, {GeoMath.FormatDistance(distance)} away";
-        }
-        int collected = GameProgress.CollectedCount(GameMode.InCity);
-        ui.SetCityTargets(i => GameProgress.IsCollected(GameMode.InCity, i), collected, GameProgress.PieceCount,
-            names, statuses, canPick, showReset: collected == GameProgress.PieceCount);
-    }
+    CityTarget CurrentCityTarget =>
+        cityTarget >= 0 && cityTarget < cityTargets.targets.Length ? cityTargets.targets[cityTarget] : null;
 
     /// The guide screen, from far to near: distance and compass direction, then the dial with warmer /
-    /// colder, then "Open the camera".
+    /// colder, then "Open the camera". The title and the riddle come from the quest.
     void RefreshGuide()
     {
         if (Current == State.CityCamera)
@@ -351,8 +372,9 @@ public class AppController : MonoBehaviour
             CloseCameraIfWalkedAway();
             return;
         }
-        if (Current != State.Guiding || PickedTarget == null) return;
-        var target = PickedTarget;
+        if (Current != State.Guiding || CurrentCityTarget == null) return;
+        var target = CurrentCityTarget;
+        quest.GetGuideTexts(out string title, out string riddle);
         string stage, big, small, accuracy = "";
         int trend = 0;
         var look = GuideDial.Look.Far;
@@ -361,42 +383,41 @@ public class AppController : MonoBehaviour
         switch (guide.CurrentStage)
         {
             case CityGuide.Stage.Far:
-                stage = "Walk towards it";
+                stage = Localization.Ui("guide.far");
                 big = GeoMath.FormatDistance(guide.DistanceMetres);
-                small = "to the " + GeoMath.CompassName(guide.Bearing);
+                small = Localization.Ui("guide.toThe", GeoMath.CompassName(guide.Bearing));
                 break;
             case CityGuide.Stage.Near:
-                stage = "It's close. Follow the dial";
+                stage = Localization.Ui("guide.near");
                 look = GuideDial.Look.Near;
-                pointer = guide.HasHeading;
+                // No needle for now (user, 22 Nov 2026): on the phone the heading never came (CityGuide reads the
+                // legacy Input.compass, while the project uses only the new Input System), so the needle was never
+                // seen. To bring it back: a heading that works, then pointer = guide.HasHeading and, with it,
+                // small = GeoMath.RelativeDirection(guide.RelativeAngle).
+                pointer = false;
                 trend = guide.CurrentTrend == CityGuide.Trend.Warmer ? 1
                     : guide.CurrentTrend == CityGuide.Trend.Colder ? -1 : 0;
-                big = trend > 0 ? "Warmer" : trend < 0 ? "Colder" : "Close";
-                small = guide.HasHeading
-                    ? GeoMath.RelativeDirection(guide.RelativeAngle)
-                    : "to the " + GeoMath.CompassName(guide.Bearing);
+                big = Localization.Ui(trend > 0 ? "guide.warmer" : trend < 0 ? "guide.colder" : "guide.close");
+                small = Localization.Ui("guide.toThe", GeoMath.CompassName(guide.Bearing));
                 break;
             case CityGuide.Stage.Arrived:
-                stage = "You're there";
+                stage = Localization.Ui("guide.arrived");
                 look = GuideDial.Look.Arrived;
-                big = "Here";
-                small = target.kind == CityTargetKind.Academy
-                    ? "Open the camera to see the academy"
-                    : "Open the camera and look around for the piece";
+                big = Localization.Ui("guide.here");
+                small = Localization.Ui(target.kind == CityTargetKind.Academy
+                    ? "guide.openForAcademy" : "guide.openForPiece");
                 break;
             default:
-                stage = "Find it in the city";
+                stage = Localization.Ui("guide.searching");
                 big = "...";
-                small = guide.LocationUnavailable
-                    ? "Location is off: switch it on in the phone's quick settings"
-                    : "Finding your position";
+                small = Localization.Ui(guide.LocationUnavailable ? "guide.locationOff" : "guide.finding");
                 break;
         }
         if (guide.CurrentStage != CityGuide.Stage.NoFix)
-            accuracy = $"Your position ({guide.Source}) is precise to {guide.Accuracy:0} m";
+            accuracy = Localization.Ui("guide.accuracy", guide.Source, guide.Accuracy.ToString("0"));
         if (Time.unscaledTime < walkedAwayNoteUntil && guide.CurrentStage != CityGuide.Stage.Arrived)
-            stage = "The camera closed: you walked away from it";
-        ui.SetGuide(target.DisplayName, stage, big, small, trend, accuracy, look, pointer, guide.RelativeAngle,
+            stage = Localization.Ui("guide.walkedAway");
+        ui.SetGuide(title, riddle, stage, big, small, trend, accuracy, look, pointer, guide.RelativeAngle,
             CanOpenCamera());
     }
 
@@ -413,63 +434,24 @@ public class AppController : MonoBehaviour
         }
         if (farSince < 0f) farSince = Time.unscaledTime;
         if (Time.unscaledTime - farSince < WalkedAwaySeconds) return;
-        Debug.Log($"[AppController] Walked away from {PickedTarget?.name} ({guide.DistanceMetres:0} m): " +
+        Debug.Log($"[AppController] Walked away from {CurrentCityTarget?.name} ({guide.DistanceMetres:0} m): " +
                   "camera closed.");
         walkedAwayNoteUntil = Time.unscaledTime + WalkedAwayNoteSeconds;
         EnterState(State.Guiding);
 #endif
     }
 
-    /// The in-city camera screen: locating, placing, then the academy or the piece (aim, collect).
-    void RefreshCityCamera()
+    /// In Iasi, the camera: once the place's content is shown, the quest goes on there.
+    void OnCityContentChanged()
     {
-        if (Current != State.CityCamera || PickedTarget == null) return;
-        var target = PickedTarget;
-        bool piece = target.kind == CityTargetKind.ArchPiece;
-        string hint;
-        bool inSight = false, showCollect = false, canCollect = false, showRetry = false;
-
-        switch (cityContent.CurrentStatus)
+        if (Current != State.CityCamera) return;
+        if (!questInCamera && cityContent.CurrentStatus == CityContent.Status.Shown)
         {
-            case CityContent.Status.Locating:
-                hint = float.IsInfinity(cityContent.HorizontalAccuracy)
-                    ? "Point the camera at the buildings and the street around you"
-                    : $"Finding your exact place: {cityContent.HorizontalAccuracy:0} m and " +
-                      $"{cityContent.HeadingAccuracy:0}{TextSymbols.Degree} (needs " +
-                      $"{cityContent.MaxHorizontalAccuracy:0} m and {cityContent.MaxHeadingAccuracy:0}" +
-                      $"{TextSymbols.Degree}). Keep looking around";
-                break;
-            case CityContent.Status.Resolving:
-                hint = piece ? "Placing the piece..." : "Placing the academy...";
-                break;
-            case CityContent.Status.Failed:
-                hint = $"Couldn't place it here ({cityContent.FailedReason}). Look around, then try again";
-                showRetry = true;
-                break;
-            default:
-                if (!piece)
-                    hint = "The academy stood here. Walk around it";
-                else if (GameProgress.IsCollected(GameMode.InCity, target.piece) && !pieces.HasPiece)
-                    hint = $"{target.DisplayName} found: {GameProgress.CollectedCount(GameMode.InCity)} of " +
-                           $"{GameProgress.PieceCount} pieces. Tap \"Targets\" for the next one";
-                else if (pieces.IsAimed)
-                {
-                    hint = "In sight: tap \"Collect\"";
-                    inSight = true;
-                }
-                else if (pieces.TryGetPieceDirection(out float angle, out float distance, out bool onScreen))
-                    hint = onScreen
-                        ? $"Aim the centre of the screen at the piece ({distance:0} m away)"
-                        : $"The piece is {GeoMath.RelativeDirection(angle)} ({distance:0} m)";
-                else
-                    hint = "Collecting...";
-                showCollect = piece && pieces.HasPiece;
-                canCollect = pieces.IsAimed;
-                break;
+            questInCamera = true;
+            quest.Begin(GameMode.InCity);
         }
-        ui.SetCityAR(hint, inSight, showCollect, canCollect, showRetry);
+        RefreshPlayPanels();
     }
-
 
     void OnLeaveModeClicked()
     {
@@ -505,12 +487,12 @@ public class AppController : MonoBehaviour
             case ARStartupGate.Status.Running:
                 if (Current != State.Starting && Current != State.Blocked) break;
                 if (Mode == GameMode.Free) EnterState(State.Scanning);
-                else EnterState(cityCameraWanted ? State.CityCamera : State.CityList);
+                else EnterState(cityCameraWanted ? State.CityCamera : State.Guiding);
                 break;
 
             case ARStartupGate.Status.LocationReady:
                 if ((Current == State.Starting || Current == State.Blocked) && Mode == GameMode.InCity)
-                    EnterState(State.CityList);
+                    EnterState(State.Guiding);
                 break;
 
             case ARStartupGate.Status.PermissionsLost:
@@ -527,6 +509,7 @@ public class AppController : MonoBehaviour
     /// </summary>
     void ClearSession()
     {
+        quest.End();
         adjust.End();
         cityContent.Clear();
         pieces.End();
@@ -561,7 +544,7 @@ public class AppController : MonoBehaviour
     void OnPlaceFailed()
     {
         if (Current != State.Placing && Current != State.Scanning) return;
-        ui.SetScanHint(placeFailedHint);
+        ui.SetScanHint(Localization.Ui("scan.failed"));
         ui.SetPlaceEnabled(placement.HasGround);
     }
 
@@ -620,7 +603,7 @@ public class AppController : MonoBehaviour
     {
         if (Current != State.Adjusting || !editing) return;
         adjust.RevertToStart();
-        pendingExploreHint = editCancelledHint;
+        pendingExploreHint = Localization.Ui("adjust.discarded");
         pendingHintUntil = Time.unscaledTime + PendingHintSeconds;
         EnterState(State.Exploring);
     }
@@ -633,15 +616,15 @@ public class AppController : MonoBehaviour
         string front = adjust.TryGetFrontBearing(out float bearing, out float accuracy)
             ? $"{bearing:0}{TextSymbols.Degree} {GeoMath.CompassPoint(bearing)} " +
               $"{TextSymbols.PlusMinus}{accuracy:0}{TextSymbols.Degree}"
-            : "no heading yet";
+            : Localization.Ui("adjust.noHeading");
         string height = $"{adjust.Height:+0.00;-0.00;0.00} m";
         ui.SetAdjustReadout(size, front, height);
         ui.SetScaleValue(adjust.Scale);
         ui.SetFaceSouthEnabled(adjust.CanFaceSouth);
-        ui.SetPlatformButtonText(adjust.PlatformVisible ? hideBaseText : showBaseText);
+        ui.SetPlatformButtonText(Localization.Ui(adjust.PlatformVisible ? "adjust.hideBase" : "adjust.showBase"));
     }
 
-    // Exploring: the arch pieces
+    // Exploring and the in-city camera: the quest's panel
     void OnEditClicked()
     {
         if (Current != State.Exploring) return;
@@ -649,61 +632,90 @@ public class AppController : MonoBehaviour
         EnterState(State.Adjusting); // AdjustController.Begin remembers the model as it is now
     }
 
-    void OnSpawnPieceClicked()
+    void RefreshPlayPanels()
     {
-        if (Current == State.Exploring) pieces.Spawn();
+        if (Current == State.Exploring) RefreshExplorePanel();
+        else if (Current == State.CityCamera) RefreshCityCamera();
     }
 
-    void OnCollectPieceClicked()
+    /// The hint for the piece or seal that is out ("The seal is behind you (2.4 m)"), or null when none is.
+    string ItemHint(out bool inSight)
     {
-        if (Current == State.Exploring) pieces.Collect();
-    }
-
-    void OnResetPiecesClicked()
-    {
-        if (Current == State.Exploring) pieces.ResetProgress();
-    }
-
-    /// The arch, the count, the hint ("The piece is behind you (2.4 m)") and which buttons can be used.
-    void RefreshPiecesPanel()
-    {
-        if (Current != State.Exploring) return;
-
-        bool inSight = false;
-        string hint;
-        if (pendingExploreHint != null)
-            hint = pendingExploreHint;
-        else if (pieces.AllCollected)
-            hint = $"All {pieces.Total} pieces found: the arch is complete";
-        else if (pieces.IsSpawning)
-            hint = "Placing a piece...";
-        else if (!pieces.TryGetPieceDirection(out float angle, out float distance, out bool onScreen))
-            hint = "Tap \"Spawn piece\", then find it around you";
-        else if (pieces.IsAimed)
+        inSight = false;
+        bool seal = pieces.OutKind == ItemKind.Seal;
+        if (pieces.IsSpawning) return Localization.Ui(seal ? "item.placingSeal" : "item.placingPiece");
+        if (!pieces.TryGetPieceDirection(out float angle, out float distance, out bool onScreen)) return null;
+        if (pieces.IsAimed)
         {
-            hint = "In sight: tap \"Collect\"";
             inSight = true;
+            return Localization.Ui("item.inSight");
         }
-        else if (onScreen)
-            hint = $"Aim the centre of the screen at the piece ({distance:0.0} m away)";
-        else
-            hint = $"The piece is {GeoMath.RelativeDirection(angle)} ({distance:0.0} m)";
+        string metres = distance.ToString(Mode == GameMode.InCity ? "0" : "0.0");
+        return onScreen
+            ? Localization.Ui(seal ? "item.aimSeal" : "item.aimPiece", metres)
+            : Localization.Ui(seal ? "item.whereSeal" : "item.wherePiece", GeoMath.RelativeDirection(angle), metres);
+    }
 
-        ui.SetPieces(i => GameProgress.IsCollected(Mode, i), pieces.Collected, pieces.Total, hint, inSight,
-                     canSpawn: !pieces.AllCollected && !pieces.IsSpawning,
-                     canCollect: pieces.IsAimed, complete: pieces.AllCollected);
+    /// The explore panel: the arch, the count, the hint (the item's, or the quest's) and the buttons.
+    void RefreshExplorePanel()
+    {
+        string hint = ItemHint(out bool inSight);
+        quest.GetObjective(out string questHint, out string action);
+        if (hint == null) hint = questHint;
+        if (pendingExploreHint != null) hint = pendingExploreHint;
+        ui.SetPieces(i => GameProgress.IsCollected(Mode, i),
+            Localization.Ui("explore.count", pieces.Collected, pieces.Total), hint, inSight,
+            showCollect: pieces.HasPiece || pieces.IsSpawning, canCollect: pieces.IsAimed, action: action);
+    }
+
+    /// The in-city camera screen: locating, placing, then the quest (the academy, a piece, a seal).
+    void RefreshCityCamera()
+    {
+        if (Current != State.CityCamera || CurrentCityTarget == null) return;
+        bool piece = CurrentCityTarget.kind == CityTargetKind.ArchPiece;
+        string hint = null, action = null;
+        bool inSight = false, showCollect = false, showRetry = false;
+
+        switch (cityContent.CurrentStatus)
+        {
+            case CityContent.Status.Locating:
+                hint = float.IsInfinity(cityContent.HorizontalAccuracy)
+                    ? Localization.Ui("cityar.pointCamera")
+                    : Localization.Ui("cityar.finding", cityContent.HorizontalAccuracy.ToString("0"),
+                                      cityContent.HeadingAccuracy.ToString("0"),
+                                      cityContent.MaxHorizontalAccuracy.ToString("0"),
+                                      cityContent.MaxHeadingAccuracy.ToString("0"));
+                break;
+            case CityContent.Status.Resolving:
+                hint = Localization.Ui(piece ? "cityar.placingPiece" : "cityar.placingAcademy");
+                break;
+            case CityContent.Status.Failed:
+                hint = Localization.Ui("cityar.failed", cityContent.FailedReason);
+                showRetry = true;
+                break;
+            default:
+                hint = ItemHint(out inSight);
+                showCollect = pieces.HasPiece || pieces.IsSpawning;
+                quest.GetObjective(out string questHint, out action);
+                if (hint == null) hint = questHint ?? (piece ? null : Localization.Ui("cityar.academyHere"));
+                break;
+        }
+        ui.SetCityAR(hint, inSight, showCollect, pieces.IsAimed, showRetry, action);
     }
 
     void RefreshOcclusionButton()
     {
         bool unsupported = occlusion.Support == UnityEngine.XR.ARSubsystems.Supported.Unsupported;
-        string text = unsupported ? occlusionUnsupportedText : occlusion.IsOn ? occlusionOnText : occlusionOffText;
-        ui.SetOcclusionButton(text, enabled: !unsupported);
+        string on = occlusion.CityMode ? "cityar.occlusionOn" : "explore.occlusionOn";
+        string off = occlusion.CityMode ? "cityar.occlusionOff" : "explore.occlusionOff";
+        string key = unsupported ? "explore.occlusionNone" : occlusion.IsOn ? on : off;
+        ui.SetOcclusionButton(Localization.Ui(key), enabled: !unsupported);
     }
 
     void OnOcclusionClicked()
     {
-        if (Current != State.Exploring || occlusion.Support == UnityEngine.XR.ARSubsystems.Supported.Unsupported)
+        if ((Current != State.Exploring && Current != State.CityCamera) ||
+            occlusion.Support == UnityEngine.XR.ARSubsystems.Supported.Unsupported)
             return;
         occlusion.SetOn(!occlusion.IsOn); // raises Changed -> RefreshOcclusionButton
     }
@@ -714,7 +726,14 @@ public class AppController : MonoBehaviour
         if (Current == State.SessionEnded) return; // final: nothing leaves this state
 
         bool changed = next != Current;
+        var previous = Current;
         Current = next;
+
+        // Leaving a play area: the quest's cards close (the progress is already saved).
+        bool wasPlaying = previous == State.Exploring || previous == State.CityCamera;
+        bool playing = next == State.Exploring || next == State.CityCamera;
+        if (wasPlaying && (!playing || changed)) quest.End();
+        if (next != State.CityCamera) questInCamera = false;
 
         if (next != State.Adjusting)
         {
@@ -723,54 +742,60 @@ public class AppController : MonoBehaviour
         }
         if (next != State.CityCamera && cityContent.CurrentStatus != CityContent.Status.Idle)
             cityContent.Clear(); // the in-city academy or piece goes away
-        if (next != State.Exploring && next != State.CityCamera)
+        if (!playing)
         {
-            pieces.End(); // the piece that is out goes away; the progress stays saved
+            pieces.End(); // the item that is out goes away; the progress stays saved
             pendingExploreHint = null;
         }
         // The guide also runs with the camera on, to notice the user walking away.
         if (next != State.Guiding && next != State.CityCamera) guide.End();
         farSince = -1f;
-        // The camera is off on the in-city screens without AR (the session is paused, if it runs).
-        if (next == State.CityList || next == State.Guiding) startupGate.SetARPaused(true);
+        // The camera is off on the guide (the session is paused, if it runs).
+        if (next == State.Guiding) startupGate.SetARPaused(true);
         else if (next == State.Scanning || next == State.CityCamera) startupGate.SetARPaused(false);
         if (footprint != null) footprint.SetVisible(next == State.Adjusting); // only while adjusting
+        if (archModel != null) archModel.SetOutlineVisible(next == State.Adjusting);
         ApplySeeThrough();
         ui.SetLeaveConfirmVisible(false);
+        ui.HideProgress();
 
         switch (next)
         {
+            case State.ChoosingLanguage:
+                ui.ShowScreen(AppScreen.Language);
+                break;
+
             case State.ChoosingMode:
                 placement.EndSearch();
                 placement.SetPlanesVisible(false);
-                ui.SetFreeModeProgress(i => GameProgress.IsCollected(GameMode.Free, i),
-                    GameProgress.CollectedCount(GameMode.Free), GameProgress.PieceCount);
-                ui.SetCityModeProgress(i => GameProgress.IsCollected(GameMode.InCity, i),
-                    GameProgress.CollectedCount(GameMode.InCity), GameProgress.PieceCount);
+                RefreshModeScreen();
                 ui.ShowScreen(AppScreen.Mode);
                 break;
 
-            case State.CityList:
+            case State.Guiding:
                 placement.EndSearch();
                 placement.SetPlanesVisible(false);
-                RefreshCityList();
-                ui.ShowScreen(AppScreen.City);
-                break;
-
-            case State.Guiding:
+                cityTarget = quest.CityTargetIndex(cityTargets);
+                if (CurrentCityTarget == null)
+                    Debug.LogError("[AppController] No city target for the quest's current place.", this);
                 ui.ShowScreen(AppScreen.Guide);
-                guide.Begin(PickedTarget); // raises Changed -> RefreshGuide
+                guide.Begin(CurrentCityTarget); // raises Changed -> RefreshGuide
+                RefreshGuide();
                 break;
 
             case State.CityCamera:
                 placement.EndSearch();
                 placement.SetPlanesVisible(false);
                 ui.ShowScreen(AppScreen.CityAR);
-                guide.Begin(PickedTarget);
-                cityContent.Show(PickedTarget); // raises Changed -> RefreshCityCamera
+                RefreshOcclusionButton();
+                guide.Begin(CurrentCityTarget);
+                cityContent.Show(CurrentCityTarget); // raises Changed -> OnCityContentChanged
+                // After Show (it clears the old content, which can end ArchPieces): seals can appear here too.
+                pieces.Begin(GameMode.InCity);
                 break;
 
             case State.Starting:
+                ui.SetStartingDetail("");
                 ui.ShowScreen(AppScreen.Starting);
                 break;
 
@@ -783,13 +808,13 @@ public class AppController : MonoBehaviour
             case State.Scanning:
                 if (!placement.IsSearching) placement.BeginSearch();
                 placement.SetPlanesVisible(true);
-                ui.SetScanHint(scanHint);
+                ui.SetScanHint(Localization.Ui("scan.hint"));
                 ui.SetPlaceEnabled(false);
                 ui.ShowScreen(AppScreen.Scan);
                 break;
 
             case State.Placing:
-                ui.SetScanHint(aimHint);
+                ui.SetScanHint(Localization.Ui("scan.aim"));
                 ui.SetPlaceEnabled(!placement.IsPlacing);
                 ui.ShowScreen(AppScreen.Scan);
                 break;
@@ -797,7 +822,7 @@ public class AppController : MonoBehaviour
             case State.Adjusting:
                 placement.EndSearch();
                 placement.SetPlanesVisible(false); // the model is easier to see without them
-                ui.SetAdjustHint(adjustHint);
+                ui.SetAdjustHint(Localization.Ui("adjust.hint"));
                 ui.SetAdjustEditing(editing);
                 ui.ShowScreen(AppScreen.Adjust);
                 adjust.Begin(); // raises Changed -> RefreshAdjustPanel
@@ -806,7 +831,9 @@ public class AppController : MonoBehaviour
             case State.Exploring:
                 RefreshOcclusionButton();
                 ui.ShowScreen(AppScreen.Explore);
-                pieces.Begin(Mode); // raises Changed -> RefreshPiecesPanel
+                pieces.Begin(Mode); // raises Changed -> RefreshPlayPanels
+                quest.Begin(Mode);
+                RefreshExplorePanel();
                 break;
         }
 

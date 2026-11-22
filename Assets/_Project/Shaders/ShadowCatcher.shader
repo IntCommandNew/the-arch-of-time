@@ -6,7 +6,7 @@ Shader "TheArchOfTime/ShadowCatcher"
     Properties
     {
         _ShadowColor ("Shadow colour", Color) = (0, 0, 0, 1)
-        _ShadowStrength ("Shadow strength", Range(0, 1)) = 0.5
+        _ShadowStrength ("Shadow strength", Range(0, 1)) = 0.75
         _EdgeFade ("Edge fade (fraction of the size)", Range(0.01, 0.5)) = 0.25
     }
 
@@ -77,7 +77,10 @@ Shader "TheArchOfTime/ShadowCatcher"
                 half2 fromCentre = abs(input.uv - 0.5h) * 2.0h;
                 half edge = saturate((1.0h - max(fromCentre.x, fromCentre.y)) / _EdgeFade);
 
-                half alpha = (1.0h - lit) * _ShadowStrength * edge;
+                // URP scales the shadow by the light's shadow strength (the models' own shadows, set by
+                // SceneLighting); taken out here, so the shadow on the real ground keeps its own strength.
+                half lightStrength = max(GetMainLightShadowParams().x, 0.01h);
+                half alpha = saturate((1.0h - lit) / lightStrength) * _ShadowStrength * edge;
                 return half4(_ShadowColor.rgb, alpha);
             }
             ENDHLSL

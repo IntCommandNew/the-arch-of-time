@@ -179,20 +179,21 @@ public class ARStartupGate : MonoBehaviour
         //    can list everything that's missing.
         if (WantsAR && !HasCamera())
         {
-            SetStarting("Waiting for camera permission...");
+            SetStarting(Localization.Ui("gate.waitCamera"));
             yield return Ask(new[] { Permission.Camera }, Permission.Camera);
         }
 
         if (!HasPreciseLocation())
         {
-            SetStarting("Waiting for location permission...");
+            SetStarting(Localization.Ui("gate.waitLocation"));
             // Android 12+ ignores a request for precise location on its own: ask for both.
             yield return Ask(new[] { Permission.FineLocation, Permission.CoarseLocation }, Permission.FineLocation);
         }
 
         if (!HasNeededPermissions())
         {
-            SetBlocked(WantsAR ? "Permissions needed" : "Location needed", MissingPermissionsMessage(),
+            SetBlocked(Localization.Ui(WantsAR ? "gate.permissionsNeeded" : "gate.locationNeeded"),
+                MissingPermissionsMessage(),
                 canRetry: true, canOpenSettings: true, canClose: false);
             running = null;
             yield break;
@@ -206,14 +207,13 @@ public class ARStartupGate : MonoBehaviour
         }
 
         // 2. ARCore support and installation (Google Play Services for AR).
-        SetStarting("Checking ARCore support...");
+        SetStarting(Localization.Ui("gate.checkingARCore"));
         if (ARSession.state == ARSessionState.None || ARSession.state == ARSessionState.CheckingAvailability)
             yield return ARSession.CheckAvailability();
 
         if (ARSession.state == ARSessionState.Unsupported)
         {
-            SetBlocked("AR not supported",
-                "This phone does not support ARCore, so the AR view can't run on it.",
+            SetBlocked(Localization.Ui("gate.notSupported.title"), Localization.Ui("gate.notSupported.text"),
                 canRetry: false, canOpenSettings: false, canClose: false);
             running = null;
             yield break;
@@ -221,12 +221,11 @@ public class ARStartupGate : MonoBehaviour
 
         if (ARSession.state == ARSessionState.NeedsInstall)
         {
-            SetStarting("Installing Google Play Services for AR...");
+            SetStarting(Localization.Ui("gate.installing"));
             yield return ARSession.Install();
             if (ARSession.state == ARSessionState.NeedsInstall || ARSession.state == ARSessionState.Unsupported)
             {
-                SetBlocked("Google Play Services for AR needed",
-                    "Install it from the Play Store, then tap \"Try again\".",
+                SetBlocked(Localization.Ui("gate.playServices.title"), Localization.Ui("gate.playServices.text"),
                     canRetry: true, canOpenSettings: false, canClose: false);
                 running = null;
                 yield break;
@@ -248,18 +247,11 @@ public class ARStartupGate : MonoBehaviour
 
     string MissingPermissionsMessage()
     {
-        if (!WantsAR)
-            return "Playing in the city needs your precise location, to guide you to the places of the " +
-                   "academy's story. When asked, choose \"Precise\".\n\nTap \"Try again\". If no " +
-                   "dialog appears, Android has stopped asking: open the settings and allow Location (Precise).";
-        string text = "This app needs both permissions to work:\n";
-        if (!HasCamera())
-            text += "\n" + TextSymbols.Bullet + " Camera: to show the academy in your surroundings.";
-        if (!HasPreciseLocation())
-            text += "\n" + TextSymbols.Bullet + " Precise location: the AR view uses it to know which way is " +
-                    "north, so the academy can face the right way. When asked, choose \"Precise\".";
-        text += "\n\nTap \"Try again\". If no dialog appears, Android has stopped asking: " +
-                "open the settings and allow Camera and Location (Precise).";
+        if (!WantsAR) return Localization.Ui("gate.locationOnly");
+        string text = Localization.Ui("gate.bothIntro") + "\n";
+        if (!HasCamera()) text += "\n" + Localization.Ui("gate.cameraWhy");
+        if (!HasPreciseLocation()) text += "\n" + Localization.Ui("gate.locationWhy");
+        text += "\n\n" + Localization.Ui("gate.bothOutro");
         return text;
     }
 
@@ -339,9 +331,8 @@ public class ARStartupGate : MonoBehaviour
 
         CurrentStatus = Status.PermissionsLost;
         Detail = "";
-        BlockedTitle = "Permission removed";
-        BlockedMessage = "A permission this app needs was turned off, so this session has ended.\n\n" +
-                         "Close the app and open it again to continue. Your progress is kept.";
+        BlockedTitle = Localization.Ui("gate.removed.title");
+        BlockedMessage = Localization.Ui("gate.removed.text");
         CanRetry = false;
         CanOpenSettings = false;
         CanClose = true;
